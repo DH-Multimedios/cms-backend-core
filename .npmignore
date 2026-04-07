@@ -1,0 +1,39 @@
+# Source files
+src/
+
+# Test app
+test-app/
+
+# Config files
+tsconfig.json
+tsconfig.build.json
+.eslintrc.js
+.prettierrc
+nest-cli.json
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# Tests
+coverage/
+*.spec.ts
+*.test.ts
+
+# Docs (keep only README, PLAN, DECISIONES)
+docs/
+
+# Environment
+.env
+.env.example
+
+# CI/CD
+.github/
+
+# Misc
+*.tsbuildinfo
+pnpm-lock.yaml

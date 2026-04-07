@@ -1,0 +1,15 @@
+{
+  "name": "@dh/backend-core-test-app",
+  "version": "0.1.0",
+  "description": "Aplicación de testing para el core",
+  "private": true,
+  "scripts": {
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch",
+    "start:prod": "node dist/main"
+  },
+  "dependencies": {
+    "@dh/backend-core": "file:.."
+  }
+}
