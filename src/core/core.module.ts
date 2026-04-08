@@ -8,27 +8,17 @@ import { CoreModuleConfig } from './interfaces/core-config.interface';
 @Module({})
 export class CoreModule {
   static register(config: CoreModuleConfig): DynamicModule {
-    const imports: any[] = [
-      // Config global
-      ConfigModule.forRoot({
-        isGlobal: true,
-        envFilePath: '.env',
-      }),
-
-      // Event Emitter para comunicación entre módulos
-      EventEmitterModule.forRoot(),
-
-      // Database
-      DatabaseModule.forRoot(config.database),
-    ];
-
-    // Módulos opcionales
-    // TODO: Agregar módulos según config.modules (auth, users, roles, etc.)
-
     return {
       module: CoreModule,
-      imports,
-      exports: imports,
+      imports: [
+        ConfigModule.forRoot({
+          isGlobal: true,
+          envFilePath: '.env',
+        }),
+        EventEmitterModule.forRoot(),
+        DatabaseModule.forRoot(config.database),
+      ],
+      exports: [ConfigModule, EventEmitterModule, DatabaseModule],
     };
   }
 }
