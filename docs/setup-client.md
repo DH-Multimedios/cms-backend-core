@@ -319,7 +319,7 @@ async function runSeed() {
   console.log('✅ Seeds completados');
 }
 
-runSeed();
+void runSeed();
 ```
 
 ---
