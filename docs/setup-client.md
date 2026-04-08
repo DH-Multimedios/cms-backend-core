@@ -36,6 +36,9 @@ pnpm add git+ssh://git@github.com:DH-Multimedios/cms-backend-core.git
 
 # Dependencias adicionales
 pnpm add @nestjs/config @nestjs/swagger dotenv
+
+# TypeORM (para migraciones y conexión a DB)
+pnpm add @nestjs/typeorm typeorm pg
 ```
 
 ---
@@ -205,21 +208,23 @@ CORS_ORIGINS=http://localhost:4200
 ## Paso 6 — Crear podman-compose.yml
 
 ```yaml
-version: '3.8'
-
 services:
   postgres:
-    image: docker.io/library/postgres:16-alpine
-    container_name: mi-proyecto-postgres
+    image: docker.io/library/postgres:18
+    container_name: mi-cleinte-postgres
     restart: unless-stopped
+
     environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
+
     ports:
       - '${DB_PORT:-5432}:5432'
+
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mi_cliente_data:/var/lib/postgresql:Z
+
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${DB_USERNAME}']
       interval: 5s
@@ -227,8 +232,7 @@ services:
       retries: 5
 
 volumes:
-  postgres_data:
-    driver: local
+  mi_cliente_data:
 ```
 
 > Usá un nombre de container diferente por proyecto (`mi-proyecto-postgres`) para evitar conflictos cuando corrés varios proyectos a la vez.
@@ -243,20 +247,27 @@ Creá `src/database/data-source.ts`:
 import { DataSource } from 'typeorm';
 import 'dotenv/config'; // Necesario acá: este archivo corre via CLI, fuera del contexto de NestJS
 
-// Importar entidades del core y las propias
-import * as coreEntities from '@dh/backend-core';
+// Importar entidades del core explícitamente
+import { User, Role, Permission, AuditLog, Taxonomy, File, Media, Setting } from '@dh/backend-core';
 // import { Product } from './entities/product.entity';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT, 10),
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  host: process.env.DB_HOST!,
+  port: parseInt(process.env.DB_PORT!, 10),
+  username: process.env.DB_USERNAME!,
+  password: process.env.DB_PASSWORD!,
+  database: process.env.DB_NAME!,
   entities: [
-    ...Object.values(coreEntities), // Entidades del core
-    // Product,                       // Tus entidades
+    User,
+    Role,
+    Permission,
+    AuditLog,
+    Taxonomy,
+    File,
+    Media,
+    Setting,
+    // Product, // Tus entidades
   ],
   migrations: [
     'node_modules/@dh/backend-core/dist/database/migrations/*.js', // Migraciones del core
