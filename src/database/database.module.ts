@@ -25,4 +25,36 @@ export class DatabaseModule {
       exports: [TypeOrmModule],
     };
   }
+
+  static forRootAsync(options: {
+    imports?: any[];
+    useFactory: (...args: any[]) => Promise<DatabaseConfig> | DatabaseConfig;
+    inject?: any[];
+  }): DynamicModule {
+    return {
+      module: DatabaseModule,
+      imports: [
+        TypeOrmModule.forRootAsync({
+          imports: options.imports,
+          useFactory: async (...args: any[]) => {
+            const config = await options.useFactory(...args);
+            return {
+              type: config.type || 'postgres',
+              host: config.host,
+              port: config.port,
+              username: config.username,
+              password: config.password,
+              database: config.database,
+              entities: Object.values(entities),
+              synchronize: config.synchronize || false,
+              logging: config.logging || false,
+              ssl: config.ssl || false,
+            };
+          },
+          inject: options.inject || [],
+        }),
+      ],
+      exports: [TypeOrmModule],
+    };
+  }
 }

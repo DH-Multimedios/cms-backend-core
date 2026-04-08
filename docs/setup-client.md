@@ -24,14 +24,18 @@ Cuando pregunte el package manager, elegí **pnpm**.
 
 ---
 
-## Paso 2 — Instalar el core
+## Paso 2 — Instalar el core y dependencias
 
 ```bash
-# Desde GitHub (recomendado)
-pnpm add git+ssh://git@github.com:tu-org/backend-core.git
+# Instalar el core desde GitHub
+pnpm add git+ssh://git@github.com:DH-Multimedios/cms-backend-core.git
 
-# O desde una versión específica
-pnpm add git+ssh://git@github.com:tu-org/backend-core.git#v1.0.0
+# Permitir que pnpm ejecute el build del core al instalar
+# Agregar en package.json del cliente:
+# "pnpm": { "onlyBuiltDependencies": ["@dh/backend-core"] }
+
+# Dependencias adicionales
+pnpm add @nestjs/config @nestjs/swagger dotenv
 ```
 
 ---
@@ -41,51 +45,56 @@ pnpm add git+ssh://git@github.com:tu-org/backend-core.git#v1.0.0
 Reemplazá el contenido de `src/app.module.ts`:
 
 ```typescript
-import 'dotenv/config';
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CoreModule } from '@dh/backend-core';
 
 @Module({
   imports: [
-    CoreModule.register({
-      database: {
-        host: process.env.DB_HOST,
-        port: parseInt(process.env.DB_PORT, 10),
-        username: process.env.DB_USERNAME,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_NAME,
-        synchronize: false,
-        logging: process.env.DB_LOGGING === 'true',
-      },
-      auth: {
-        jwtSecret: process.env.JWT_SECRET,
-        jwtExpiration: process.env.JWT_EXPIRATION || '1d',
-        jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
-        jwtRefreshExpiration: process.env.JWT_REFRESH_EXPIRATION || '7d',
-      },
-      modules: {
-        audit: true,
-        health: true,
-        taxonomies: true,
-        settings: true,
-        files: {
-          storage: 'local',
-          path: './uploads/files',
+    ConfigModule.forRoot({ isGlobal: true }),
+    CoreModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        database: {
+          host: config.getOrThrow<string>('DB_HOST'),
+          port: config.getOrThrow<number>('DB_PORT'),
+          username: config.getOrThrow<string>('DB_USERNAME'),
+          password: config.getOrThrow<string>('DB_PASSWORD'),
+          database: config.getOrThrow<string>('DB_NAME'),
+          synchronize: false,
+          logging: config.get('DB_LOGGING') === 'true',
         },
-        media: {
-          storage: 'local',
-          path: './uploads/media',
+        auth: {
+          jwtSecret: config.getOrThrow<string>('JWT_SECRET'),
+          jwtExpiration: config.get('JWT_EXPIRATION') || '1d',
+          jwtRefreshSecret: config.getOrThrow<string>('JWT_REFRESH_SECRET'),
+          jwtRefreshExpiration: config.get('JWT_REFRESH_EXPIRATION') || '7d',
         },
-        notifications: {
-          email: {
-            host: process.env.SMTP_HOST,
-            port: parseInt(process.env.SMTP_PORT, 10),
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
-            from: process.env.SMTP_FROM,
+        modules: {
+          audit: true,
+          health: true,
+          taxonomies: true,
+          settings: true,
+          files: {
+            storage: 'local',
+            path: './uploads/files',
+          },
+          media: {
+            storage: 'local',
+            path: './uploads/media',
+          },
+          notifications: {
+            email: {
+              host: config.getOrThrow<string>('SMTP_HOST'),
+              port: config.getOrThrow<number>('SMTP_PORT'),
+              user: config.getOrThrow<string>('SMTP_USER'),
+              pass: config.getOrThrow<string>('SMTP_PASS'),
+              from: config.getOrThrow<string>('SMTP_FROM'),
+            },
           },
         },
-      },
+      }),
     }),
 
     // Tus módulos de negocio acá
@@ -96,12 +105,13 @@ import { CoreModule } from '@dh/backend-core';
 export class AppModule {}
 ```
 
+> `config.getOrThrow()` lanza un error claro si falta la variable de entorno — mejor que `undefined` silencioso en runtime.
+
 ---
 
 ## Paso 4 — Actualizar main.ts
 
 ```typescript
-import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
@@ -231,7 +241,7 @@ Creá `src/database/data-source.ts`:
 
 ```typescript
 import { DataSource } from 'typeorm';
-import 'dotenv/config';
+import 'dotenv/config'; // Necesario acá: este archivo corre via CLI, fuera del contexto de NestJS
 
 // Importar entidades del core y las propias
 import * as coreEntities from '@dh/backend-core';

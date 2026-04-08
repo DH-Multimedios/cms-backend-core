@@ -1,3 +1,9 @@
+export interface CoreModuleAsyncOptions {
+  imports?: any[];
+  useFactory: (...args: any[]) => Promise<CoreModuleConfig> | CoreModuleConfig;
+  inject?: any[];
+}
+
 export interface CoreModuleConfig {
   database: DatabaseConfig;
   auth: AuthConfig;

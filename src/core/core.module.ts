@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { DatabaseModule } from '../database/database.module';
 import { HealthModule } from '../modules/health/health.module';
-import { CoreModuleConfig } from './interfaces/core-config.interface';
+import { CoreModuleConfig, CoreModuleAsyncOptions } from './interfaces/core-config.interface';
 
 @Global()
 @Module({})
@@ -18,6 +18,26 @@ export class CoreModule {
         }),
         EventEmitterModule.forRoot(),
         DatabaseModule.forRoot(config.database),
+        HealthModule,
+      ],
+      exports: [ConfigModule, EventEmitterModule, DatabaseModule],
+    };
+  }
+
+  static registerAsync(options: CoreModuleAsyncOptions): DynamicModule {
+    return {
+      module: CoreModule,
+      imports: [
+        ...(options.imports || []),
+        EventEmitterModule.forRoot(),
+        DatabaseModule.forRootAsync({
+          imports: options.imports,
+          useFactory: async (...args: any[]) => {
+            const config = await options.useFactory(...args);
+            return config.database;
+          },
+          inject: options.inject || [],
+        }),
         HealthModule,
       ],
       exports: [ConfigModule, EventEmitterModule, DatabaseModule],
