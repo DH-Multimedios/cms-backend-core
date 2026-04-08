@@ -2,6 +2,7 @@ import { Module, DynamicModule, Global } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { DatabaseModule } from '../database/database.module';
+import { HealthModule } from '../modules/health/health.module';
 import { CoreModuleConfig } from './interfaces/core-config.interface';
 
 @Global()
@@ -17,6 +18,7 @@ export class CoreModule {
         }),
         EventEmitterModule.forRoot(),
         DatabaseModule.forRoot(config.database),
+        HealthModule,
       ],
       exports: [ConfigModule, EventEmitterModule, DatabaseModule],
     };
