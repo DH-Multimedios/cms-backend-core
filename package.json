@@ -31,7 +31,7 @@
     "db:up": "podman-compose up -d",
     "db:down": "podman-compose down",
     "db:logs": "podman logs -f backend-core-postgres",
-    "prepublishOnly": "pnpm build"
+    "prepare": "pnpm build"
   },
   "peerDependencies": {
     "@nestjs/common": "^10.3.0",
