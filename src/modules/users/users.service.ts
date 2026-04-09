@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Injectable, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -12,6 +7,8 @@ import { Role } from '../../database/entities/role.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
+import { ApiException } from '../../common/exceptions/api.exception';
+import { ErrorCode } from '../../common/enums/error-codes.enum';
 
 @Injectable()
 export class UsersService {
@@ -34,7 +31,7 @@ export class UsersService {
     const user = await this.userRepository.findOne({
       where: { id, isSystemUser: false },
     });
-    if (!user) throw new NotFoundException(`Usuario ${id} no encontrado`);
+    if (!user) throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND, `Usuario ${id} no encontrado`);
     return UserResponseDto.from(user);
   }
 
@@ -44,7 +41,7 @@ export class UsersService {
 
   async create(dto: CreateUserDto): Promise<UserResponseDto> {
     const existing = await this.userRepository.findOneBy({ email: dto.email });
-    if (existing) throw new ConflictException('El email ya está en uso');
+    if (existing) throw new ApiException(HttpStatus.CONFLICT, ErrorCode.USER_EMAIL_TAKEN, 'El email ya está en uso');
 
     const roles = dto.roleIds?.length
       ? await this.roleRepository.findByIds(dto.roleIds)
@@ -65,10 +62,10 @@ export class UsersService {
 
   async update(id: string, dto: UpdateUserDto, currentUser: User): Promise<UserResponseDto> {
     const user = await this.userRepository.findOne({ where: { id, isSystemUser: false } });
-    if (!user) throw new NotFoundException(`Usuario ${id} no encontrado`);
+    if (!user) throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND, `Usuario ${id} no encontrado`);
 
     if (user.isProtected && !currentUser.isSystemUser) {
-      throw new ForbiddenException('No podés modificar un usuario protegido');
+      throw new ApiException(HttpStatus.FORBIDDEN, ErrorCode.USER_PROTECTED, 'No podés modificar un usuario protegido');
     }
 
     if (dto.roleIds !== undefined) {
@@ -78,7 +75,7 @@ export class UsersService {
       if (!currentUser.isSystemUser) {
         const hasHigherRole = newRoles.some((r) => r.weight > currentMaxWeight);
         if (hasHigherRole) {
-          throw new ForbiddenException('No podés asignar un rol de mayor peso al tuyo');
+          throw new ApiException(HttpStatus.FORBIDDEN, ErrorCode.ROLE_WEIGHT_EXCEEDED, 'No podés asignar un rol de mayor peso al tuyo');
         }
       }
 
@@ -98,10 +95,10 @@ export class UsersService {
 
   async remove(id: string, currentUser: User): Promise<void> {
     const user = await this.userRepository.findOne({ where: { id, isSystemUser: false } });
-    if (!user) throw new NotFoundException(`Usuario ${id} no encontrado`);
+    if (!user) throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND, `Usuario ${id} no encontrado`);
 
     if (user.isProtected && !currentUser.isSystemUser) {
-      throw new ForbiddenException('No podés eliminar un usuario protegido');
+      throw new ApiException(HttpStatus.FORBIDDEN, ErrorCode.USER_PROTECTED, 'No podés eliminar un usuario protegido');
     }
 
     await this.userRepository.remove(user);

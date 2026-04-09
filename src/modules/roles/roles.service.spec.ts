@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { ApiException } from '../../common/exceptions/api.exception';
+import { ErrorCode } from '../../common/enums/error-codes.enum';
 import { RolesService } from './roles.service';
 import { Role } from '../../database/entities/role.entity';
 import { Permission } from '../../database/entities/permission.entity';
@@ -67,9 +68,11 @@ describe('RolesService', () => {
       expect(result.id).toBe('role-1');
     });
 
-    it('lanza NotFoundException si no existe', async () => {
+    it('lanza ApiException ROLE_NOT_FOUND si no existe', async () => {
       roleRepo.findOneBy.mockResolvedValue(null);
-      await expect(service.findOne('non-existent')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('non-existent')).rejects.toMatchObject({
+        code: ErrorCode.ROLE_NOT_FOUND,
+      });
     });
   });
 
@@ -83,18 +86,18 @@ describe('RolesService', () => {
       expect(result.name).toBe('Manager');
     });
 
-    it('lanza ConflictException si el nombre ya existe', async () => {
+    it('lanza ApiException ROLE_NAME_TAKEN si el nombre ya existe', async () => {
       roleRepo.findOneBy.mockResolvedValue(makeRole());
-      await expect(service.create({ name: 'Editor' }, makeUser())).rejects.toThrow(
-        ConflictException,
-      );
+      await expect(service.create({ name: 'Editor' }, makeUser())).rejects.toMatchObject({
+        code: ErrorCode.ROLE_NAME_TAKEN,
+      });
     });
 
-    it('lanza ForbiddenException al crear rol protegido sin ser systemUser', async () => {
+    it('lanza ApiException ROLE_PROTECTED al crear rol protegido sin ser systemUser', async () => {
       roleRepo.findOneBy.mockResolvedValue(null);
       await expect(
         service.create({ name: 'SuperAdmin', isProtected: true }, makeUser()),
-      ).rejects.toThrow(ForbiddenException);
+      ).rejects.toMatchObject({ code: ErrorCode.ROLE_PROTECTED });
     });
 
     it('permite crear rol protegido si sos systemUser', async () => {
@@ -117,12 +120,12 @@ describe('RolesService', () => {
       expect(result.description).toBe('Nueva descripción');
     });
 
-    it('lanza ForbiddenException al modificar rol protegido sin ser systemUser', async () => {
+    it('lanza ApiException ROLE_PROTECTED al modificar rol protegido sin ser systemUser', async () => {
       roleRepo.findOneBy.mockResolvedValue(makeRole({ isProtected: true }));
 
       await expect(
         service.update('role-1', { description: 'algo' }, makeUser()),
-      ).rejects.toThrow(ForbiddenException);
+      ).rejects.toMatchObject({ code: ErrorCode.ROLE_PROTECTED });
     });
   });
 
@@ -134,10 +137,12 @@ describe('RolesService', () => {
       await expect(service.remove('role-1', makeUser())).resolves.not.toThrow();
     });
 
-    it('lanza ForbiddenException al eliminar rol protegido sin ser systemUser', async () => {
+    it('lanza ApiException ROLE_PROTECTED al eliminar rol protegido sin ser systemUser', async () => {
       roleRepo.findOneBy.mockResolvedValue(makeRole({ isProtected: true }));
 
-      await expect(service.remove('role-1', makeUser())).rejects.toThrow(ForbiddenException);
+      await expect(service.remove('role-1', makeUser())).rejects.toMatchObject({
+        code: ErrorCode.ROLE_PROTECTED,
+      });
     });
 
     it('permite eliminar rol protegido si sos systemUser', async () => {
@@ -159,12 +164,12 @@ describe('RolesService', () => {
       expect(result.permissions).toHaveLength(1);
     });
 
-    it('lanza ForbiddenException al asignar permisos a rol protegido sin ser systemUser', async () => {
+    it('lanza ApiException ROLE_PROTECTED al asignar permisos a rol protegido sin ser systemUser', async () => {
       roleRepo.findOneBy.mockResolvedValue(makeRole({ isProtected: true }));
 
       await expect(
         service.assignPermissions('role-1', ['perm-1'], makeUser()),
-      ).rejects.toThrow(ForbiddenException);
+      ).rejects.toMatchObject({ code: ErrorCode.ROLE_PROTECTED });
     });
   });
 });

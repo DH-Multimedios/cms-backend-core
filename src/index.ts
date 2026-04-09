@@ -1,6 +1,11 @@
 // Core Module
 export { CoreModule } from './core/core.module';
 
+// Error handling
+export { ApiException } from './common/exceptions/api.exception';
+export { ErrorCode } from './common/enums/error-codes.enum';
+export { HttpExceptionFilter } from './common/filters/http-exception.filter';
+
 // Interfaces
 export * from './core/interfaces/core-config.interface';
 

@@ -1,4 +1,4 @@
-import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Inject, HttpStatus } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan, IsNull } from 'typeorm';
@@ -10,6 +10,8 @@ import { UsersService } from '../users/users.service';
 import { AuthResponseDto, TokensDto } from './dto/auth-response.dto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
 import { JwtPayload } from './strategies/jwt.strategy';
+import { ApiException } from '../../common/exceptions/api.exception';
+import { ErrorCode } from '../../common/enums/error-codes.enum';
 
 @Injectable()
 export class AuthService {
@@ -40,7 +42,7 @@ export class AuthService {
     });
 
     if (!stored || !stored.user.isActive) {
-      throw new UnauthorizedException('Refresh token inválido o expirado');
+      throw new ApiException(HttpStatus.UNAUTHORIZED, ErrorCode.INVALID_REFRESH_TOKEN, 'Refresh token inválido o expirado');
     }
 
     // Rotación: revocar el token usado

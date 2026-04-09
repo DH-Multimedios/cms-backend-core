@@ -1,10 +1,12 @@
-import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Inject, HttpStatus } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuthConfig } from '../../../core/interfaces/core-config.interface';
 import { User } from '../../../database/entities/user.entity';
+import { ApiException } from '../../../common/exceptions/api.exception';
+import { ErrorCode } from '../../../common/enums/error-codes.enum';
 
 export interface JwtPayload {
   sub: string;
@@ -27,7 +29,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     const user = await this.userRepository.findOne({ where: { id: payload.sub } });
 
     if (!user || !user.isActive) {
-      throw new UnauthorizedException();
+      throw new ApiException(HttpStatus.UNAUTHORIZED, ErrorCode.INVALID_CREDENTIALS, 'Token inválido o usuario inactivo');
     }
 
     return user;

@@ -1,7 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
-import { UnauthorizedException } from '@nestjs/common';
+import { ApiException } from '../../common/exceptions/api.exception';
+import { ErrorCode } from '../../common/enums/error-codes.enum';
 import { AuthService } from './auth.service';
 import { RefreshToken } from '../../database/entities/refresh-token.entity';
 import { User } from '../../database/entities/user.entity';
@@ -99,16 +100,18 @@ describe('AuthService', () => {
       expect(result.refreshToken).toBeDefined();
     });
 
-    it('lanza UnauthorizedException si el token no existe', async () => {
+    it('lanza ApiException INVALID_REFRESH_TOKEN si el token no existe', async () => {
       refreshTokenRepo.findOne.mockResolvedValue(null);
-      await expect(service.refresh('invalid-token')).rejects.toThrow(UnauthorizedException);
+      await expect(service.refresh('invalid-token')).rejects.toMatchObject({
+        code: ErrorCode.INVALID_REFRESH_TOKEN,
+      });
     });
 
-    it('lanza UnauthorizedException si el usuario está inactivo', async () => {
+    it('lanza ApiException INVALID_REFRESH_TOKEN si el usuario está inactivo', async () => {
       refreshTokenRepo.findOne.mockResolvedValue(
         makeStoredToken({ user: makeUser({ isActive: false }) }),
       );
-      await expect(service.refresh('raw-token')).rejects.toThrow(UnauthorizedException);
+      await expect(service.refresh('raw-token')).rejects.toThrow(ApiException);
     });
   });
 

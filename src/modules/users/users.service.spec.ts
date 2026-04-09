@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { ApiException } from '../../common/exceptions/api.exception';
+import { ErrorCode } from '../../common/enums/error-codes.enum';
 import { UsersService } from './users.service';
 import { User } from '../../database/entities/user.entity';
 import { Role } from '../../database/entities/role.entity';
@@ -80,9 +81,11 @@ describe('UsersService', () => {
       expect(result.id).toBe('user-1');
     });
 
-    it('lanza NotFoundException si no existe', async () => {
+    it('lanza ApiException USER_NOT_FOUND si no existe', async () => {
       userRepo.findOne.mockResolvedValue(null);
-      await expect(service.findOne('non-existent')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('non-existent')).rejects.toMatchObject({
+        code: ErrorCode.USER_NOT_FOUND,
+      });
     });
   });
 
@@ -101,12 +104,12 @@ describe('UsersService', () => {
       expect(result.email).toBe('new@test.com');
     });
 
-    it('lanza ConflictException si el email ya existe', async () => {
+    it('lanza ApiException USER_EMAIL_TAKEN si el email ya existe', async () => {
       userRepo.findOneBy.mockResolvedValue(makeUser());
 
       await expect(
         service.create({ email: 'user@test.com', password: 'password123' }),
-      ).rejects.toThrow(ConflictException);
+      ).rejects.toMatchObject({ code: ErrorCode.USER_EMAIL_TAKEN });
     });
   });
 
@@ -122,13 +125,13 @@ describe('UsersService', () => {
       expect(result.firstName).toBe('Jane');
     });
 
-    it('lanza ForbiddenException al modificar usuario protegido sin ser systemUser', async () => {
+    it('lanza ApiException USER_PROTECTED al modificar usuario protegido sin ser systemUser', async () => {
       userRepo.findOne.mockResolvedValue(makeUser({ isProtected: true }));
       const currentUser = makeUser({ id: 'admin-1' });
 
-      await expect(service.update('user-1', { firstName: 'Jane' }, currentUser)).rejects.toThrow(
-        ForbiddenException,
-      );
+      await expect(service.update('user-1', { firstName: 'Jane' }, currentUser)).rejects.toMatchObject({
+        code: ErrorCode.USER_PROTECTED,
+      });
     });
 
     it('permite modificar usuario protegido si sos systemUser', async () => {
@@ -150,7 +153,7 @@ describe('UsersService', () => {
 
       await expect(
         service.update('user-1', { roleIds: ['role-admin'] }, currentUser),
-      ).rejects.toThrow(ForbiddenException);
+      ).rejects.toMatchObject({ code: ErrorCode.ROLE_WEIGHT_EXCEEDED });
     });
   });
 
@@ -163,11 +166,13 @@ describe('UsersService', () => {
       await expect(service.remove('user-1', currentUser)).resolves.not.toThrow();
     });
 
-    it('lanza ForbiddenException al eliminar usuario protegido sin ser systemUser', async () => {
+    it('lanza ApiException USER_PROTECTED al eliminar usuario protegido sin ser systemUser', async () => {
       userRepo.findOne.mockResolvedValue(makeUser({ isProtected: true }));
       const currentUser = makeUser({ id: 'admin-1' });
 
-      await expect(service.remove('user-1', currentUser)).rejects.toThrow(ForbiddenException);
+      await expect(service.remove('user-1', currentUser)).rejects.toMatchObject({
+        code: ErrorCode.USER_PROTECTED,
+      });
     });
 
     it('permite eliminar usuario protegido si sos systemUser', async () => {

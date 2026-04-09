@@ -1,4 +1,6 @@
-import { ExecutionContext, ForbiddenException } from '@nestjs/common';
+import { ExecutionContext } from '@nestjs/common';
+import { ApiException } from '../../../common/exceptions/api.exception';
+import { ErrorCode } from '../../../common/enums/error-codes.enum';
 import { Reflector } from '@nestjs/core';
 import { PermissionsGuard } from './permissions.guard';
 import { User } from '../../../database/entities/user.entity';
@@ -66,7 +68,7 @@ describe('PermissionsGuard', () => {
     expect(guard.canActivate(ctx)).toBe(true);
   });
 
-  it('lanza ForbiddenException si falta algún permiso', () => {
+  it('lanza ApiException FORBIDDEN si falta algún permiso', () => {
     const permission = { name: 'users.read' } as Permission;
     const role = { permissions: [permission] } as Role;
     const user = makeUser({ roles: [role] });
@@ -74,13 +76,13 @@ describe('PermissionsGuard', () => {
 
     const ctx = makeContext(user);
 
-    expect(() => guard.canActivate(ctx)).toThrow(ForbiddenException);
+    expect(() => guard.canActivate(ctx)).toThrow(ApiException);
   });
 
-  it('lanza ForbiddenException si el usuario no tiene ningún permiso', () => {
+  it('lanza ApiException FORBIDDEN si el usuario no tiene ningún permiso', () => {
     reflector.getAllAndOverride.mockReturnValue(['users.read']);
     const ctx = makeContext(makeUser({ roles: [] }));
 
-    expect(() => guard.canActivate(ctx)).toThrow(ForbiddenException);
+    expect(() => guard.canActivate(ctx)).toThrow(ApiException);
   });
 });

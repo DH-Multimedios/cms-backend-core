@@ -1,7 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, HttpStatus } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PERMISSIONS_KEY } from '../decorators/require-permissions.decorator';
 import { User } from '../../../database/entities/user.entity';
+import { ApiException } from '../../../common/exceptions/api.exception';
+import { ErrorCode } from '../../../common/enums/error-codes.enum';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
@@ -27,7 +29,7 @@ export class PermissionsGuard implements CanActivate {
 
     const hasAll = required.every((p) => userPermissions.includes(p));
     if (!hasAll) {
-      throw new ForbiddenException('No tenés los permisos necesarios');
+      throw new ApiException(HttpStatus.FORBIDDEN, ErrorCode.FORBIDDEN, 'No tenés los permisos necesarios');
     }
 
     return true;
