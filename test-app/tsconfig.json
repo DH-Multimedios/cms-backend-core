@@ -2,11 +2,8 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "..",
-    "paths": {
-      "@dh/backend-core": ["../src"]
-    }
+    "rootDir": ".."
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

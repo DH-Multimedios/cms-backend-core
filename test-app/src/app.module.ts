@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { CoreModule } from '@dh/backend-core';
+import { CoreModule } from '../../src'; // Dev: importa source directamente
 
 @Module({
   imports: [
