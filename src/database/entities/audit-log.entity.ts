@@ -47,10 +47,10 @@ export class AuditLog {
   @Column({ type: 'jsonb', nullable: true })
   metadata: Record<string, any> | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   ip: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   userAgent: string | null;
 
   @CreateDateColumn()
