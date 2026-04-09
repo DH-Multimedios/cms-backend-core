@@ -10,7 +10,7 @@ import { CoreModule } from '@dh/backend-core';
         username: process.env.DB_USERNAME || 'postgres',
         password: process.env.DB_PASSWORD || 'postgres',
         database: process.env.DB_NAME || 'backend_core_dev',
-        synchronize: process.env.DB_SYNCHRONIZE === 'true',
+        synchronize: true, // test-app: siempre sync (NO usar en producción)
         logging: process.env.DB_LOGGING === 'true',
       },
       auth: {
