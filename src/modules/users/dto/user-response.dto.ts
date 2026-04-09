@@ -3,6 +3,7 @@ import { User } from '../../../database/entities/user.entity';
 export class UserResponseDto {
   id: string;
   email: string;
+  username: string;
   firstName: string;
   lastName: string;
   isActive: boolean;
@@ -16,6 +17,7 @@ export class UserResponseDto {
     const dto = new UserResponseDto();
     dto.id = user.id;
     dto.email = user.email;
+    dto.username = user.username;
     dto.firstName = user.firstName;
     dto.lastName = user.lastName;
     dto.isActive = user.isActive;

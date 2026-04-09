@@ -40,9 +40,20 @@ export class UsersService {
     return this.userRepository.findOne({ where: { email } });
   }
 
+  async findByEmailOrUsername(login: string): Promise<User | null> {
+    return this.userRepository.findOne({
+      where: [{ email: login }, { username: login }],
+    });
+  }
+
   async create(dto: CreateUserDto): Promise<UserResponseDto> {
     const existing = await this.userRepository.findOneBy({ email: dto.email });
     if (existing) throw new ApiException(HttpStatus.CONFLICT, ErrorCode.USER_EMAIL_TAKEN, 'El email ya está en uso');
+
+    if (dto.username) {
+      const existingUsername = await this.userRepository.findOneBy({ username: dto.username });
+      if (existingUsername) throw new ApiException(HttpStatus.CONFLICT, ErrorCode.USERNAME_TAKEN, 'El username ya está en uso');
+    }
 
     const roles = dto.roleIds?.length
       ? await this.roleRepository.findByIds(dto.roleIds)
@@ -51,6 +62,7 @@ export class UsersService {
     const hashedPassword = await bcrypt.hash(dto.password, 10);
     const user = this.userRepository.create({
       email: dto.email,
+      username: dto.username,
       password: hashedPassword,
       firstName: dto.firstName,
       lastName: dto.lastName,
@@ -89,6 +101,12 @@ export class UsersService {
       user.email = dto.email;
     }
 
+    if (dto.username !== undefined && dto.username !== user.username) {
+      const existing = await this.userRepository.findOneBy({ username: dto.username });
+      if (existing) throw new ApiException(HttpStatus.CONFLICT, ErrorCode.USERNAME_TAKEN, 'El username ya está en uso');
+      user.username = dto.username;
+    }
+
     if (dto.password) {
       user.password = await bcrypt.hash(dto.password, 10);
     }
@@ -119,6 +137,12 @@ export class UsersService {
       const existing = await this.userRepository.findOneBy({ email: dto.email });
       if (existing) throw new ApiException(HttpStatus.CONFLICT, ErrorCode.USER_EMAIL_TAKEN, 'El email ya está en uso');
       user.email = dto.email;
+    }
+
+    if (dto.username !== undefined && dto.username !== user.username) {
+      const existing = await this.userRepository.findOneBy({ username: dto.username });
+      if (existing) throw new ApiException(HttpStatus.CONFLICT, ErrorCode.USERNAME_TAKEN, 'El username ya está en uso');
+      user.username = dto.username;
     }
 
     if (dto.password) user.password = await bcrypt.hash(dto.password, 10);

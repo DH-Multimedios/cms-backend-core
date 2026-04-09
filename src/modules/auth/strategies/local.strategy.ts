@@ -9,11 +9,11 @@ import { ErrorCode } from '../../../common/enums/error-codes.enum';
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly usersService: UsersService) {
-    super({ usernameField: 'email' });
+    super({ usernameField: 'login' });
   }
 
-  async validate(email: string, password: string) {
-    const user = await this.usersService.findByEmail(email);
+  async validate(login: string, password: string) {
+    const user = await this.usersService.findByEmailOrUsername(login);
 
     if (!user || !user.isActive) {
       throw new ApiException(HttpStatus.UNAUTHORIZED, ErrorCode.INVALID_CREDENTIALS, 'Credenciales inválidas');
