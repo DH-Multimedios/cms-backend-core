@@ -7,7 +7,6 @@ import {
   Req,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -28,7 +27,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @ApiOperation({ summary: 'Login con email y password' })
-  login(@CurrentUser() user: User, @Req() req: Request, @Body() _dto: LoginDto) {
+  login(@CurrentUser() user: User, @Req() req: any, @Body() _dto: LoginDto) {
     return this.authService.login(
       user,
       req.ip,
@@ -39,7 +38,7 @@ export class AuthController {
   @Public()
   @Post('refresh')
   @ApiOperation({ summary: 'Obtener nuevo access token usando refresh token' })
-  refresh(@Body() dto: RefreshTokenDto, @Req() req: Request) {
+  refresh(@Body() dto: RefreshTokenDto, @Req() req: any) {
     return this.authService.refresh(
       dto.refreshToken,
       req.ip,
