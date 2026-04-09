@@ -15,6 +15,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { RequirePermissions } from '../auth/decorators/require-permissions.decorator';
@@ -47,6 +48,12 @@ export class UsersController {
   @ApiOperation({ summary: 'Crear usuario' })
   create(@Body() dto: CreateUserDto) {
     return this.usersService.create(dto);
+  }
+
+  @Patch('me')
+  @ApiOperation({ summary: 'Actualizar perfil propio' })
+  updateMe(@CurrentUser() currentUser: User, @Body() dto: UpdateProfileDto) {
+    return this.usersService.updateProfile(currentUser, dto);
   }
 
   @Patch(':id')

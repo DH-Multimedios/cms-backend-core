@@ -6,6 +6,7 @@ import { User } from '../../database/entities/user.entity';
 import { Role } from '../../database/entities/role.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { ApiException } from '../../common/exceptions/api.exception';
 import { ErrorCode } from '../../common/enums/error-codes.enum';
@@ -108,6 +109,24 @@ export class UsersService {
     }
 
     await this.userRepository.remove(user);
+  }
+
+  async updateProfile(currentUser: User, dto: UpdateProfileDto): Promise<UserResponseDto> {
+    const user = await this.userRepository.findOne({ where: { id: currentUser.id } });
+    if (!user) throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND, 'Usuario no encontrado');
+
+    if (dto.email !== undefined && dto.email !== user.email) {
+      const existing = await this.userRepository.findOneBy({ email: dto.email });
+      if (existing) throw new ApiException(HttpStatus.CONFLICT, ErrorCode.USER_EMAIL_TAKEN, 'El email ya está en uso');
+      user.email = dto.email;
+    }
+
+    if (dto.password) user.password = await bcrypt.hash(dto.password, 10);
+    if (dto.firstName !== undefined) user.firstName = dto.firstName;
+    if (dto.lastName !== undefined) user.lastName = dto.lastName;
+
+    const saved = await this.userRepository.save(user);
+    return UserResponseDto.from(saved);
   }
 
   async updateLastLogin(id: string): Promise<void> {

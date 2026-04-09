@@ -33,6 +33,7 @@ export { UsersService } from './modules/users/users.service';
 export { UserResponseDto } from './modules/users/dto/user-response.dto';
 export { CreateUserDto } from './modules/users/dto/create-user.dto';
 export { UpdateUserDto } from './modules/users/dto/update-user.dto';
+export { UpdateProfileDto } from './modules/users/dto/update-profile.dto';
 
 // Roles
 export { RolesModule } from './modules/roles/roles.module';
