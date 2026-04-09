@@ -1,0 +1,181 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { UsersService } from './users.service';
+import { User } from '../../database/entities/user.entity';
+import { Role } from '../../database/entities/role.entity';
+
+const mockUserRepository = () => ({
+  find: jest.fn(),
+  findOne: jest.fn(),
+  findOneBy: jest.fn(),
+  save: jest.fn(),
+  create: jest.fn((dto) => dto),
+  remove: jest.fn(),
+  update: jest.fn(),
+});
+
+const mockRoleRepository = () => ({
+  findByIds: jest.fn(),
+});
+
+const makeUser = (overrides: Partial<User> = {}): User =>
+  ({
+    id: 'user-1',
+    email: 'user@test.com',
+    password: 'hashed',
+    firstName: 'John',
+    lastName: 'Doe',
+    isActive: true,
+    isSystemUser: false,
+    isProtected: false,
+    roles: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    lastLoginAt: null,
+    ...overrides,
+  }) as User;
+
+const makeSystemUser = (): User =>
+  makeUser({ id: 'system-1', isSystemUser: true, isProtected: true });
+
+describe('UsersService', () => {
+  let service: UsersService;
+  let userRepo: ReturnType<typeof mockUserRepository>;
+  let roleRepo: ReturnType<typeof mockRoleRepository>;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        UsersService,
+        { provide: getRepositoryToken(User), useFactory: mockUserRepository },
+        { provide: getRepositoryToken(Role), useFactory: mockRoleRepository },
+      ],
+    }).compile();
+
+    service = module.get(UsersService);
+    userRepo = module.get(getRepositoryToken(User));
+    roleRepo = module.get(getRepositoryToken(Role));
+  });
+
+  describe('findAll', () => {
+    it('devuelve usuarios excluyendo isSystemUser', async () => {
+      const users = [makeUser()];
+      userRepo.find.mockResolvedValue(users);
+
+      const result = await service.findAll();
+
+      expect(userRepo.find).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { isSystemUser: false } }),
+      );
+      expect(result).toHaveLength(1);
+      expect(result[0]).not.toHaveProperty('password');
+    });
+  });
+
+  describe('findOne', () => {
+    it('devuelve el usuario si existe', async () => {
+      userRepo.findOne.mockResolvedValue(makeUser());
+      const result = await service.findOne('user-1');
+      expect(result.id).toBe('user-1');
+    });
+
+    it('lanza NotFoundException si no existe', async () => {
+      userRepo.findOne.mockResolvedValue(null);
+      await expect(service.findOne('non-existent')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('create', () => {
+    it('crea un usuario correctamente', async () => {
+      userRepo.findOneBy.mockResolvedValue(null);
+      roleRepo.findByIds.mockResolvedValue([]);
+      const savedUser = makeUser({ email: 'new@test.com' });
+      userRepo.save.mockResolvedValue(savedUser);
+
+      const result = await service.create({
+        email: 'new@test.com',
+        password: 'password123',
+      });
+
+      expect(result.email).toBe('new@test.com');
+    });
+
+    it('lanza ConflictException si el email ya existe', async () => {
+      userRepo.findOneBy.mockResolvedValue(makeUser());
+
+      await expect(
+        service.create({ email: 'user@test.com', password: 'password123' }),
+      ).rejects.toThrow(ConflictException);
+    });
+  });
+
+  describe('update', () => {
+    it('actualiza un usuario correctamente', async () => {
+      const user = makeUser();
+      userRepo.findOne.mockResolvedValue(user);
+      userRepo.save.mockResolvedValue({ ...user, firstName: 'Jane' });
+      const currentUser = makeUser({ id: 'admin-1' });
+
+      const result = await service.update('user-1', { firstName: 'Jane' }, currentUser);
+
+      expect(result.firstName).toBe('Jane');
+    });
+
+    it('lanza ForbiddenException al modificar usuario protegido sin ser systemUser', async () => {
+      userRepo.findOne.mockResolvedValue(makeUser({ isProtected: true }));
+      const currentUser = makeUser({ id: 'admin-1' });
+
+      await expect(service.update('user-1', { firstName: 'Jane' }, currentUser)).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+
+    it('permite modificar usuario protegido si sos systemUser', async () => {
+      const user = makeUser({ isProtected: true });
+      userRepo.findOne.mockResolvedValue(user);
+      userRepo.save.mockResolvedValue({ ...user, firstName: 'Jane' });
+      const systemUser = makeSystemUser();
+
+      const result = await service.update('user-1', { firstName: 'Jane' }, systemUser);
+
+      expect(result.firstName).toBe('Jane');
+    });
+
+    it('no permite asignar un rol de mayor peso al propio', async () => {
+      const user = makeUser();
+      userRepo.findOne.mockResolvedValue(user);
+      const currentUser = makeUser({ roles: [{ weight: 50 } as Role] });
+      roleRepo.findByIds.mockResolvedValue([{ weight: 90 } as Role]);
+
+      await expect(
+        service.update('user-1', { roleIds: ['role-admin'] }, currentUser),
+      ).rejects.toThrow(ForbiddenException);
+    });
+  });
+
+  describe('remove', () => {
+    it('elimina un usuario correctamente', async () => {
+      userRepo.findOne.mockResolvedValue(makeUser());
+      userRepo.remove.mockResolvedValue(undefined);
+      const currentUser = makeUser({ id: 'admin-1' });
+
+      await expect(service.remove('user-1', currentUser)).resolves.not.toThrow();
+    });
+
+    it('lanza ForbiddenException al eliminar usuario protegido sin ser systemUser', async () => {
+      userRepo.findOne.mockResolvedValue(makeUser({ isProtected: true }));
+      const currentUser = makeUser({ id: 'admin-1' });
+
+      await expect(service.remove('user-1', currentUser)).rejects.toThrow(ForbiddenException);
+    });
+
+    it('permite eliminar usuario protegido si sos systemUser', async () => {
+      userRepo.findOne.mockResolvedValue(makeUser({ isProtected: true }));
+      userRepo.remove.mockResolvedValue(undefined);
+      const systemUser = makeSystemUser();
+
+      await expect(service.remove('user-1', systemUser)).resolves.not.toThrow();
+    });
+  });
+});
