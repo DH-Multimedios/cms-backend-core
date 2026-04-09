@@ -118,7 +118,7 @@ export class UsersService {
     return UserResponseDto.from(saved);
   }
 
-  async remove(id: string, currentUser: User): Promise<void> {
+  async remove(id: string, currentUser: User): Promise<{ message: string }> {
     const user = await this.userRepository.findOne({ where: { id, isSystemUser: false } });
     if (!user) throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND, `Usuario ${id} no encontrado`);
 
@@ -127,6 +127,7 @@ export class UsersService {
     }
 
     await this.userRepository.remove(user);
+    return { message: 'Usuario eliminado correctamente' };
   }
 
   async updateProfile(currentUser: User, dto: UpdateProfileDto): Promise<UserResponseDto> {

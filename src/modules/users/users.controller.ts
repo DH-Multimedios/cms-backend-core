@@ -8,8 +8,6 @@ import {
   Param,
   ParseUUIDPipe,
   UseGuards,
-  HttpCode,
-  HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
@@ -69,7 +67,6 @@ export class UsersController {
 
   @Delete(':id')
   @RequirePermissions('users.delete')
-  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Eliminar usuario' })
   remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() currentUser: User) {
     return this.usersService.remove(id, currentUser);
