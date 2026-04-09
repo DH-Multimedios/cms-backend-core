@@ -1,5 +1,5 @@
 import { Module, DynamicModule, Global } from '@nestjs/common';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { DatabaseModule } from '../database/database.module';
@@ -9,6 +9,7 @@ import { UsersModule } from '../modules/users/users.module';
 import { RolesModule } from '../modules/roles/roles.module';
 import { PermissionsModule } from '../modules/permissions/permissions.module';
 import { HttpExceptionFilter } from '../common/filters/http-exception.filter';
+import { ResponseInterceptor } from '../common/interceptors/response.interceptor';
 import { CoreModuleConfig, CoreModuleAsyncOptions } from './interfaces/core-config.interface';
 
 @Global()
@@ -17,7 +18,10 @@ export class CoreModule {
   static register(config: CoreModuleConfig): DynamicModule {
     return {
       module: CoreModule,
-      providers: [{ provide: APP_FILTER, useClass: HttpExceptionFilter }],
+      providers: [
+        { provide: APP_FILTER, useClass: HttpExceptionFilter },
+        { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },
+      ],
       imports: [
         ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
         EventEmitterModule.forRoot(),
@@ -43,7 +47,10 @@ export class CoreModule {
   static registerAsync(options: CoreModuleAsyncOptions): DynamicModule {
     return {
       module: CoreModule,
-      providers: [{ provide: APP_FILTER, useClass: HttpExceptionFilter }],
+      providers: [
+        { provide: APP_FILTER, useClass: HttpExceptionFilter },
+        { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },
+      ],
       imports: [
         ...(options.imports || []),
         EventEmitterModule.forRoot(),

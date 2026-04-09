@@ -49,14 +49,14 @@ export class AuthController {
   @Post('logout')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Cerrar sesión (revoca el refresh token)' })
-  logout(@Body() dto: RefreshTokenDto) {
+  async logout(@Body() dto: RefreshTokenDto): Promise<{ message: string }> {
     return this.authService.logout(dto.refreshToken);
   }
 
   @Post('logout-all')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Cerrar todas las sesiones del usuario' })
-  logoutAll(@CurrentUser() user: User) {
+  async logoutAll(@CurrentUser() user: User): Promise<{ message: string }> {
     return this.authService.logoutAll(user.id);
   }
 

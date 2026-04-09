@@ -52,19 +52,21 @@ export class AuthService {
     return this.generateTokens(stored.user, ip, userAgent);
   }
 
-  async logout(rawToken: string): Promise<void> {
+  async logout(rawToken: string): Promise<{ message: string }> {
     const tokenHash = this.hashToken(rawToken);
     await this.refreshTokenRepository.update(
       { token: tokenHash, revokedAt: IsNull() },
       { revokedAt: new Date() },
     );
+    return { message: 'Sesión cerrada correctamente' };
   }
 
-  async logoutAll(userId: string): Promise<void> {
+  async logoutAll(userId: string): Promise<{ message: string }> {
     await this.refreshTokenRepository.update(
       { userId, revokedAt: IsNull() },
       { revokedAt: new Date() },
     );
+    return { message: 'Todas las sesiones fueron cerradas' };
   }
 
   private async generateTokens(user: User, ip?: string, userAgent?: string): Promise<TokensDto> {
