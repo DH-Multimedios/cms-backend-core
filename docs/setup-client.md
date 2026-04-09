@@ -473,13 +473,60 @@ mi-proyecto/
 
 ## Actualizar el core
 
-```bash
-# Ver versión actual
-pnpm list @dh/backend-core
+### Pasos completos de actualización
 
-# Actualizar a la última versión
+```bash
+# 1. Actualizar el paquete a la última versión
 pnpm update @dh/backend-core
 
-# Después de actualizar, correr nuevas migraciones si las hay
+# 2. Correr las nuevas migraciones (si las hay)
+pnpm migration:run
+
+# 3. Verificar que la app levanta correctamente
+pnpm start:dev
+```
+
+### Si se agregaron nuevas entidades al core
+
+Cuando el core agrega una entidad nueva (ej: `RefreshToken`), tenés que declararla en tu `data-source.ts`:
+
+```typescript
+// src/database/data-source.ts
+import {
+  User, Role, Permission, RefreshToken,  // ← agregar la nueva entidad
+  AuditLog, Taxonomy, File, Media, Setting
+} from '@dh/backend-core';
+
+export const AppDataSource = new DataSource({
+  entities: [
+    User, Role, Permission, RefreshToken,  // ← acá también
+    AuditLog, Taxonomy, File, Media, Setting,
+    // ...tus entidades
+  ],
+  // ...
+});
+```
+
+> **¿Cómo sé qué entidades hay?** Revisá los exports de `@dh/backend-core` o mirá el CHANGELOG del repo.
+
+### Si hay cambios incompatibles (breaking changes)
+
+Ante cualquier duda, revisá el historial del repo:
+
+```bash
+# Ver los últimos commits del core
+cd node_modules/@dh/backend-core && git log --oneline -10
+```
+
+### Forzar reinstalación limpia
+
+Si `pnpm update` no refleja los cambios (puede pasar con dependencias `git+ssh`):
+
+```bash
+# Reinstalar desde cero
+pnpm remove @dh/backend-core
+pnpm add git+ssh://git@github.com:DH-Multimedios/cms-backend-core.git
+
+# Luego correr migraciones
 pnpm migration:run
 ```
