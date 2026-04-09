@@ -1,6 +1,7 @@
 export { User } from './user.entity';
 export { Role } from './role.entity';
 export { Permission } from './permission.entity';
+export { RefreshToken } from './refresh-token.entity';
 export { AuditLog } from './audit-log.entity';
 export { Taxonomy } from './taxonomy.entity';
 export { File } from './file.entity';
