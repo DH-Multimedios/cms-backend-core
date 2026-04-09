@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength, IsOptional, IsArray, IsUUID } from 'class-validator';
+import { IsEmail, IsString, MinLength, MaxLength, IsOptional, IsArray, IsUUID, Matches } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateUserDto {
@@ -6,8 +6,11 @@ export class CreateUserDto {
   @IsEmail()
   email: string;
 
-  @ApiPropertyOptional({ example: 'johndoe' })
+  @ApiPropertyOptional({ example: 'johndoe', minLength: 3, maxLength: 15 })
   @IsString()
+  @MinLength(3)
+  @MaxLength(15)
+  @Matches(/^[a-zA-Z0-9]+$/, { message: 'El username solo puede contener letras y números' })
   @IsOptional()
   username?: string;
 

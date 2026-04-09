@@ -7,11 +7,6 @@ export class UpdateProfileDto {
   @IsOptional()
   email?: string;
 
-  @ApiPropertyOptional({ example: 'johndoe' })
-  @IsString()
-  @IsOptional()
-  username?: string;
-
   @ApiPropertyOptional({ minLength: 8 })
   @IsString()
   @MinLength(8)

@@ -139,12 +139,6 @@ export class UsersService {
       user.email = dto.email;
     }
 
-    if (dto.username !== undefined && dto.username !== user.username) {
-      const existing = await this.userRepository.findOneBy({ username: dto.username });
-      if (existing) throw new ApiException(HttpStatus.CONFLICT, ErrorCode.USERNAME_TAKEN, 'El username ya está en uso');
-      user.username = dto.username;
-    }
-
     if (dto.password) user.password = await bcrypt.hash(dto.password, 10);
     if (dto.firstName !== undefined) user.firstName = dto.firstName;
     if (dto.lastName !== undefined) user.lastName = dto.lastName;
