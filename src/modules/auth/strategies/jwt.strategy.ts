@@ -8,8 +8,6 @@ import { User } from '../../../database/entities/user.entity';
 
 export interface JwtPayload {
   sub: string;
-  email: string;
-  isSystemUser: boolean;
 }
 
 @Injectable()
