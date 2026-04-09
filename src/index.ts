@@ -1,6 +1,10 @@
 // Core Module
 export { CoreModule } from './core/core.module';
 
+// Pagination
+export { PaginationDto } from './common/dto/pagination.dto';
+export type { PaginatedResult } from './common/interfaces/paginated-result.interface';
+
 // Error handling & response
 export { ApiException } from './common/exceptions/api.exception';
 export { ErrorCode } from './common/enums/error-codes.enum';

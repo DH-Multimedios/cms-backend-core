@@ -7,7 +7,9 @@ import { Role } from '../../database/entities/role.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UsersQueryDto } from './dto/users-query.dto';
 import { UserResponseDto } from './dto/user-response.dto';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 import { ApiException } from '../../common/exceptions/api.exception';
 import { ErrorCode } from '../../common/enums/error-codes.enum';
 
@@ -20,12 +22,45 @@ export class UsersService {
     private readonly roleRepository: Repository<Role>,
   ) {}
 
-  async findAll(): Promise<UserResponseDto[]> {
-    const users = await this.userRepository.find({
-      where: { isSystemUser: false },
-      order: { createdAt: 'DESC' },
-    });
-    return users.map(UserResponseDto.from);
+  async findAll(query: UsersQueryDto): Promise<PaginatedResult<UserResponseDto>> {
+    const { page = 1, limit = 20, sortOrder = 'DESC', sortBy = 'createdAt', search, isActive, roleId } = query;
+
+    const qb = this.userRepository.createQueryBuilder('user')
+      .leftJoinAndSelect('user.roles', 'role')
+      .leftJoinAndSelect('role.permissions', 'permission')
+      .where('user.isSystemUser = false');
+
+    if (search) {
+      qb.andWhere(
+        '(user.email ILIKE :search OR user.username ILIKE :search OR user.firstName ILIKE :search OR user.lastName ILIKE :search)',
+        { search: `%${search}%` },
+      );
+    }
+
+    if (isActive !== undefined) {
+      qb.andWhere('user.isActive = :isActive', { isActive });
+    }
+
+    if (roleId) {
+      qb.andWhere(
+        `user.id IN (SELECT ur."userId" FROM user_roles ur WHERE ur."roleId" = :roleId)`,
+        { roleId },
+      );
+    }
+
+    qb.orderBy(`user.${sortBy}`, sortOrder)
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    const [users, total] = await qb.getManyAndCount();
+
+    return {
+      items: users.map(UserResponseDto.from),
+      total,
+      page,
+      limit,
+      pages: Math.ceil(total / limit),
+    };
   }
 
   async findOne(id: string): Promise<UserResponseDto> {

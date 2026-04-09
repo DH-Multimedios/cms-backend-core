@@ -5,9 +5,20 @@ import { ErrorCode } from '../../common/enums/error-codes.enum';
 import { UsersService } from './users.service';
 import { User } from '../../database/entities/user.entity';
 import { Role } from '../../database/entities/role.entity';
+import { UsersQueryDto } from './dto/users-query.dto';
+
+const mockQb = (users: User[] = [], total = 0) => ({
+  leftJoinAndSelect: jest.fn().mockReturnThis(),
+  where: jest.fn().mockReturnThis(),
+  andWhere: jest.fn().mockReturnThis(),
+  orderBy: jest.fn().mockReturnThis(),
+  skip: jest.fn().mockReturnThis(),
+  take: jest.fn().mockReturnThis(),
+  getManyAndCount: jest.fn().mockResolvedValue([users, total]),
+});
 
 const mockUserRepository = () => ({
-  find: jest.fn(),
+  createQueryBuilder: jest.fn(() => mockQb()),
   findOne: jest.fn(),
   findOneBy: jest.fn(),
   save: jest.fn(),
@@ -60,17 +71,16 @@ describe('UsersService', () => {
   });
 
   describe('findAll', () => {
-    it('devuelve usuarios excluyendo isSystemUser', async () => {
+    it('devuelve resultado paginado excluyendo isSystemUser', async () => {
       const users = [makeUser()];
-      userRepo.find.mockResolvedValue(users);
+      const qb = mockQb(users, 1);
+      userRepo.createQueryBuilder.mockReturnValue(qb);
 
-      const result = await service.findAll();
+      const result = await service.findAll(new UsersQueryDto());
 
-      expect(userRepo.find).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { isSystemUser: false } }),
-      );
-      expect(result).toHaveLength(1);
-      expect(result[0]).not.toHaveProperty('password');
+      expect(result.items).toHaveLength(1);
+      expect(result.total).toBe(1);
+      expect(result.items[0]).not.toHaveProperty('password');
     });
   });
 

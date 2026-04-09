@@ -6,8 +6,10 @@ import { User } from '../../database/entities/user.entity';
 import { PermissionsService } from '../permissions/permissions.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { RolesQueryDto } from './dto/roles-query.dto';
 import { ApiException } from '../../common/exceptions/api.exception';
 import { ErrorCode } from '../../common/enums/error-codes.enum';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 
 @Injectable()
 export class RolesService {
@@ -17,8 +19,23 @@ export class RolesService {
     private readonly permissionsService: PermissionsService,
   ) {}
 
-  findAll(): Promise<Role[]> {
-    return this.roleRepository.find({ order: { weight: 'DESC', name: 'ASC' } });
+  async findAll(query: RolesQueryDto): Promise<PaginatedResult<Role>> {
+    const { page = 1, limit = 20, sortOrder = 'DESC', sortBy = 'weight', search } = query;
+
+    const qb = this.roleRepository.createQueryBuilder('role')
+      .leftJoinAndSelect('role.permissions', 'permission');
+
+    if (search) {
+      qb.where('role.name ILIKE :search', { search: `%${search}%` });
+    }
+
+    qb.orderBy(`role.${sortBy}`, sortOrder)
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    const [items, total] = await qb.getManyAndCount();
+
+    return { items, total, page, limit, pages: Math.ceil(total / limit) };
   }
 
   async findOne(id: string): Promise<Role> {

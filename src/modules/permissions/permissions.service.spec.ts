@@ -2,9 +2,18 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { PermissionsService } from './permissions.service';
 import { Permission } from '../../database/entities/permission.entity';
+import { PermissionsQueryDto } from './dto/permissions-query.dto';
+
+const mockQb = () => ({
+  andWhere: jest.fn().mockReturnThis(),
+  orderBy: jest.fn().mockReturnThis(),
+  skip: jest.fn().mockReturnThis(),
+  take: jest.fn().mockReturnThis(),
+  getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
+});
 
 const mockPermissionRepository = () => ({
-  find: jest.fn(),
+  createQueryBuilder: jest.fn(() => mockQb()),
   findOneBy: jest.fn(),
   save: jest.fn(),
   create: jest.fn((dto) => dto),
@@ -27,24 +36,31 @@ describe('PermissionsService', () => {
   });
 
   describe('findAll', () => {
-    it('retorna todos los permisos sin filtro', async () => {
-      const permissions = [{ id: '1', name: 'users.read', module: 'users' }];
-      repo.find.mockResolvedValue(permissions);
+    it('retorna resultado paginado', async () => {
+      const permissions = [{ id: '1', name: 'users.read', module: 'users' }] as Permission[];
+      const qb = mockQb();
+      qb.getManyAndCount.mockResolvedValue([permissions, 1]);
+      repo.createQueryBuilder.mockReturnValue(qb);
 
-      const result = await service.findAll();
+      const result = await service.findAll(new PermissionsQueryDto());
 
-      expect(repo.find).toHaveBeenCalledWith({ order: { module: 'ASC', name: 'ASC' } });
-      expect(result).toEqual(permissions);
+      expect(result.items).toEqual(permissions);
+      expect(result.total).toBe(1);
+      expect(result.page).toBe(1);
     });
 
-    it('filtra por módulo cuando se pasa module', async () => {
-      const permissions = [{ id: '1', name: 'users.read', module: 'users' }];
-      repo.find.mockResolvedValue(permissions);
+    it('aplica filtro de módulo', async () => {
+      const qb = mockQb();
+      qb.getManyAndCount.mockResolvedValue([[], 0]);
+      repo.createQueryBuilder.mockReturnValue(qb);
 
-      const result = await service.findAll('users');
+      const query = Object.assign(new PermissionsQueryDto(), { module: 'users' });
+      await service.findAll(query);
 
-      expect(repo.find).toHaveBeenCalledWith({ where: { module: 'users' } });
-      expect(result).toEqual(permissions);
+      expect(qb.andWhere).toHaveBeenCalledWith(
+        expect.stringContaining('module'),
+        expect.objectContaining({ module: 'users' }),
+      );
     });
   });
 

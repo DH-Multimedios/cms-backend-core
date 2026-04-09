@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   ParseUUIDPipe,
   UseGuards,
   HttpCode,
@@ -16,6 +17,7 @@ import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { AssignPermissionsDto } from './dto/assign-permissions.dto';
+import { RolesQueryDto } from './dto/roles-query.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { RequirePermissions } from '../auth/decorators/require-permissions.decorator';
@@ -32,8 +34,8 @@ export class RolesController {
   @Get()
   @RequirePermissions('roles.read')
   @ApiOperation({ summary: 'Listar roles' })
-  findAll() {
-    return this.rolesService.findAll();
+  findAll(@Query() query: RolesQueryDto) {
+    return this.rolesService.findAll(query);
   }
 
   @Get(':id')

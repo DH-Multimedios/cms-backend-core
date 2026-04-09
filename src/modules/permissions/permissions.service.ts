@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Permission } from '../../database/entities/permission.entity';
+import { PermissionsQueryDto } from './dto/permissions-query.dto';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 
 export interface PermissionDefinition {
   name: string;
@@ -16,11 +18,26 @@ export class PermissionsService {
     private readonly permissionRepository: Repository<Permission>,
   ) {}
 
-  findAll(module?: string): Promise<Permission[]> {
-    if (module) {
-      return this.permissionRepository.find({ where: { module } });
+  async findAll(query: PermissionsQueryDto): Promise<PaginatedResult<Permission>> {
+    const { page = 1, limit = 20, sortOrder = 'DESC', sortBy = 'createdAt', search, module } = query;
+
+    const qb = this.permissionRepository.createQueryBuilder('permission');
+
+    if (search) {
+      qb.andWhere('permission.name ILIKE :search', { search: `%${search}%` });
     }
-    return this.permissionRepository.find({ order: { module: 'ASC', name: 'ASC' } });
+
+    if (module) {
+      qb.andWhere('permission.module = :module', { module });
+    }
+
+    qb.orderBy(`permission.${sortBy}`, sortOrder)
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    const [items, total] = await qb.getManyAndCount();
+
+    return { items, total, page, limit, pages: Math.ceil(total / limit) };
   }
 
   findOne(id: string): Promise<Permission | null> {
