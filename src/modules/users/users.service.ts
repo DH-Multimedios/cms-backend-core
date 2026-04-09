@@ -82,6 +82,12 @@ export class UsersService {
       user.roles = newRoles;
     }
 
+    if (dto.email !== undefined && dto.email !== user.email) {
+      const existing = await this.userRepository.findOneBy({ email: dto.email });
+      if (existing) throw new ApiException(HttpStatus.CONFLICT, ErrorCode.USER_EMAIL_TAKEN, 'El email ya está en uso');
+      user.email = dto.email;
+    }
+
     if (dto.password) {
       user.password = await bcrypt.hash(dto.password, 10);
     }
