@@ -7,6 +7,7 @@ import { AuthService } from './auth.service';
 import { RefreshToken } from '../../database/entities/refresh-token.entity';
 import { User } from '../../database/entities/user.entity';
 import { UsersService } from '../users/users.service';
+import { AuditService } from '../audit/audit.service';
 
 const mockRefreshTokenRepository = () => ({
   findOne: jest.fn(),
@@ -22,6 +23,10 @@ const mockJwtService = () => ({
 const mockUsersService = () => ({
   updateLastLogin: jest.fn(),
   findByEmail: jest.fn(),
+});
+
+const mockAuditService = () => ({
+  log: jest.fn().mockResolvedValue(undefined),
 });
 
 const makeUser = (overrides: Partial<User> = {}): User =>
@@ -58,6 +63,7 @@ describe('AuthService', () => {
         { provide: getRepositoryToken(RefreshToken), useFactory: mockRefreshTokenRepository },
         { provide: JwtService, useFactory: mockJwtService },
         { provide: UsersService, useFactory: mockUsersService },
+        { provide: AuditService, useFactory: mockAuditService },
       ],
     }).compile();
 
@@ -119,7 +125,7 @@ describe('AuthService', () => {
     it('revoca el refresh token', async () => {
       refreshTokenRepo.update.mockResolvedValue({ affected: 1 });
 
-      await service.logout('raw-token');
+      await service.logout('raw-token', 'user-1');
 
       expect(refreshTokenRepo.update).toHaveBeenCalledWith(
         expect.objectContaining({ revokedAt: expect.anything() }),

@@ -49,8 +49,8 @@ export class AuthController {
   @Post('logout')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Cerrar sesión (revoca el refresh token)' })
-  async logout(@Body() dto: RefreshTokenDto): Promise<{ message: string }> {
-    return this.authService.logout(dto.refreshToken);
+  async logout(@Body() dto: RefreshTokenDto, @CurrentUser() user: User): Promise<{ message: string }> {
+    return this.authService.logout(dto.refreshToken, user.id);
   }
 
   @Post('logout-all')

@@ -7,6 +7,7 @@ import { Role } from '../../database/entities/role.entity';
 import { Permission } from '../../database/entities/permission.entity';
 import { User } from '../../database/entities/user.entity';
 import { PermissionsService } from '../permissions/permissions.service';
+import { AuditService } from '../audit/audit.service';
 
 const mockRoleRepository = () => ({
   find: jest.fn(),
@@ -18,6 +19,10 @@ const mockRoleRepository = () => ({
 
 const mockPermissionsService = () => ({
   findByIds: jest.fn(),
+});
+
+const mockAuditService = () => ({
+  log: jest.fn().mockResolvedValue(undefined),
 });
 
 const makeRole = (overrides: Partial<Role> = {}): Role =>
@@ -53,6 +58,7 @@ describe('RolesService', () => {
         RolesService,
         { provide: getRepositoryToken(Role), useFactory: mockRoleRepository },
         { provide: PermissionsService, useFactory: mockPermissionsService },
+        { provide: AuditService, useFactory: mockAuditService },
       ],
     }).compile();
 

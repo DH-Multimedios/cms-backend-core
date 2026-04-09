@@ -7,6 +7,7 @@ import { User } from '../../database/entities/user.entity';
 import { RefreshToken } from '../../database/entities/refresh-token.entity';
 import { AuthConfig } from '../../core/interfaces/core-config.interface';
 import { UsersService } from '../users/users.service';
+import { AuditService } from '../audit/audit.service';
 import { AuthResponseDto, TokensDto } from './dto/auth-response.dto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
 import { JwtPayload } from './strategies/jwt.strategy';
@@ -19,6 +20,7 @@ export class AuthService {
     @Inject('CORE_AUTH_CONFIG') private readonly authConfig: AuthConfig,
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
+    private readonly auditService: AuditService,
     @InjectRepository(RefreshToken)
     private readonly refreshTokenRepository: Repository<RefreshToken>,
   ) {}
@@ -26,6 +28,14 @@ export class AuthService {
   async login(user: User, ip?: string, userAgent?: string): Promise<AuthResponseDto> {
     await this.usersService.updateLastLogin(user.id);
     const tokens = await this.generateTokens(user, ip, userAgent);
+
+    await this.auditService.log({
+      action: 'login',
+      entity: 'User',
+      entityId: user.id,
+      userId: user.id,
+    });
+
     return { ...tokens, user: UserResponseDto.from(user) };
   }
 
@@ -42,6 +52,12 @@ export class AuthService {
     });
 
     if (!stored || !stored.user.isActive) {
+      await this.auditService.log({
+        action: 'refresh_failed',
+        entity: 'User',
+        userId: null,
+        metadata: { reason: 'invalid_or_expired_token' },
+      });
       throw new ApiException(HttpStatus.UNAUTHORIZED, ErrorCode.INVALID_REFRESH_TOKEN, 'Refresh token inválido o expirado');
     }
 
@@ -52,12 +68,20 @@ export class AuthService {
     return this.generateTokens(stored.user, ip, userAgent);
   }
 
-  async logout(rawToken: string): Promise<{ message: string }> {
+  async logout(rawToken: string, userId: string): Promise<{ message: string }> {
     const tokenHash = this.hashToken(rawToken);
     await this.refreshTokenRepository.update(
       { token: tokenHash, revokedAt: IsNull() },
       { revokedAt: new Date() },
     );
+
+    await this.auditService.log({
+      action: 'logout',
+      entity: 'User',
+      entityId: userId,
+      userId,
+    });
+
     return { message: 'Sesión cerrada correctamente' };
   }
 
@@ -66,6 +90,14 @@ export class AuthService {
       { userId, revokedAt: IsNull() },
       { revokedAt: new Date() },
     );
+
+    await this.auditService.log({
+      action: 'logout_all',
+      entity: 'User',
+      entityId: userId,
+      userId,
+    });
+
     return { message: 'Todas las sesiones fueron cerradas' };
   }
 

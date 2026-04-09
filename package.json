@@ -55,6 +55,7 @@
     "dotenv": "^17.4.1",
     "handlebars": "^4.7.9",
     "multer": "2.1.1",
+    "nestjs-cls": "^6.2.0",
     "nodemailer": "^8.0.5",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",

@@ -47,3 +47,8 @@ export { RolesService } from './modules/roles/roles.service';
 export { PermissionsModule } from './modules/permissions/permissions.module';
 export { PermissionsService } from './modules/permissions/permissions.service';
 export type { PermissionDefinition } from './modules/permissions/permissions.service';
+
+// Audit
+export { AuditModule } from './modules/audit/audit.module';
+export { AuditService } from './modules/audit/audit.service';
+export type { AuditLogOptions } from './modules/audit/audit.service';

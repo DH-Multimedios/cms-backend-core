@@ -2,12 +2,15 @@ import { Module, DynamicModule, Global } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ClsModule } from 'nestjs-cls';
 import { DatabaseModule } from '../database/database.module';
 import { HealthModule } from '../modules/health/health.module';
 import { AuthModule } from '../modules/auth/auth.module';
 import { UsersModule } from '../modules/users/users.module';
 import { RolesModule } from '../modules/roles/roles.module';
 import { PermissionsModule } from '../modules/permissions/permissions.module';
+import { AuditModule } from '../modules/audit/audit.module';
+import { AuditContextInterceptor } from '../modules/audit/interceptors/audit-context.interceptor';
 import { HttpExceptionFilter } from '../common/filters/http-exception.filter';
 import { ResponseInterceptor } from '../common/interceptors/response.interceptor';
 import { CoreModuleConfig, CoreModuleAsyncOptions } from './interfaces/core-config.interface';
@@ -21,16 +24,19 @@ export class CoreModule {
       providers: [
         { provide: APP_FILTER, useClass: HttpExceptionFilter },
         { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },
+        { provide: APP_INTERCEPTOR, useClass: AuditContextInterceptor },
       ],
       imports: [
         ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
         EventEmitterModule.forRoot(),
+        ClsModule.forRoot({ global: true, middleware: { mount: true } }),
         DatabaseModule.forRoot(config.database),
         HealthModule,
         AuthModule.register(config.auth),
         UsersModule,
         RolesModule,
         PermissionsModule,
+        AuditModule,
       ],
       exports: [
         ConfigModule,
@@ -40,6 +46,7 @@ export class CoreModule {
         UsersModule,
         RolesModule,
         PermissionsModule,
+        AuditModule,
       ],
     };
   }
@@ -50,10 +57,12 @@ export class CoreModule {
       providers: [
         { provide: APP_FILTER, useClass: HttpExceptionFilter },
         { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },
+        { provide: APP_INTERCEPTOR, useClass: AuditContextInterceptor },
       ],
       imports: [
         ...(options.imports || []),
         EventEmitterModule.forRoot(),
+        ClsModule.forRoot({ global: true, middleware: { mount: true } }),
         DatabaseModule.forRootAsync({
           imports: options.imports,
           useFactory: async (...args: any[]) => {
@@ -74,6 +83,7 @@ export class CoreModule {
         UsersModule,
         RolesModule,
         PermissionsModule,
+        AuditModule,
       ],
       exports: [
         ConfigModule,
@@ -83,6 +93,7 @@ export class CoreModule {
         UsersModule,
         RolesModule,
         PermissionsModule,
+        AuditModule,
       ],
     };
   }

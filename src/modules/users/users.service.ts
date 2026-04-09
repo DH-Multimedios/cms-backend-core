@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from '../../database/entities/user.entity';
 import { Role } from '../../database/entities/role.entity';
+import { AuditService } from '../audit/audit.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -20,6 +21,7 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
+    private readonly auditService: AuditService,
   ) {}
 
   async findAll(query: UsersQueryDto): Promise<PaginatedResult<UserResponseDto>> {
@@ -105,6 +107,13 @@ export class UsersService {
     });
 
     const saved = await this.userRepository.save(user);
+
+    await this.auditService.log({
+      action: 'create',
+      entity: 'User',
+      entityId: saved.id,
+    });
+
     return UserResponseDto.from(saved);
   }
 
@@ -150,6 +159,13 @@ export class UsersService {
     if (dto.isActive !== undefined) user.isActive = dto.isActive;
 
     const saved = await this.userRepository.save(user);
+
+    await this.auditService.log({
+      action: 'update',
+      entity: 'User',
+      entityId: saved.id,
+    });
+
     return UserResponseDto.from(saved);
   }
 
@@ -160,6 +176,12 @@ export class UsersService {
     if (user.isProtected && !currentUser.isSystemUser) {
       throw new ApiException(HttpStatus.FORBIDDEN, ErrorCode.USER_PROTECTED, 'No podés eliminar un usuario protegido');
     }
+
+    await this.auditService.log({
+      action: 'delete',
+      entity: 'User',
+      entityId: id,
+    });
 
     await this.userRepository.remove(user);
     return { message: 'Usuario eliminado correctamente' };
@@ -180,6 +202,13 @@ export class UsersService {
     if (dto.lastName !== undefined) user.lastName = dto.lastName;
 
     const saved = await this.userRepository.save(user);
+
+    await this.auditService.log({
+      action: 'update_profile',
+      entity: 'User',
+      entityId: saved.id,
+    });
+
     return UserResponseDto.from(saved);
   }
 

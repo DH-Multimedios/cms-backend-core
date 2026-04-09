@@ -13,12 +13,12 @@ export class AuditLog {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'uuid' })
-  userId: string;
+  @Column({ type: 'uuid', nullable: true })
+  userId: string | null;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'userId' })
-  user: User;
+  user: User | null;
 
   /**
    * Acción realizada
@@ -38,20 +38,20 @@ export class AuditLog {
    * ID de la entidad afectada
    */
   @Column({ type: 'uuid', nullable: true })
-  entityId: string;
+  entityId: string | null;
 
   /**
    * Metadata adicional (JSON)
    * Puede incluir: datos antes/después, IP, user agent, etc.
    */
   @Column({ type: 'jsonb', nullable: true })
-  metadata: Record<string, any>;
+  metadata: Record<string, any> | null;
 
   @Column({ nullable: true })
-  ip: string;
+  ip: string | null;
 
   @Column({ nullable: true })
-  userAgent: string;
+  userAgent: string | null;
 
   @CreateDateColumn()
   createdAt: Date;

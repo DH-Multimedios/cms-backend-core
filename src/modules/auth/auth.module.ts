@@ -6,6 +6,7 @@ import { AuthConfig } from '../../core/interfaces/core-config.interface';
 import { RefreshToken } from '../../database/entities/refresh-token.entity';
 import { User } from '../../database/entities/user.entity';
 import { UsersModule } from '../users/users.module';
+import { AuditModule } from '../audit/audit.module';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { LocalStrategy } from './strategies/local.strategy';
@@ -26,6 +27,7 @@ export class AuthModule {
         }),
         TypeOrmModule.forFeature([RefreshToken, User]),
         UsersModule,
+        AuditModule,
       ],
       controllers: [AuthController],
       providers: [
@@ -63,6 +65,7 @@ export class AuthModule {
         }),
         TypeOrmModule.forFeature([RefreshToken, User]),
         UsersModule,
+        AuditModule,
       ],
       controllers: [AuthController],
       providers: [

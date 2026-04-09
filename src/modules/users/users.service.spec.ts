@@ -6,6 +6,7 @@ import { UsersService } from './users.service';
 import { User } from '../../database/entities/user.entity';
 import { Role } from '../../database/entities/role.entity';
 import { UsersQueryDto } from './dto/users-query.dto';
+import { AuditService } from '../audit/audit.service';
 
 const mockQb = (users: User[] = [], total = 0) => ({
   leftJoinAndSelect: jest.fn().mockReturnThis(),
@@ -29,6 +30,10 @@ const mockUserRepository = () => ({
 
 const mockRoleRepository = () => ({
   findByIds: jest.fn(),
+});
+
+const mockAuditService = () => ({
+  log: jest.fn().mockResolvedValue(undefined),
 });
 
 const makeUser = (overrides: Partial<User> = {}): User =>
@@ -62,6 +67,7 @@ describe('UsersService', () => {
         UsersService,
         { provide: getRepositoryToken(User), useFactory: mockUserRepository },
         { provide: getRepositoryToken(Role), useFactory: mockRoleRepository },
+        { provide: AuditService, useFactory: mockAuditService },
       ],
     }).compile();
 
