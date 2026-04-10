@@ -1,0 +1,21 @@
+meta {
+  name: Update Setting
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/settings/SETTING-UUID-AQUI
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "value": "Nuevo valor"
+  }
+}

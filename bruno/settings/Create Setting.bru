@@ -1,0 +1,27 @@
+meta {
+  name: Create Setting
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/settings
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "categoryId": 1,
+    "key": "app.name",
+    "label": "Nombre de la aplicación",
+    "value": "Mi App",
+    "description": "Nombre que aparece en el dashboard",
+    "type": "string",
+    "order": 1
+  }
+}

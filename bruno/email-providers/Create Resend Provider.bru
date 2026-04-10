@@ -1,0 +1,26 @@
+meta {
+  name: Create Resend Provider
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/email-providers
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Resend",
+    "provider": "resend",
+    "from": "noreply@miapp.com",
+    "resend": {
+      "apiKey": "re_xxxxxxxxxxxxxxxx"
+    }
+  }
+}

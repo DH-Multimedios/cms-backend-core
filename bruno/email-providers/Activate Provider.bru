@@ -1,0 +1,15 @@
+meta {
+  name: Activate Provider
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/email-providers/1/activate
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

@@ -1,0 +1,29 @@
+meta {
+  name: Create Google OAuth Provider
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/email-providers
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Google OAuth",
+    "provider": "google-oauth",
+    "from": "miapp@gmail.com",
+    "googleOAuth": {
+      "clientId": "1234567890-abc.apps.googleusercontent.com",
+      "clientSecret": "GOCSPX-xxxxxxxxxx",
+      "refreshToken": "1//0exxxxxxxxxxxxxxxxxx",
+      "user": "miapp@gmail.com"
+    }
+  }
+}

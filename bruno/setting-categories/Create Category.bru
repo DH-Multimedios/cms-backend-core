@@ -1,0 +1,24 @@
+meta {
+  name: Create Category
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/setting-categories
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "key": "mi-categoria",
+    "label": "Mi Categoría",
+    "description": "Descripción opcional",
+    "order": 3
+  }
+}

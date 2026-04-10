@@ -1,0 +1,30 @@
+meta {
+  name: Create SMTP Provider
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/email-providers
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "SMTP Corporativo",
+    "provider": "smtp",
+    "from": "noreply@miapp.com",
+    "smtp": {
+      "host": "smtp.gmail.com",
+      "port": 587,
+      "user": "mi-usuario@gmail.com",
+      "pass": "mi-contraseña",
+      "secure": false
+    }
+  }
+}

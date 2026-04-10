@@ -1,0 +1,29 @@
+meta {
+  name: Update Provider
+  type: http
+  seq: 7
+}
+
+patch {
+  url: {{baseUrl}}/email-providers/1
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "SMTP Corporativo (actualizado)",
+    "from": "nuevo@miapp.com",
+    "smtp": {
+      "host": "smtp.gmail.com",
+      "port": 587,
+      "user": "nuevo@gmail.com",
+      "pass": "nueva-contraseña",
+      "secure": false
+    }
+  }
+}

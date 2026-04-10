@@ -1,0 +1,15 @@
+meta {
+  name: Delete Setting
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/settings/SETTING-UUID-AQUI
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
