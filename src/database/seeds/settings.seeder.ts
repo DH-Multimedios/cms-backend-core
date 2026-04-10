@@ -3,8 +3,8 @@ import { SettingCategory } from '../entities/setting-category.entity';
 import { Setting } from '../entities/setting.entity';
 
 const CATEGORIES = [
-  { id: 1, key: 'general', label: 'Configuración General', description: 'Ajustes globales de la aplicación', order: 1 },
-  { id: 2, key: 'email', label: 'Email', description: 'Configuración general de correo electrónico', order: 2 },
+  { id: 1, slug: 'general', label: 'Configuración General', description: 'Ajustes globales de la aplicación', order: 0 },
+  { id: 2, slug: 'email', label: 'Email', description: 'Configuración general de correo electrónico', order: 1 },
 ];
 
 const SETTINGS: Array<{
@@ -53,7 +53,7 @@ export async function seedSettings(dataSource: DataSource): Promise<void> {
 
   // Upsert categorías por key
   for (const cat of CATEGORIES) {
-    const existing = await categoryRepo.findOneBy({ key: cat.key });
+    const existing = await categoryRepo.findOneBy({ slug: cat.slug });
     if (!existing) {
       await categoryRepo.save(categoryRepo.create(cat));
       console.log(`  ✓ Categoría creada: ${cat.label}`);
@@ -70,7 +70,7 @@ export async function seedSettings(dataSource: DataSource): Promise<void> {
       continue;
     }
 
-    const category = await categoryRepo.findOneBy({ key: def.categoryKey });
+    const category = await categoryRepo.findOneBy({ slug: def.categoryKey });
     if (!category) {
       console.warn(`  ⚠ Categoría '${def.categoryKey}' no encontrada, saltando setting '${def.key}'`);
       continue;

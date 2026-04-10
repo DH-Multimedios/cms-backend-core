@@ -1,0 +1,21 @@
+meta {
+  name: Reorder Categories
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/setting-categories/reorder
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "ids": [2, 1]
+  }
+}

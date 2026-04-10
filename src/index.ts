@@ -1,6 +1,9 @@
 // Core Module
 export { CoreModule } from './core/core.module';
 
+// Utils
+export { generateSlug } from './common/utils/slug.util';
+
 // Pagination
 export { PaginationDto } from './common/dto/pagination.dto';
 export type { PaginatedResult } from './common/interfaces/paginated-result.interface';

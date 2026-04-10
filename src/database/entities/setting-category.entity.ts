@@ -14,7 +14,7 @@ export class SettingCategory {
   id: number;
 
   @Column({ unique: true })
-  key: string;
+  slug: string;
 
   @Column()
   label: string;

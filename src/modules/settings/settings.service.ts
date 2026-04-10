@@ -9,9 +9,12 @@ import { CreateSettingDto } from './dto/create-setting.dto';
 import { UpdateSettingDto } from './dto/update-setting.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { ReorderCategoriesDto } from './dto/reorder-categories.dto';
 import { SettingsQueryDto } from './dto/settings-query.dto';
 import { ApiException } from '../../common/exceptions/api.exception';
 import { ErrorCode } from '../../common/enums/error-codes.enum';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
+import { generateSlug } from '../../common/utils/slug.util';
 
 @Injectable()
 export class SettingsService implements OnModuleInit {
@@ -34,38 +37,54 @@ export class SettingsService implements OnModuleInit {
 
   // ─── Categorías ───────────────────────────────────────────────────────────
 
-  findAllCategories(): Promise<SettingCategory[]> {
-    return this.categoryRepository.find({
-      order: { order: 'ASC', label: 'ASC' },
-      relations: ['settings'],
-    });
+  async findAllCategories(page = 1, limit = 20): Promise<PaginatedResult<SettingCategory & { settingsCount: number }>> {
+    const qb = this.categoryRepository
+      .createQueryBuilder('category')
+      .loadRelationCountAndMap('category.settingsCount', 'category.settings')
+      .orderBy('category.order', 'ASC')
+      .addOrderBy('category.id', 'ASC')
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    const [items, total] = await qb.getManyAndCount();
+
+    return {
+      items: items as (SettingCategory & { settingsCount: number })[],
+      total,
+      page,
+      limit,
+      pages: Math.ceil(total / limit),
+    };
   }
 
-  async findCategoryByKey(key: string): Promise<SettingCategory> {
+  async findCategoryBySlug(slug: string): Promise<SettingCategory> {
     const category = await this.categoryRepository.findOne({
-      where: { key },
+      where: { slug },
       relations: ['settings'],
       order: { settings: { order: 'ASC' } },
     });
     if (!category) {
-      throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, `Categoría '${key}' no encontrada`);
+      throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, `Categoría '${slug}' no encontrada`);
     }
     return category;
   }
 
   async createCategory(dto: CreateCategoryDto): Promise<SettingCategory> {
-    const existing = await this.categoryRepository.findOneBy({ key: dto.key });
+    const slug = dto.slug ?? generateSlug(dto.label);
+
+    const existing = await this.categoryRepository.findOneBy({ slug });
     if (existing) {
-      throw new ApiException(HttpStatus.CONFLICT, ErrorCode.CONFLICT, `Ya existe una categoría con el key '${dto.key}'`);
+      throw new ApiException(HttpStatus.CONFLICT, ErrorCode.CONFLICT, `Ya existe una categoría con el slug '${slug}'`);
     }
-    const category = this.categoryRepository.create(dto);
+
+    const category = this.categoryRepository.create({ ...dto, slug });
     const saved = await this.categoryRepository.save(category);
 
     await this.auditService.log({
       action: 'create',
       entity: 'SettingCategory',
       entityId: String(saved.id),
-      metadata: { after: { key: saved.key, label: saved.label } },
+      metadata: { after: { slug: saved.slug, label: saved.label } },
     });
 
     return saved;
@@ -77,14 +96,15 @@ export class SettingsService implements OnModuleInit {
       throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, `Categoría ${id} no encontrada`);
     }
 
-    if (dto.key && dto.key !== category.key) {
-      const existing = await this.categoryRepository.findOneBy({ key: dto.key });
+    // Si viene slug explícito, validar unicidad
+    if (dto.slug && dto.slug !== category.slug) {
+      const existing = await this.categoryRepository.findOneBy({ slug: dto.slug });
       if (existing) {
-        throw new ApiException(HttpStatus.CONFLICT, ErrorCode.CONFLICT, `Ya existe una categoría con el key '${dto.key}'`);
+        throw new ApiException(HttpStatus.CONFLICT, ErrorCode.CONFLICT, `Ya existe una categoría con el slug '${dto.slug}'`);
       }
     }
 
-    const before = { key: category.key, label: category.label };
+    const before = { slug: category.slug, label: category.label };
     Object.assign(category, dto);
     const saved = await this.categoryRepository.save(category);
 
@@ -92,10 +112,18 @@ export class SettingsService implements OnModuleInit {
       action: 'update',
       entity: 'SettingCategory',
       entityId: String(saved.id),
-      metadata: { before, after: { key: saved.key, label: saved.label } },
+      metadata: { before, after: { slug: saved.slug, label: saved.label } },
     });
 
     return saved;
+  }
+
+  async reorderCategories(dto: ReorderCategoriesDto): Promise<void> {
+    await Promise.all(
+      dto.ids.map((id, index) =>
+        this.categoryRepository.update(id, { order: index }),
+      ),
+    );
   }
 
   async removeCategory(id: number): Promise<void> {
@@ -110,7 +138,7 @@ export class SettingsService implements OnModuleInit {
       throw new ApiException(
         HttpStatus.CONFLICT,
         ErrorCode.CONFLICT,
-        `La categoría tiene ${category.settings.length} setting(s) asociados. Reasignalos o eliminados primero.`,
+        `La categoría tiene ${category.settings.length} setting(s) asociados. Reasignalos o eliminalos primero.`,
       );
     }
 
@@ -118,7 +146,7 @@ export class SettingsService implements OnModuleInit {
       action: 'delete',
       entity: 'SettingCategory',
       entityId: String(id),
-      metadata: { before: { key: category.key, label: category.label } },
+      metadata: { before: { slug: category.slug, label: category.label } },
     });
 
     await this.categoryRepository.remove(category);
@@ -134,7 +162,7 @@ export class SettingsService implements OnModuleInit {
     if (query.categoryId) {
       qb.andWhere('setting.categoryId = :categoryId', { categoryId: query.categoryId });
     } else if (query.category) {
-      qb.andWhere('category.key = :key', { key: query.category });
+      qb.andWhere('category.slug = :slug', { slug: query.category });
     }
 
     qb.orderBy('category.order', 'ASC')
@@ -155,9 +183,6 @@ export class SettingsService implements OnModuleInit {
     return setting;
   }
 
-  /**
-   * Helper para otros servicios — retorna el valor crudo o un default.
-   */
   async getValue(key: string, defaultValue?: string): Promise<string | undefined> {
     const setting = await this.settingRepository.findOneBy({ key });
     return setting?.value ?? defaultValue;
