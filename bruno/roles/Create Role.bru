@@ -1,0 +1,24 @@
+meta {
+  name: Create Role
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/roles
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Editor",
+    "description": "Puede crear y editar contenido",
+    "weight": 50,
+    "isProtected": false
+  }
+}

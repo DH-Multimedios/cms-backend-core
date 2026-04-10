@@ -1,0 +1,24 @@
+meta {
+  name: Assign Permissions
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/roles/ROLE-UUID-AQUI/permissions
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "permissionIds": [
+      "PERMISSION-UUID-1",
+      "PERMISSION-UUID-2"
+    ]
+  }
+}

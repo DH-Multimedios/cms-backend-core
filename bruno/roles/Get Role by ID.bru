@@ -1,0 +1,15 @@
+meta {
+  name: Get Role by ID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/roles/ROLE-UUID-AQUI
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

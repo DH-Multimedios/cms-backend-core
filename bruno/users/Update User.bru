@@ -1,0 +1,24 @@
+meta {
+  name: Update User
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{baseUrl}}/users/USER-UUID-AQUI
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "firstName": "Juan",
+    "lastName": "Pérez",
+    "isActive": true,
+    "roleIds": []
+  }
+}

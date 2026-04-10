@@ -1,0 +1,23 @@
+meta {
+  name: Get All Roles
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/roles
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+params:query {
+  ~search: admin
+  ~sortBy: weight
+  ~sortOrder: DESC
+  ~page: 1
+  ~limit: 20
+}

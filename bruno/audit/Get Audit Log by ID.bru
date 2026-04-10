@@ -1,0 +1,15 @@
+meta {
+  name: Get Audit Log by ID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/audit/AUDIT-UUID-AQUI
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

@@ -1,0 +1,25 @@
+meta {
+  name: Get All Users
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/users
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+params:query {
+  ~search: juan
+  ~isActive: true
+  ~roleId: uuid-del-rol
+  ~sortBy: createdAt
+  ~sortOrder: DESC
+  ~page: 1
+  ~limit: 20
+}
