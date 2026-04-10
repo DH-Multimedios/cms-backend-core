@@ -60,15 +60,5 @@ export interface MediaModuleConfig {
 }
 
 export interface NotificationsModuleConfig {
-  email?: EmailProviderConfig;
-}
-
-export interface EmailProviderConfig {
-  host: string;
-  port: number;
-  user: string;
-  pass: string;
-  from: string;
-  fromName?: string;
-  secure?: boolean;
+  enabled?: boolean;
 }

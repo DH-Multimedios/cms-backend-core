@@ -27,7 +27,7 @@ export interface GoogleOAuthConfig {
   user: string;
 }
 
-export type EmailProviderConfig = SmtpConfig | ResendConfig | GoogleOAuthConfig;
+export type EmailProviderConfigUnion = SmtpConfig | ResendConfig | GoogleOAuthConfig;
 
 @Entity('email_providers')
 export class EmailProvider {
@@ -47,7 +47,7 @@ export class EmailProvider {
 
   /** Config específica del provider — shape varía según `provider` */
   @Column({ type: 'jsonb' })
-  config: EmailProviderConfig;
+  config: EmailProviderConfigUnion;
 
   @Column({ default: false })
   isActive: boolean;

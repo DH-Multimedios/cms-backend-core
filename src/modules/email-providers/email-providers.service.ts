@@ -1,7 +1,7 @@
 import { Injectable, HttpStatus, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { EmailProvider, EmailProviderConfig } from '../../database/entities/email-provider.entity';
+import { EmailProvider, EmailProviderConfigUnion } from '../../database/entities/email-provider.entity';
 import { AuditService } from '../audit/audit.service';
 import { PermissionsService } from '../permissions/permissions.service';
 import { CreateEmailProviderDto } from './dto/create-email-provider.dto';
@@ -135,7 +135,7 @@ export class EmailProvidersService implements OnModuleInit {
     await this.repository.remove(provider);
   }
 
-  private extractConfig(dto: CreateEmailProviderDto): EmailProviderConfig {
+  private extractConfig(dto: CreateEmailProviderDto): EmailProviderConfigUnion {
     switch (dto.provider) {
       case 'smtp':
         if (!dto.smtp) {
