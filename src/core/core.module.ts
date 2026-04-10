@@ -11,6 +11,7 @@ import { RolesModule } from '../modules/roles/roles.module';
 import { PermissionsModule } from '../modules/permissions/permissions.module';
 import { AuditModule } from '../modules/audit/audit.module';
 import { SettingsModule } from '../modules/settings/settings.module';
+import { EmailProvidersModule } from '../modules/email-providers/email-providers.module';
 import { AuditContextInterceptor } from '../modules/audit/interceptors/audit-context.interceptor';
 import { HttpExceptionFilter } from '../common/filters/http-exception.filter';
 import { ResponseInterceptor } from '../common/interceptors/response.interceptor';
@@ -39,6 +40,7 @@ export class CoreModule {
         PermissionsModule,
         AuditModule,
         SettingsModule,
+        EmailProvidersModule,
       ],
       exports: [
         ConfigModule,
@@ -50,6 +52,7 @@ export class CoreModule {
         PermissionsModule,
         AuditModule,
         SettingsModule,
+        EmailProvidersModule,
       ],
     };
   }
@@ -88,6 +91,7 @@ export class CoreModule {
         PermissionsModule,
         AuditModule,
         SettingsModule,
+        EmailProvidersModule,
       ],
       exports: [
         ConfigModule,
@@ -99,6 +103,7 @@ export class CoreModule {
         PermissionsModule,
         AuditModule,
         SettingsModule,
+        EmailProvidersModule,
       ],
     };
   }

@@ -60,3 +60,9 @@ export { CreateSettingDto } from './modules/settings/dto/create-setting.dto';
 export { UpdateSettingDto } from './modules/settings/dto/update-setting.dto';
 export { CreateCategoryDto } from './modules/settings/dto/create-category.dto';
 export { UpdateCategoryDto } from './modules/settings/dto/update-category.dto';
+
+// Email Providers
+export { EmailProvidersModule } from './modules/email-providers/email-providers.module';
+export { EmailProvidersService } from './modules/email-providers/email-providers.service';
+export { CreateEmailProviderDto } from './modules/email-providers/dto/create-email-provider.dto';
+export { UpdateEmailProviderDto } from './modules/email-providers/dto/update-email-provider.dto';
