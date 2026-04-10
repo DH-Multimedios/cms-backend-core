@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
-import * as entities from './entities';
+import { CORE_ENTITIES } from './entities';
 
 // Cargar variables de entorno
 config();
@@ -12,7 +12,7 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USERNAME || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_NAME || 'backend_core_dev',
-  entities: Object.values(entities),
+  entities: CORE_ENTITIES,
   migrations: ['src/database/migrations/*.ts'],
   synchronize: false, // NUNCA true en producción
   logging: process.env.DB_LOGGING === 'true',
