@@ -87,15 +87,6 @@ import { CoreModule } from '@dh/backend-core';
             storage: 'local',
             path: './uploads/media',
           },
-          notifications: {
-            email: {
-              host: config.getOrThrow<string>('SMTP_HOST'),
-              port: config.getOrThrow<number>('SMTP_PORT'),
-              user: config.getOrThrow<string>('SMTP_USER'),
-              pass: config.getOrThrow<string>('SMTP_PASS'),
-              from: config.getOrThrow<string>('SMTP_FROM'),
-            },
-          },
         },
       }),
     }),
@@ -191,13 +182,6 @@ SUPERADMIN_PASSWORD=password-segura
 
 ADMIN_EMAIL=support@miproyecto.com
 ADMIN_PASSWORD=password-segura
-
-# Email
-SMTP_HOST=smtp.example.com
-SMTP_PORT=587
-SMTP_USER=noreply@miproyecto.com
-SMTP_PASS=smtp-password
-SMTP_FROM=noreply@miproyecto.com
 
 # CORS
 CORS_ORIGINS=http://localhost:4200
