@@ -146,7 +146,7 @@ export class SettingsService implements OnModuleInit {
     );
   }
 
-  async removeCategory(id: number): Promise<void> {
+  async removeCategory(id: number): Promise<{ message: string }> {
     const category = await this.categoryRepository.findOne({
       where: { id },
       relations: ['settings'],
