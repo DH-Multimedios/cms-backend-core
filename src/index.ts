@@ -17,6 +17,7 @@ export * from './core/interfaces/core-config.interface';
 
 // Entities
 export * from './database/entities';
+export { CORE_ENTITIES } from './database/entities';
 
 // Seeds
 export { runCoreSeeds } from './database/seeds/core-seeds';

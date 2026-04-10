@@ -247,8 +247,7 @@ Creá `src/database/data-source.ts`:
 import { DataSource } from 'typeorm';
 import 'dotenv/config'; // Necesario acá: este archivo corre via CLI, fuera del contexto de NestJS
 
-// Importar entidades del core explícitamente
-import { User, Role, Permission, AuditLog, Taxonomy, File, Media, Setting } from '@dh/backend-core';
+import { CORE_ENTITIES } from '@dh/backend-core';
 // import { Product } from './entities/product.entity';
 
 export const AppDataSource = new DataSource({
@@ -259,14 +258,7 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD!,
   database: process.env.DB_NAME!,
   entities: [
-    User,
-    Role,
-    Permission,
-    AuditLog,
-    Taxonomy,
-    File,
-    Media,
-    Setting,
+    ...CORE_ENTITIES,
     // Product, // Tus entidades
   ],
   migrations: [
@@ -488,26 +480,7 @@ pnpm start:dev
 
 ### Si se agregaron nuevas entidades al core
 
-Cuando el core agrega una entidad nueva (ej: `RefreshToken`), tenés que declararla en tu `data-source.ts`:
-
-```typescript
-// src/database/data-source.ts
-import {
-  User, Role, Permission, RefreshToken,  // ← agregar la nueva entidad
-  AuditLog, Taxonomy, File, Media, Setting
-} from '@dh/backend-core';
-
-export const AppDataSource = new DataSource({
-  entities: [
-    User, Role, Permission, RefreshToken,  // ← acá también
-    AuditLog, Taxonomy, File, Media, Setting,
-    // ...tus entidades
-  ],
-  // ...
-});
-```
-
-> **¿Cómo sé qué entidades hay?** Revisá los exports de `@dh/backend-core` o mirá el CHANGELOG del repo.
+Nada que hacer. `CORE_ENTITIES` se actualiza automáticamente con cada versión del core — no tenés que tocar tu `data-source.ts`.
 
 ### Si hay cambios incompatibles (breaking changes)
 
