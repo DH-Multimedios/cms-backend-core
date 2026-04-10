@@ -1,7 +1,7 @@
 meta {
   name: Create Setting
   type: http
-  seq: 3
+  seq: 2
 }
 
 post {
@@ -22,6 +22,29 @@ body:json {
     "value": "Mi App",
     "description": "Nombre que aparece en el dashboard",
     "type": "string",
+    "inputType": "text",
     "order": 1
   }
+}
+
+docs {
+  ## Ejemplos por inputType
+
+  ### text / url / email / color / date / password
+  { "type": "string", "inputType": "text", "value": "algo", "meta": null }
+
+  ### textarea
+  { "type": "string", "inputType": "textarea", "value": "texto largo", "meta": { "rows": 5 } }
+
+  ### number
+  { "type": "number", "inputType": "number", "value": "10", "meta": { "min": 0, "max": 100 } }
+
+  ### toggle
+  { "type": "boolean", "inputType": "toggle", "value": "true", "meta": null }
+
+  ### select / radio  (valor único)
+  { "type": "string", "inputType": "select", "value": "smtp", "meta": { "options": [{"value":"smtp","label":"SMTP"},{"value":"resend","label":"Resend"}] } }
+
+  ### checkbox  (valor múltiple → JSON array)
+  { "type": "json", "inputType": "checkbox", "value": "[\"opcion1\",\"opcion2\"]", "meta": { "options": [{"value":"opcion1","label":"Opción 1"},{"value":"opcion2","label":"Opción 2"}] } }
 }

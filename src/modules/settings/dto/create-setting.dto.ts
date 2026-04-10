@@ -1,8 +1,46 @@
-import { IsString, IsOptional, IsInt, Min, IsIn } from 'class-validator';
+import { IsString, IsOptional, IsInt, Min, IsIn, ValidateNested, IsArray } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { SettingType } from '../../../database/entities/setting.entity';
+import { SettingType, SettingInputType, SettingMeta } from '../../../database/entities/setting.entity';
 
 const SETTING_TYPES: SettingType[] = ['string', 'number', 'boolean', 'json', 'password'];
+const INPUT_TYPES: SettingInputType[] = [
+  'text', 'textarea', 'number', 'password', 'toggle',
+  'checkbox', 'radio', 'select', 'color', 'url', 'email', 'date',
+];
+
+export class SettingMetaOptionDto {
+  @IsString()
+  value: string;
+
+  @IsString()
+  label: string;
+}
+
+export class SettingMetaDto {
+  @ApiPropertyOptional({ type: [SettingMetaOptionDto], description: 'Opciones para select, radio y checkbox' })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => SettingMetaOptionDto)
+  @IsOptional()
+  options?: SettingMetaOptionDto[];
+
+  @ApiPropertyOptional({ description: 'Filas para textarea' })
+  @IsInt()
+  @Min(1)
+  @IsOptional()
+  rows?: number;
+
+  @ApiPropertyOptional({ description: 'Valor mínimo para number' })
+  @IsInt()
+  @IsOptional()
+  min?: number;
+
+  @ApiPropertyOptional({ description: 'Valor máximo para number' })
+  @IsInt()
+  @IsOptional()
+  max?: number;
+}
 
 export class CreateSettingDto {
   @ApiPropertyOptional({ description: 'ID de la categoría' })
@@ -11,7 +49,7 @@ export class CreateSettingDto {
   @IsOptional()
   categoryId?: number;
 
-  @ApiProperty({ example: 'app.name', description: 'Clave única del setting' })
+  @ApiProperty({ example: 'app.name' })
   @IsString()
   key: string;
 
@@ -32,6 +70,20 @@ export class CreateSettingDto {
   @IsIn(SETTING_TYPES)
   @IsOptional()
   type?: SettingType;
+
+  @ApiPropertyOptional({ enum: INPUT_TYPES, default: 'text' })
+  @IsIn(INPUT_TYPES)
+  @IsOptional()
+  inputType?: SettingInputType;
+
+  @ApiPropertyOptional({
+    type: SettingMetaDto,
+    description: 'select/radio/checkbox: { options }  |  textarea: { rows }  |  number: { min, max }',
+  })
+  @ValidateNested()
+  @Type(() => SettingMetaDto)
+  @IsOptional()
+  meta?: SettingMeta | null;
 
   @ApiPropertyOptional({ default: 0 })
   @IsInt()

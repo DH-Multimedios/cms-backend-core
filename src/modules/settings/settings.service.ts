@@ -279,7 +279,7 @@ export class SettingsService implements OnModuleInit {
     return saved;
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string): Promise<{ message: string }> {
     const setting = await this.settingRepository.findOneBy({ id });
     if (!setting) {
       throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, `Setting ${id} no encontrado`);
@@ -293,5 +293,7 @@ export class SettingsService implements OnModuleInit {
     });
 
     await this.settingRepository.remove(setting);
+
+    return { message: `Setting '${setting.key}' eliminado correctamente` };
   }
 }
