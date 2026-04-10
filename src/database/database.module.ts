@@ -1,7 +1,7 @@
 import { Module, DynamicModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DatabaseConfig } from '../core/interfaces/core-config.interface';
-import * as entities from './entities';
+import { CORE_ENTITIES } from './entities';
 
 @Module({})
 export class DatabaseModule {
@@ -16,7 +16,7 @@ export class DatabaseModule {
           username: config.username,
           password: config.password,
           database: config.database,
-          entities: Object.values(entities),
+          entities: CORE_ENTITIES,
           synchronize: config.synchronize || false,
           logging: config.logging || false,
           ssl: config.ssl || false,
@@ -45,7 +45,7 @@ export class DatabaseModule {
               username: config.username,
               password: config.password,
               database: config.database,
-              entities: Object.values(entities),
+              entities: CORE_ENTITIES,
               synchronize: config.synchronize || false,
               logging: config.logging || false,
               ssl: config.ssl || false,
