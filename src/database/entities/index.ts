@@ -43,4 +43,4 @@ export const CORE_ENTITIES = [
   Setting,
   SettingCategory,
   EmailProvider,
-] as const;
+];
