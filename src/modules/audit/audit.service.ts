@@ -13,7 +13,7 @@ export interface AuditLogOptions {
   action: string;
   entity: string;
   entityId?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, any> | null;
   /** Override userId from CLS context (e.g. for login failures where no session exists) */
   userId?: string | null;
 }

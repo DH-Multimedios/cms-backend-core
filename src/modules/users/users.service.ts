@@ -112,6 +112,15 @@ export class UsersService {
       action: 'create',
       entity: 'User',
       entityId: saved.id,
+      metadata: {
+        after: {
+          email: saved.email,
+          username: saved.username ?? null,
+          firstName: saved.firstName,
+          lastName: saved.lastName,
+          roles: roles.map((r) => r.id),
+        },
+      },
     });
 
     return UserResponseDto.from(saved);
@@ -125,6 +134,9 @@ export class UsersService {
       throw new ApiException(HttpStatus.FORBIDDEN, ErrorCode.USER_PROTECTED, 'No podés modificar un usuario protegido');
     }
 
+    const auditBefore: Record<string, any> = {};
+    const auditAfter: Record<string, any> = {};
+
     if (dto.roleIds !== undefined) {
       const currentMaxWeight = Math.max(...(currentUser.roles?.map((r) => r.weight) ?? [0]));
       const newRoles = await this.roleRepository.findByIds(dto.roleIds);
@@ -136,27 +148,47 @@ export class UsersService {
         }
       }
 
+      auditBefore.roles = user.roles?.map((r) => r.id) ?? [];
+      auditAfter.roles = dto.roleIds;
       user.roles = newRoles;
     }
 
     if (dto.email !== undefined && dto.email !== user.email) {
       const existing = await this.userRepository.findOneBy({ email: dto.email });
       if (existing) throw new ApiException(HttpStatus.CONFLICT, ErrorCode.USER_EMAIL_TAKEN, 'El email ya está en uso');
+      auditBefore.email = user.email;
+      auditAfter.email = dto.email;
       user.email = dto.email;
     }
 
     if (dto.username !== undefined && dto.username !== user.username) {
       const existing = await this.userRepository.findOneBy({ username: dto.username });
       if (existing) throw new ApiException(HttpStatus.CONFLICT, ErrorCode.USERNAME_TAKEN, 'El username ya está en uso');
+      auditBefore.username = user.username;
+      auditAfter.username = dto.username;
       user.username = dto.username;
     }
 
     if (dto.password) {
+      auditBefore.password = '[hidden]';
+      auditAfter.password = '[changed]';
       user.password = await bcrypt.hash(dto.password, 10);
     }
-    if (dto.firstName !== undefined) user.firstName = dto.firstName;
-    if (dto.lastName !== undefined) user.lastName = dto.lastName;
-    if (dto.isActive !== undefined) user.isActive = dto.isActive;
+    if (dto.firstName !== undefined && dto.firstName !== user.firstName) {
+      auditBefore.firstName = user.firstName;
+      auditAfter.firstName = dto.firstName;
+      user.firstName = dto.firstName;
+    }
+    if (dto.lastName !== undefined && dto.lastName !== user.lastName) {
+      auditBefore.lastName = user.lastName;
+      auditAfter.lastName = dto.lastName;
+      user.lastName = dto.lastName;
+    }
+    if (dto.isActive !== undefined && dto.isActive !== user.isActive) {
+      auditBefore.isActive = user.isActive;
+      auditAfter.isActive = dto.isActive;
+      user.isActive = dto.isActive;
+    }
 
     const saved = await this.userRepository.save(user);
 
@@ -164,6 +196,7 @@ export class UsersService {
       action: 'update',
       entity: 'User',
       entityId: saved.id,
+      metadata: Object.keys(auditAfter).length > 0 ? { before: auditBefore, after: auditAfter } : null,
     });
 
     return UserResponseDto.from(saved);
@@ -181,6 +214,14 @@ export class UsersService {
       action: 'delete',
       entity: 'User',
       entityId: id,
+      metadata: {
+        before: {
+          email: user.email,
+          username: user.username ?? null,
+          firstName: user.firstName,
+          lastName: user.lastName,
+        },
+      },
     });
 
     await this.userRepository.remove(user);
@@ -191,15 +232,32 @@ export class UsersService {
     const user = await this.userRepository.findOne({ where: { id: currentUser.id } });
     if (!user) throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND, 'Usuario no encontrado');
 
+    const auditBefore: Record<string, any> = {};
+    const auditAfter: Record<string, any> = {};
+
     if (dto.email !== undefined && dto.email !== user.email) {
       const existing = await this.userRepository.findOneBy({ email: dto.email });
       if (existing) throw new ApiException(HttpStatus.CONFLICT, ErrorCode.USER_EMAIL_TAKEN, 'El email ya está en uso');
+      auditBefore.email = user.email;
+      auditAfter.email = dto.email;
       user.email = dto.email;
     }
 
-    if (dto.password) user.password = await bcrypt.hash(dto.password, 10);
-    if (dto.firstName !== undefined) user.firstName = dto.firstName;
-    if (dto.lastName !== undefined) user.lastName = dto.lastName;
+    if (dto.password) {
+      auditBefore.password = '[hidden]';
+      auditAfter.password = '[changed]';
+      user.password = await bcrypt.hash(dto.password, 10);
+    }
+    if (dto.firstName !== undefined && dto.firstName !== user.firstName) {
+      auditBefore.firstName = user.firstName;
+      auditAfter.firstName = dto.firstName;
+      user.firstName = dto.firstName;
+    }
+    if (dto.lastName !== undefined && dto.lastName !== user.lastName) {
+      auditBefore.lastName = user.lastName;
+      auditAfter.lastName = dto.lastName;
+      user.lastName = dto.lastName;
+    }
 
     const saved = await this.userRepository.save(user);
 
@@ -207,6 +265,7 @@ export class UsersService {
       action: 'update_profile',
       entity: 'User',
       entityId: saved.id,
+      metadata: Object.keys(auditAfter).length > 0 ? { before: auditBefore, after: auditAfter } : null,
     });
 
     return UserResponseDto.from(saved);

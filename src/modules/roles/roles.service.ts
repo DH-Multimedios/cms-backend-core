@@ -61,6 +61,9 @@ export class RolesService {
       action: 'create',
       entity: 'Role',
       entityId: saved.id,
+      metadata: {
+        after: { name: saved.name, weight: saved.weight, isProtected: saved.isProtected },
+      },
     });
 
     return saved;
@@ -73,9 +76,22 @@ export class RolesService {
       throw new ApiException(HttpStatus.FORBIDDEN, ErrorCode.ROLE_PROTECTED, 'No podés modificar un rol protegido');
     }
 
+    const auditBefore: Record<string, any> = {};
+    const auditAfter: Record<string, any> = {};
+
     if (dto.name && dto.name !== role.name) {
       const existing = await this.roleRepository.findOneBy({ name: dto.name });
       if (existing) throw new ApiException(HttpStatus.CONFLICT, ErrorCode.ROLE_NAME_TAKEN, 'Ya existe un rol con ese nombre');
+      auditBefore.name = role.name;
+      auditAfter.name = dto.name;
+    }
+    if (dto.description !== undefined && dto.description !== role.description) {
+      auditBefore.description = role.description;
+      auditAfter.description = dto.description;
+    }
+    if (dto.weight !== undefined && dto.weight !== role.weight) {
+      auditBefore.weight = role.weight;
+      auditAfter.weight = dto.weight;
     }
 
     Object.assign(role, dto);
@@ -85,6 +101,7 @@ export class RolesService {
       action: 'update',
       entity: 'Role',
       entityId: saved.id,
+      metadata: Object.keys(auditAfter).length > 0 ? { before: auditBefore, after: auditAfter } : null,
     });
 
     return saved;
@@ -101,6 +118,9 @@ export class RolesService {
       action: 'delete',
       entity: 'Role',
       entityId: id,
+      metadata: {
+        before: { name: role.name, weight: role.weight },
+      },
     });
 
     await this.roleRepository.remove(role);
@@ -113,6 +133,7 @@ export class RolesService {
       throw new ApiException(HttpStatus.FORBIDDEN, ErrorCode.ROLE_PROTECTED, 'No podés modificar permisos de un rol protegido');
     }
 
+    const previousPermissionIds = role.permissions?.map((p) => p.id) ?? [];
     const permissions = await this.permissionsService.findByIds(permissionIds);
     role.permissions = permissions;
     const saved = await this.roleRepository.save(role);
@@ -121,7 +142,10 @@ export class RolesService {
       action: 'assign_permissions',
       entity: 'Role',
       entityId: id,
-      metadata: { permissionIds },
+      metadata: {
+        before: { permissionIds: previousPermissionIds },
+        after: { permissionIds },
+      },
     });
 
     return saved;
