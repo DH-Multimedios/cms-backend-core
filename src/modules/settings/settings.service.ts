@@ -138,12 +138,13 @@ export class SettingsService implements OnModuleInit {
     return saved;
   }
 
-  async reorderCategories(dto: ReorderCategoriesDto): Promise<void> {
+  async reorderCategories(dto: ReorderCategoriesDto): Promise<{ message: string }> {
     await Promise.all(
       dto.ids.map((id, index) =>
         this.categoryRepository.update(id, { order: index }),
       ),
     );
+    return { message: 'Orden actualizado correctamente' };
   }
 
   async removeCategory(id: number): Promise<{ message: string }> {

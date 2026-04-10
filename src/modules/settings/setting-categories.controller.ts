@@ -65,7 +65,6 @@ export class SettingCategoriesController {
   @ApiBearerAuth()
   @RequirePermissions('settings.update')
   @ApiOperation({ summary: 'Reordenar categorías — enviar IDs en el orden deseado' })
-  @HttpCode(HttpStatus.NO_CONTENT)
   reorder(@Body() dto: ReorderCategoriesDto) {
     return this.settingsService.reorderCategories(dto);
   }
