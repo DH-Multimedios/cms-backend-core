@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuditService } from './audit.service';
 import { AuditQueryDto } from './dto/audit-query.dto';
@@ -18,5 +18,12 @@ export class AuditController {
   @ApiOperation({ summary: 'Listar logs de auditoría' })
   findAll(@Query() query: AuditQueryDto) {
     return this.auditService.findAll(query);
+  }
+
+  @Get(':id')
+  @RequirePermissions('audit.read')
+  @ApiOperation({ summary: 'Detalle de un log de auditoría (incluye metadata)' })
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.auditService.findOne(id);
   }
 }

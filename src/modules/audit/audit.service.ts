@@ -1,10 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ClsService } from 'nestjs-cls';
 import { AuditLog } from '../../database/entities/audit-log.entity';
 import { AuditQueryDto } from './dto/audit-query.dto';
+import { AuditLogListItemDto, AuditLogDetailDto } from './dto/audit-log-response.dto';
 import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
+import { ApiException } from '../../common/exceptions/api.exception';
+import { ErrorCode } from '../../common/enums/error-codes.enum';
 
 export interface AuditLogOptions {
   action: string;
@@ -43,11 +46,12 @@ export class AuditService {
     await this.auditLogRepository.save(log);
   }
 
-  async findAll(query: AuditQueryDto): Promise<PaginatedResult<AuditLog>> {
+  async findAll(query: AuditQueryDto): Promise<PaginatedResult<AuditLogListItemDto>> {
     const { page = 1, limit = 20, sortOrder = 'DESC', sortBy = 'createdAt', userId, entity, action, from, to } = query;
 
     const qb = this.auditLogRepository.createQueryBuilder('log')
-      .leftJoinAndSelect('log.user', 'user');
+      .leftJoin('log.user', 'user')
+      .addSelect(['user.id', 'user.firstName', 'user.lastName']);
 
     if (userId) {
       qb.andWhere('log.userId = :userId', { userId });
@@ -69,8 +73,28 @@ export class AuditService {
       .skip((page - 1) * limit)
       .take(limit);
 
-    const [items, total] = await qb.getManyAndCount();
+    const [logs, total] = await qb.getManyAndCount();
 
-    return { items, total, page, limit, pages: Math.ceil(total / limit) };
+    return {
+      items: logs.map(AuditLogListItemDto.from),
+      total,
+      page,
+      limit,
+      pages: Math.ceil(total / limit),
+    };
+  }
+
+  async findOne(id: string): Promise<AuditLogDetailDto> {
+    const log = await this.auditLogRepository.createQueryBuilder('log')
+      .leftJoin('log.user', 'user')
+      .addSelect(['user.id', 'user.firstName', 'user.lastName'])
+      .where('log.id = :id', { id })
+      .getOne();
+
+    if (!log) {
+      throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, `Audit log ${id} no encontrado`);
+    }
+
+    return AuditLogDetailDto.from(log);
   }
 }
