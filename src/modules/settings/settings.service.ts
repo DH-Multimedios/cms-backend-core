@@ -57,16 +57,26 @@ export class SettingsService implements OnModuleInit {
     };
   }
 
-  async findCategoryBySlug(slug: string): Promise<SettingCategory> {
-    const category = await this.categoryRepository.findOne({
-      where: { slug },
-      relations: ['settings'],
-      order: { settings: { order: 'ASC' } },
-    });
+  async findCategoryBySlug(slug: string, page = 1, limit = 20): Promise<SettingCategory & { settings: Setting[]; settingsTotal: number; settingsPage: number; settingsLimit: number; settingsPages: number }> {
+    const category = await this.categoryRepository.findOneBy({ slug });
     if (!category) {
       throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, `Categoría '${slug}' no encontrada`);
     }
-    return category;
+
+    const [settings, settingsTotal] = await this.settingRepository.findAndCount({
+      where: { categoryId: category.id },
+      order: { order: 'ASC', key: 'ASC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return Object.assign(category, {
+      settings,
+      settingsTotal,
+      settingsPage: page,
+      settingsLimit: limit,
+      settingsPages: Math.ceil(settingsTotal / limit),
+    });
   }
 
   async createCategory(dto: CreateCategoryDto): Promise<SettingCategory> {
@@ -96,11 +106,21 @@ export class SettingsService implements OnModuleInit {
       throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, `Categoría ${id} no encontrada`);
     }
 
-    // Si viene slug explícito, validar unicidad
-    if (dto.slug && dto.slug !== category.slug) {
-      const existing = await this.categoryRepository.findOneBy({ slug: dto.slug });
-      if (existing) {
-        throw new ApiException(HttpStatus.CONFLICT, ErrorCode.CONFLICT, `Ya existe una categoría con el slug '${dto.slug}'`);
+    // Resolver slug: explícito > auto desde label > mantener el actual
+    if (dto.slug) {
+      if (dto.slug !== category.slug) {
+        const existing = await this.categoryRepository.findOneBy({ slug: dto.slug });
+        if (existing) {
+          throw new ApiException(HttpStatus.CONFLICT, ErrorCode.CONFLICT, `Ya existe una categoría con el slug '${dto.slug}'`);
+        }
+      }
+    } else if (dto.label && dto.label !== category.label) {
+      dto.slug = generateSlug(dto.label);
+      if (dto.slug !== category.slug) {
+        const existing = await this.categoryRepository.findOneBy({ slug: dto.slug });
+        if (existing) {
+          throw new ApiException(HttpStatus.CONFLICT, ErrorCode.CONFLICT, `El slug generado '${dto.slug}' ya existe. Enviá un slug explícito.`);
+        }
       }
     }
 
@@ -150,6 +170,8 @@ export class SettingsService implements OnModuleInit {
     });
 
     await this.categoryRepository.remove(category);
+
+    return { message: `Categoría '${category.label}' eliminada correctamente` };
   }
 
   // ─── Settings ─────────────────────────────────────────────────────────────

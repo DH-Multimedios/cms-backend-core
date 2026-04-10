@@ -42,9 +42,15 @@ export class SettingCategoriesController {
 
   @Get(':slug')
   @Public()
-  @ApiOperation({ summary: 'Obtener categoría por slug con sus settings (público)' })
-  findOne(@Param('slug') slug: string) {
-    return this.settingsService.findCategoryBySlug(slug);
+  @ApiOperation({ summary: 'Obtener categoría por slug con sus settings paginados (público)' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  findOne(
+    @Param('slug') slug: string,
+    @Query('page') page = 1,
+    @Query('limit') limit = 20,
+  ) {
+    return this.settingsService.findCategoryBySlug(slug, Number(page), Number(limit));
   }
 
   @Post()
@@ -75,7 +81,6 @@ export class SettingCategoriesController {
   @Delete(':id')
   @ApiBearerAuth()
   @RequirePermissions('settings.delete')
-  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Eliminar categoría (solo si no tiene settings)' })
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.settingsService.removeCategory(id);
