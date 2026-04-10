@@ -52,3 +52,11 @@ export type { PermissionDefinition } from './modules/permissions/permissions.ser
 export { AuditModule } from './modules/audit/audit.module';
 export { AuditService } from './modules/audit/audit.service';
 export type { AuditLogOptions } from './modules/audit/audit.service';
+
+// Settings
+export { SettingsModule } from './modules/settings/settings.module';
+export { SettingsService } from './modules/settings/settings.service';
+export { CreateSettingDto } from './modules/settings/dto/create-setting.dto';
+export { UpdateSettingDto } from './modules/settings/dto/update-setting.dto';
+export { CreateCategoryDto } from './modules/settings/dto/create-category.dto';
+export { UpdateCategoryDto } from './modules/settings/dto/update-category.dto';

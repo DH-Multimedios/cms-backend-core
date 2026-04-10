@@ -2,6 +2,7 @@ import { DataSource } from 'typeorm';
 import { seedRoles } from './roles.seeder';
 import { seedPermissions } from './permissions.seeder';
 import { seedUsers } from './users.seeder';
+import { seedSettings } from './settings.seeder';
 
 /**
  * Ejecuta todos los seeds del core (roles, permisos, usuarios).
@@ -22,6 +23,10 @@ export async function runCoreSeeds(dataSource: DataSource): Promise<void> {
 
   console.log('📝 Creando usuarios...');
   await seedUsers(dataSource);
+  console.log('');
+
+  console.log('📝 Creando settings...');
+  await seedSettings(dataSource);
   console.log('');
 
   console.log('✅ Seeds del core completados!');

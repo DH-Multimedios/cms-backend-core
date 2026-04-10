@@ -7,3 +7,5 @@ export { Taxonomy } from './taxonomy.entity';
 export { File } from './file.entity';
 export { Media } from './media.entity';
 export { Setting } from './setting.entity';
+export type { SettingType } from './setting.entity';
+export { SettingCategory } from './setting-category.entity';
