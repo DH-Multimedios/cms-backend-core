@@ -37,7 +37,7 @@ export class AuditLog {
   /**
    * ID de la entidad afectada
    */
-  @Column({ type: 'uuid', nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   entityId: string | null;
 
   /**
