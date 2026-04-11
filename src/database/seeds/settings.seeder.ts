@@ -14,6 +14,7 @@ const SETTINGS: Array<{
   value: string;
   description?: string;
   type: 'string' | 'number' | 'boolean' | 'json' | 'password';
+  inputType?: string;
   order: number;
 }> = [
   // ─── General ──────────────────────────────────────────────────────────────
@@ -34,6 +35,16 @@ const SETTINGS: Array<{
     description: 'URL base del frontend (ej: https://miapp.com)',
     type: 'string',
     order: 2,
+  },
+  {
+    categoryKey: 'general',
+    key: 'app.logoUrl',
+    label: 'URL del logo',
+    value: '',
+    description: 'URL pública del logo (se usa en emails, ej: https://miapp.com/logo.png)',
+    type: 'string',
+    inputType: 'url',
+    order: 3,
   },
   // ─── Email ────────────────────────────────────────────────────────────────
   {
