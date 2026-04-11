@@ -4,6 +4,9 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity('taxonomies')
@@ -18,9 +21,8 @@ export class Taxonomy {
   slug: string;
 
   /**
-   * Tipo de taxonomía
-   * Ejemplos: category, tag, status, etc.
-   * Permite diferenciar taxonomías por propósito
+   * Vocabulario/tipo de la taxonomía — libre, definido por el cliente.
+   * Ejemplos: 'category', 'tag', 'status', 'region', etc.
    */
   @Column()
   type: string;
@@ -29,12 +31,27 @@ export class Taxonomy {
   description: string;
 
   /**
-   * ID de la imagen asociada (nullable)
-   * Relación con Media (NO cargada automáticamente)
-   * La composición se hace en el controlador cuando se solicita
+   * ID de imagen asociada (nullable).
+   * NO se carga automáticamente — composición en el controlador con ?includeImage=true.
    */
   @Column({ type: 'uuid', nullable: true })
   imageId: string;
+
+  /**
+   * Jerarquía opcional. null = nodo raíz.
+   */
+  @Column({ type: 'uuid', nullable: true })
+  parentId: string | null;
+
+  @ManyToOne(() => Taxonomy, (t) => t.children, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'parentId' })
+  parent: Taxonomy;
+
+  @OneToMany(() => Taxonomy, (t) => t.parent)
+  children: Taxonomy[];
+
+  @Column({ type: 'int', default: 0 })
+  order: number;
 
   @CreateDateColumn()
   createdAt: Date;

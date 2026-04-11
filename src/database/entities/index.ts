@@ -4,6 +4,7 @@ export { Permission } from './permission.entity';
 export { RefreshToken } from './refresh-token.entity';
 export { AuditLog } from './audit-log.entity';
 export { Taxonomy } from './taxonomy.entity';
+export { EntityTaxonomy } from './entity-taxonomy.entity';
 export { File } from './file.entity';
 export { Media } from './media.entity';
 export { Setting } from './setting.entity';
@@ -24,6 +25,7 @@ import { Permission } from './permission.entity';
 import { RefreshToken } from './refresh-token.entity';
 import { AuditLog } from './audit-log.entity';
 import { Taxonomy } from './taxonomy.entity';
+import { EntityTaxonomy } from './entity-taxonomy.entity';
 import { File } from './file.entity';
 import { Media } from './media.entity';
 import { Setting } from './setting.entity';
@@ -48,6 +50,7 @@ export const CORE_ENTITIES = [
   RefreshToken,
   AuditLog,
   Taxonomy,
+  EntityTaxonomy,
   File,
   Media,
   Setting,
