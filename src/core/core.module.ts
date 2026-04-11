@@ -14,6 +14,7 @@ import { SettingsModule } from '../modules/settings/settings.module';
 import { EmailProvidersModule } from '../modules/email-providers/email-providers.module';
 import { TaxonomiesModule } from '../modules/taxonomies/taxonomies.module';
 import { FilesModule } from '../modules/files/files.module';
+import { MediaModule } from '../modules/media/media.module';
 import { NotificationsModule } from '../modules/notifications/notifications.module';
 import { AuditContextInterceptor } from '../modules/audit/interceptors/audit-context.interceptor';
 import { HttpExceptionFilter } from '../common/filters/http-exception.filter';
@@ -102,6 +103,7 @@ export class CoreModule {
         SettingsModule,
         TaxonomiesModule,
         FilesModule,
+        MediaModule,
         EmailProvidersModule,
         NotificationsModule,
       ],
@@ -117,6 +119,7 @@ export class CoreModule {
         SettingsModule,
         TaxonomiesModule,
         FilesModule,
+        MediaModule,
         EmailProvidersModule,
         NotificationsModule,
       ],

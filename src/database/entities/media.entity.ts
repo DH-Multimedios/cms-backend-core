@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  UpdateDateColumn,
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
@@ -20,30 +21,39 @@ export class Media {
   originalName: string;
 
   @Column()
+  alt: string;
+
+  @Column()
   mimetype: string;
 
   @Column({ type: 'bigint' })
   size: number;
 
+  @Column({ type: 'int' })
+  width: number;
+
+  @Column({ type: 'int' })
+  height: number;
+
   @Column()
   path: string;
 
-  @Column({ nullable: true })
-  alt: string;
-
-  @Column({ type: 'int', nullable: true })
-  width: number;
-
-  @Column({ type: 'int', nullable: true })
-  height: number;
+  @Column()
+  url: string;
 
   @Column({ type: 'uuid' })
-  uploadedBy: string;
+  uploadedByUserId: string;
 
   @ManyToOne(() => User)
-  @JoinColumn({ name: 'uploadedBy' })
-  uploader: User;
+  @JoinColumn({ name: 'uploadedByUserId' })
+  uploadedBy: User;
+
+  @Column()
+  usage: string;
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

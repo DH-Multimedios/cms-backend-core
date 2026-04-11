@@ -24,6 +24,13 @@ const CATEGORIES = [
     description: 'Configuración de gestión de archivos',
     order: 2,
   },
+  {
+    id: 4,
+    slug: 'media-settings',
+    label: 'Imágenes',
+    description: 'Configuración de gestión de imágenes',
+    order: 3,
+  },
 ];
 
 const SETTINGS: Array<{
@@ -100,6 +107,27 @@ const SETTINGS: Array<{
     label: 'Tamaño máximo de archivo',
     value: '10485760',
     description: 'Tamaño máximo permitido para uploads en bytes (10485760 = 10MB)',
+    type: 'number',
+    inputType: 'number',
+    order: 2,
+  },
+  // ─── Media ────────────────────────────────────────────────────────────────
+  {
+    categoryKey: 'media-settings',
+    key: 'media.allowedMimetypes',
+    label: 'Tipos de imagen permitidos',
+    value: JSON.stringify(['image/jpeg', 'image/png', 'image/webp', 'image/gif']),
+    description: 'Lista de mimetypes permitidos para upload de imágenes',
+    type: 'json',
+    inputType: 'stringArray',
+    order: 1,
+  },
+  {
+    categoryKey: 'media-settings',
+    key: 'media.maxFileSize',
+    label: 'Tamaño máximo de imagen',
+    value: '5242880',
+    description: 'Tamaño máximo permitido para imágenes en bytes (5242880 = 5MB)',
     type: 'number',
     inputType: 'number',
     order: 2,

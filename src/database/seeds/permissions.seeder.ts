@@ -44,8 +44,10 @@ export async function seedPermissions(dataSource: DataSource): Promise<void> {
     { name: 'files.delete', description: 'Eliminar archivos', module: 'files' },
 
     // Media
-    { name: 'media.read', description: 'Ver imágenes', module: 'media' },
+    { name: 'media.list', description: 'Listar imágenes', module: 'media' },
+    { name: 'media.read', description: 'Ver detalles de imágenes', module: 'media' },
     { name: 'media.upload', description: 'Subir imágenes', module: 'media' },
+    { name: 'media.edit', description: 'Editar imágenes (alt text)', module: 'media' },
     { name: 'media.delete', description: 'Eliminar imágenes', module: 'media' },
 
     // Settings
@@ -94,7 +96,8 @@ export async function seedPermissions(dataSource: DataSource): Promise<void> {
         p.name === 'taxonomies.create' ||
         p.name === 'taxonomies.update' ||
         p.name === 'files.upload' ||
-        p.name === 'media.upload',
+        p.name === 'media.upload' ||
+        p.name === 'media.edit',
     );
     adminRole.permissions = adminPermissions;
     await roleRepository.save(adminRole);

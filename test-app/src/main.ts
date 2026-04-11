@@ -2,10 +2,18 @@ import 'dotenv/config'; // Cargar .env ANTES de todo
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // Servir uploads/media como carpeta estática (imágenes públicas)
+  const uploadsPath = process.env.UPLOADS_PATH || 'uploads/media';
+  app.useStaticAssets(join(process.cwd(), uploadsPath), {
+    prefix: '/uploads/media/',
+  });
 
   // Global prefix
   app.setGlobalPrefix(process.env.API_PREFIX || 'api');
