@@ -65,6 +65,14 @@ export { UpdateSettingDto } from './modules/settings/dto/update-setting.dto';
 export { CreateCategoryDto } from './modules/settings/dto/create-category.dto';
 export { UpdateCategoryDto } from './modules/settings/dto/update-category.dto';
 
+// Taxonomies
+export { TaxonomiesModule } from './modules/taxonomies/taxonomies.module';
+export { TaxonomiesService } from './modules/taxonomies/taxonomies.service';
+export { CreateTaxonomyDto } from './modules/taxonomies/dto/create-taxonomy.dto';
+export { UpdateTaxonomyDto } from './modules/taxonomies/dto/update-taxonomy.dto';
+export { QueryTaxonomyDto } from './modules/taxonomies/dto/query-taxonomy.dto';
+export { SyncEntityTaxonomiesDto } from './modules/taxonomies/dto/sync-entity-taxonomies.dto';
+
 // Email Providers
 export { EmailProvidersModule } from './modules/email-providers/email-providers.module';
 export { EmailProvidersService } from './modules/email-providers/email-providers.service';
