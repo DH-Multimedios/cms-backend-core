@@ -24,6 +24,13 @@ import { Public } from '../auth/decorators/public.decorator';
 export class SettingsController {
   constructor(private readonly settingsService: SettingsService) {}
 
+  @Get('input-types')
+  @Public()
+  @ApiOperation({ summary: 'Listar tipos de input soportados con su schema de meta (público)' })
+  getInputTypeSchemas() {
+    return this.settingsService.getInputTypeSchemas();
+  }
+
   @Get(':key')
   @Public()
   @ApiOperation({ summary: 'Obtener setting por key — devuelve key, label, value, type, inputType, meta (público)' })

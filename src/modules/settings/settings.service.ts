@@ -1,7 +1,7 @@
 import { Injectable, HttpStatus, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Setting } from '../../database/entities/setting.entity';
+import { Setting, SettingInputType, SettingType } from '../../database/entities/setting.entity';
 import { SettingCategory } from '../../database/entities/setting-category.entity';
 import { AuditService } from '../audit/audit.service';
 import { PermissionsService } from '../permissions/permissions.service';
@@ -26,6 +26,12 @@ export class SettingsService implements OnModuleInit {
     private readonly auditService: AuditService,
     private readonly permissionsService: PermissionsService,
   ) {}
+
+  // ─── Input type schemas ───────────────────────────────────────────────────
+
+  getInputTypeSchemas(): InputTypeSchema[] {
+    return INPUT_TYPE_SCHEMAS;
+  }
 
   async onModuleInit(): Promise<void> {
     await this.permissionsService.registerPermissions([
@@ -297,3 +303,113 @@ export class SettingsService implements OnModuleInit {
     return { message: `Setting '${setting.key}' eliminado correctamente` };
   }
 }
+
+// ─── Input type schema definitions ────────────────────────────────────────────
+
+export interface MetaFieldSchema {
+  type: 'string' | 'number' | 'array';
+  required: boolean;
+  description: string;
+  itemSchema?: Record<string, string>;
+}
+
+export interface InputTypeSchema {
+  value: SettingInputType;
+  label: string;
+  compatibleTypes: SettingType[];
+  meta: Record<string, MetaFieldSchema> | null;
+}
+
+const INPUT_TYPE_SCHEMAS: InputTypeSchema[] = [
+  {
+    value: 'text',
+    label: 'Texto corto',
+    compatibleTypes: ['string'],
+    meta: null,
+  },
+  {
+    value: 'textarea',
+    label: 'Texto largo',
+    compatibleTypes: ['string'],
+    meta: {
+      rows: { type: 'number', required: false, description: 'Número de filas visibles' },
+    },
+  },
+  {
+    value: 'number',
+    label: 'Número',
+    compatibleTypes: ['number'],
+    meta: {
+      min: { type: 'number', required: false, description: 'Valor mínimo permitido' },
+      max: { type: 'number', required: false, description: 'Valor máximo permitido' },
+    },
+  },
+  {
+    value: 'password',
+    label: 'Contraseña',
+    compatibleTypes: ['string', 'password'],
+    meta: null,
+  },
+  {
+    value: 'toggle',
+    label: 'Toggle',
+    compatibleTypes: ['boolean'],
+    meta: null,
+  },
+  {
+    value: 'checkbox',
+    label: 'Checkbox',
+    compatibleTypes: ['boolean'],
+    meta: null,
+  },
+  {
+    value: 'radio',
+    label: 'Radio',
+    compatibleTypes: ['string'],
+    meta: {
+      options: {
+        type: 'array',
+        required: true,
+        description: 'Opciones disponibles',
+        itemSchema: { value: 'string', label: 'string' },
+      },
+    },
+  },
+  {
+    value: 'select',
+    label: 'Select',
+    compatibleTypes: ['string'],
+    meta: {
+      options: {
+        type: 'array',
+        required: true,
+        description: 'Opciones disponibles',
+        itemSchema: { value: 'string', label: 'string' },
+      },
+    },
+  },
+  {
+    value: 'color',
+    label: 'Color',
+    compatibleTypes: ['string'],
+    meta: null,
+  },
+  {
+    value: 'url',
+    label: 'URL',
+    compatibleTypes: ['string'],
+    meta: null,
+  },
+  {
+    value: 'email',
+    label: 'Email',
+    compatibleTypes: ['string'],
+    meta: null,
+  },
+  {
+    value: 'date',
+    label: 'Fecha',
+    compatibleTypes: ['string'],
+    meta: null,
+  },
+];
