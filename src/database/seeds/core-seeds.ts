@@ -3,6 +3,7 @@ import { seedRoles } from './roles.seeder';
 import { seedPermissions } from './permissions.seeder';
 import { seedUsers } from './users.seeder';
 import { seedSettings } from './settings.seeder';
+import { seedNotifications } from './notifications.seeder';
 
 /**
  * Ejecuta todos los seeds del core (roles, permisos, usuarios).
@@ -27,6 +28,10 @@ export async function runCoreSeeds(dataSource: DataSource): Promise<void> {
 
   console.log('📝 Creando settings...');
   await seedSettings(dataSource);
+  console.log('');
+
+  console.log('📝 Creando notificaciones...');
+  await seedNotifications(dataSource);
   console.log('');
 
   console.log('✅ Seeds del core completados!');
