@@ -11,7 +11,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { existsSync } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
-import * as sharp from 'sharp';
+import sharp from 'sharp';
 
 @Injectable()
 export class MediaService {
@@ -229,11 +229,7 @@ export class MediaService {
     const media = await qb.getOne();
 
     if (!media) {
-      throw new ApiException(
-        HttpStatus.NOT_FOUND,
-        ErrorCode.RESOURCE_NOT_FOUND,
-        'Imagen no encontrada',
-      );
+      throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, 'Imagen no encontrada');
     }
 
     return media;

@@ -17,15 +17,17 @@
 
 - **Database** - Configuración de PostgreSQL + TypeORM
 - **Auth** - Login, JWT, guards de autenticación
-- **Users** - Gestión de usuarios
-- **Roles** - Gestión de roles y permisos
-- **Audit** - Registro de acciones del sistema
+- **Users** - Gestión de usuarios con roles y permisos
+- **Roles** - Gestión de roles con permisos granulares
+- **Permissions** - Sistema de permisos dinámico
+- **Audit** - Registro de acciones del sistema con metadata
 - **Health** - Monitoreo del estado del sistema
 - **Taxonomies** - Sistema de clasificación reutilizable
-- **Files** - Gestión de archivos
-- **Media** - Gestión de imágenes
-- **Settings** - Configuración persistente
-- **Notifications** - Sistema de notificaciones (email)
+- **Files** - Gestión de archivos privados con control de acceso
+- **Media** - Gestión de imágenes públicas con Sharp
+- **Settings** - Configuración persistente con categorías
+- **Notifications** - Sistema de notificaciones (email con MJML)
+- **Email Providers** - Gestión de proveedores SMTP
 
 ## 🚀 Instalación
 
@@ -60,6 +62,55 @@ pnpm start:dev
 ```
 
 ## ⚙️ Configuración
+
+### Variables de entorno necesarias
+
+Copia `.env.example` y configura las siguientes variables:
+
+```bash
+# Application
+NODE_ENV=production
+PORT=3000
+API_PREFIX=api
+BASE_URL=https://api.tudominio.com  # URL pública para Media
+
+# Storage
+UPLOADS_PATH=uploads  # Path relativo para Files y Media
+
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=tu_usuario
+DB_PASSWORD=tu_password
+DB_NAME=tu_database
+DB_SYNCHRONIZE=false  # NUNCA true en producción
+DB_LOGGING=false
+
+# JWT
+JWT_SECRET=secret-ultra-seguro-cambiar-en-produccion
+JWT_EXPIRATION=1d
+JWT_REFRESH_SECRET=refresh-secret-ultra-seguro
+JWT_REFRESH_EXPIRATION=7d
+
+# System User (DEVELOPER/OWNER)
+SYSTEM_USER_EMAIL=tu-email@personal.com
+SYSTEM_USER_PASSWORD=password-ultra-segura
+
+# SuperAdmin del cliente
+SUPERADMIN_EMAIL=admin@cliente.com
+SUPERADMIN_PASSWORD=password-del-cliente
+
+# Email (SMTP)
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=noreply@example.com
+SMTP_PASS=smtp-password
+SMTP_FROM=noreply@example.com
+SMTP_FROM_NAME=Tu Aplicación
+
+# CORS
+CORS_ORIGINS=https://tuapp.com,https://dashboard.tuapp.com
+```
 
 ### En tu proyecto cliente
 
@@ -142,11 +193,11 @@ El core incluye un sistema de usuarios con diferentes niveles:
 
 ## 📚 Documentación
 
-- [Documentación completa](./docs/)
-- [Plan de implementación](./PLAN.md)
-- [Decisiones arquitectónicas](./DECISIONES.md)
-- [Guía para frontend](./docs/frontend/)
-- [Referencia de API](./docs/client/)
+- **[Guía completa de módulos](./docs/)**
+- **[Documentación para frontend](./docs/frontend/)** - Cómo consumir la API
+- **[Documentación para backend-client](./docs/backend-client/)** - Cómo extender el core
+- **[Plan de implementación](./docs/PLAN.md)** - Roadmap y features
+- **[Decisiones arquitectónicas](./docs/DECISIONES.md)** - Por qué tomamos cada decisión
 
 ## 🧪 Testing
 

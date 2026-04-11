@@ -8,9 +8,10 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist/**/*",
+    "docs/**/*",
     "README.md",
-    "PLAN.md",
-    "DECISIONES.md"
+    "CHANGELOG.md",
+    ".env.example"
   ],
   "scripts": {
     "build": "tsc --project tsconfig.build.json",

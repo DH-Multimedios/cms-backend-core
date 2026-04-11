@@ -78,3 +78,21 @@ export { EmailProvidersModule } from './modules/email-providers/email-providers.
 export { EmailProvidersService } from './modules/email-providers/email-providers.service';
 export { CreateEmailProviderDto } from './modules/email-providers/dto/create-email-provider.dto';
 export { UpdateEmailProviderDto } from './modules/email-providers/dto/update-email-provider.dto';
+
+// Files
+export { FilesModule } from './modules/files/files.module';
+export { FilesService } from './modules/files/files.service';
+export { UploadFileDto } from './modules/files/dto/upload-file.dto';
+export { UpdateFileDto } from './modules/files/dto/update-file.dto';
+export { ListFilesDto } from './modules/files/dto/list-files.dto';
+
+// Media
+export { MediaModule } from './modules/media/media.module';
+export { MediaService } from './modules/media/media.service';
+export { UploadMediaDto } from './modules/media/dto/upload-media.dto';
+export { UpdateMediaDto } from './modules/media/dto/update-media.dto';
+export { ListMediaDto } from './modules/media/dto/list-media.dto';
+
+// Notifications
+export { NotificationsModule } from './modules/notifications/notifications.module';
+export { NotificationsService } from './modules/notifications/notifications.service';
