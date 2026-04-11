@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  UpdateDateColumn,
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
@@ -20,6 +21,12 @@ export class File {
   originalName: string;
 
   @Column()
+  name: string;
+
+  @Column({ type: 'text', nullable: true })
+  description: string | null;
+
+  @Column()
   mimetype: string;
 
   @Column({ type: 'bigint' })
@@ -29,12 +36,31 @@ export class File {
   path: string;
 
   @Column({ type: 'uuid' })
-  uploadedBy: string;
+  uploadedByUserId: string;
 
   @ManyToOne(() => User)
-  @JoinColumn({ name: 'uploadedBy' })
-  uploader: User;
+  @JoinColumn({ name: 'uploadedByUserId' })
+  uploadedBy: User;
+
+  @Column({ type: 'uuid', nullable: true })
+  fileOwnerUserId: string | null;
+
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'fileOwnerUserId' })
+  fileOwner: User | null;
+
+  @Column()
+  usage: string;
+
+  @Column({ default: false })
+  isPublic: boolean;
+
+  @Column({ type: 'int', default: 0 })
+  downloadCount: number;
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

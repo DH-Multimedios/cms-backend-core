@@ -36,8 +36,11 @@ export async function seedPermissions(dataSource: DataSource): Promise<void> {
     { name: 'taxonomies.delete', description: 'Eliminar taxonomías', module: 'taxonomies' },
 
     // Files
-    { name: 'files.read', description: 'Ver archivos', module: 'files' },
+    { name: 'files.list', description: 'Listar archivos', module: 'files' },
+    { name: 'files.read', description: 'Ver detalles de archivos', module: 'files' },
     { name: 'files.upload', description: 'Subir archivos', module: 'files' },
+    { name: 'files.download', description: 'Descargar archivos', module: 'files' },
+    { name: 'files.edit', description: 'Editar archivos', module: 'files' },
     { name: 'files.delete', description: 'Eliminar archivos', module: 'files' },
 
     // Media

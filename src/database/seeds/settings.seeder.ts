@@ -3,8 +3,27 @@ import { SettingCategory } from '../entities/setting-category.entity';
 import { Setting } from '../entities/setting.entity';
 
 const CATEGORIES = [
-  { id: 1, slug: 'general', label: 'Configuración General', description: 'Ajustes globales de la aplicación', order: 0 },
-  { id: 2, slug: 'email', label: 'Email', description: 'Configuración general de correo electrónico', order: 1 },
+  {
+    id: 1,
+    slug: 'general',
+    label: 'Configuración General',
+    description: 'Ajustes globales de la aplicación',
+    order: 0,
+  },
+  {
+    id: 2,
+    slug: 'email',
+    label: 'Email',
+    description: 'Configuración general de correo electrónico',
+    order: 1,
+  },
+  {
+    id: 3,
+    slug: 'files-settings',
+    label: 'Archivos',
+    description: 'Configuración de gestión de archivos',
+    order: 2,
+  },
 ];
 
 const SETTINGS: Array<{
@@ -56,6 +75,35 @@ const SETTINGS: Array<{
     type: 'string',
     order: 1,
   },
+  // ─── Files ────────────────────────────────────────────────────────────────
+  {
+    categoryKey: 'files-settings',
+    key: 'files.allowedMimetypes',
+    label: 'Tipos de archivo permitidos',
+    value: JSON.stringify([
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'text/plain',
+      'text/csv',
+    ]),
+    description: 'Lista de mimetypes permitidos para upload de archivos',
+    type: 'json',
+    inputType: 'stringArray',
+    order: 1,
+  },
+  {
+    categoryKey: 'files-settings',
+    key: 'files.maxFileSize',
+    label: 'Tamaño máximo de archivo',
+    value: '10485760',
+    description: 'Tamaño máximo permitido para uploads en bytes (10485760 = 10MB)',
+    type: 'number',
+    inputType: 'number',
+    order: 2,
+  },
 ];
 
 export async function seedSettings(dataSource: DataSource): Promise<void> {
@@ -83,7 +131,9 @@ export async function seedSettings(dataSource: DataSource): Promise<void> {
 
     const category = await categoryRepo.findOneBy({ slug: def.categoryKey });
     if (!category) {
-      console.warn(`  ⚠ Categoría '${def.categoryKey}' no encontrada, saltando setting '${def.key}'`);
+      console.warn(
+        `  ⚠ Categoría '${def.categoryKey}' no encontrada, saltando setting '${def.key}'`,
+      );
       continue;
     }
 
