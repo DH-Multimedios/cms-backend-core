@@ -17,6 +17,7 @@ import { NotificationPreferencesService } from './notification-preferences/notif
 import { NotificationPreferencesController } from './notification-preferences/notification-preferences.controller';
 import { EmailProvidersModule } from '../email-providers/email-providers.module';
 import { PermissionsModule } from '../permissions/permissions.module';
+import { SettingsModule } from '../settings/settings.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { PermissionsModule } from '../permissions/permissions.module';
     ]),
     EmailProvidersModule,
     PermissionsModule,
+    SettingsModule,
   ],
   controllers: [
     EmailLayoutsController,

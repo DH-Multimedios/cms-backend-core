@@ -206,10 +206,10 @@ Cada template documenta sus variables en el campo `variables[]`.
 | Variable | Template |
 |----------|----------|
 | `{{firstName}}` | Todos los templates de user |
-| `{{verificationUrl}}` | welcome, email-verification |
 | `{{verificationToken}}` | welcome, email-verification |
-| `{{resetUrl}}` | password-reset |
 | `{{resetToken}}` | password-reset |
+
+> Las URLs se construyen en el template combinando `{{appUrl}}` con el token: `{{appUrl}}/verify?token={{verificationToken}}`
 
 ---
 

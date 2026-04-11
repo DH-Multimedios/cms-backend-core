@@ -227,20 +227,29 @@ Solo puede haber un provider activo a la vez.
 
 ## Variables globales automáticas
 
-El `NotificationsService` del core inyecta automáticamente estas variables en todos los templates:
+El `NotificationsService` del core inyecta automáticamente estas variables en **todos los templates** antes de renderizar. No necesitás pasarlas manualmente:
 
-> ⚠️ Actualmente las variables globales (`appName`, `appUrl`, etc.) deben pasarse manualmente en el `data` del evento. En una próxima versión se inyectarán automáticamente desde Settings.
+| Variable | Fuente (Settings key) |
+|----------|----------------------|
+| `{{appName}}` | `app.name` |
+| `{{appUrl}}` | `app.url` |
+| `{{appLogoUrl}}` | `app.logoUrl` |
+| `{{currentYear}}` | calculado en tiempo de envío |
 
-Para ya tenerlas disponibles, en tu listener incluí:
+> Las variables del evento tienen prioridad sobre las globales — si pasás `appName` en tu listener, sobreescribe el valor de Settings.
+
+En tu listener solo pasás las variables específicas del evento:
 
 ```typescript
 const html = this.renderer.render(template.compiledHtml, {
-  // variables específicas del evento
   firstName: event.customer.firstName,
   orderNumber: event.order.number,
-  // variables globales
-  appName: process.env.APP_NAME,
-  appUrl: process.env.APP_URL,
-  currentYear: new Date().getFullYear(),
+  // appName, appUrl, appLogoUrl, currentYear → automáticos
 });
+```
+
+Las URLs de los botones en los templates pueden usar `{{appUrl}}` directamente:
+
+```json
+{ "type": "button", "label": "Ver pedido", "url": "{{appUrl}}/orders/{{orderId}}" }
 ```
