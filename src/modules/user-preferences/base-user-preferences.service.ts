@@ -29,7 +29,7 @@ export abstract class BaseUserPreferencesService<T extends { userId: string }> {
     if (existing) return existing;
 
     const created = this.repository.create({ userId, ...defaults } as any) as T;
-    return this.repository.save(created) as Promise<T>;
+    return (await this.repository.save(created)) as unknown as T;
   }
 
   /**
@@ -39,6 +39,6 @@ export abstract class BaseUserPreferencesService<T extends { userId: string }> {
     const existing = await this.repository.findOneBy({ userId } as any);
     const preference = existing ?? (this.repository.create({ userId } as any) as T);
     Object.assign(preference, dto);
-    return this.repository.save(preference) as Promise<T>;
+    return (await this.repository.save(preference)) as unknown as T;
   }
 }
