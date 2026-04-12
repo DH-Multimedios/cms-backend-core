@@ -2,7 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import { Resend } from 'resend';
 import { EmailProvidersService } from '../email-providers/email-providers.service';
-import { SmtpConfig, GoogleOAuthConfig, ResendConfig } from '../../database/entities/email-provider.entity';
+import {
+  SmtpConfig,
+  GoogleOAuthConfig,
+  ResendConfig,
+} from '../../database/entities/email-provider.entity';
 
 export interface SendEmailOptions {
   to: string;
@@ -33,16 +37,26 @@ export class EmailSenderService {
           host: cfg.host,
           port: cfg.port,
           secure: cfg.secure,
-          auth: { user: cfg.user, pass: cfg.pass },
+          ...(cfg.user && cfg.pass ? { auth: { user: cfg.user, pass: cfg.pass } } : {}),
         });
-        await transport.sendMail({ from, to: options.to, subject: options.subject, html: options.html });
+        await transport.sendMail({
+          from,
+          to: options.to,
+          subject: options.subject,
+          html: options.html,
+        });
         break;
       }
 
       case 'resend': {
         const cfg = provider.config as ResendConfig;
         const resend = new Resend(cfg.apiKey);
-        await resend.emails.send({ from, to: options.to, subject: options.subject, html: options.html });
+        await resend.emails.send({
+          from,
+          to: options.to,
+          subject: options.subject,
+          html: options.html,
+        });
         break;
       }
 
@@ -58,7 +72,12 @@ export class EmailSenderService {
             refreshToken: cfg.refreshToken,
           },
         });
-        await transport.sendMail({ from, to: options.to, subject: options.subject, html: options.html });
+        await transport.sendMail({
+          from,
+          to: options.to,
+          subject: options.subject,
+          html: options.html,
+        });
         break;
       }
     }
