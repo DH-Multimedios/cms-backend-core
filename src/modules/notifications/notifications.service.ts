@@ -90,11 +90,8 @@ export class NotificationsService implements OnModuleInit {
       }
 
       const [entityType, notifType2] = notificationTypeKey.split('.');
-      const template = await this.templatesService.findByType(entityType, notifType2);
-      if (!template?.compiledHtml) {
-        this.logger.warn(`No hay template compilado para '${notificationTypeKey}'`);
-        return;
-      }
+      const template = await this.resolveTemplate(entityType, notifType2, notificationTypeKey);
+      if (!template) return;
 
       // Variables globales desde Settings — las específicas del evento tienen prioridad
       const globalVars = await this.getGlobalVariables();
@@ -110,6 +107,31 @@ export class NotificationsService implements OnModuleInit {
         err,
       );
     }
+  }
+
+  /**
+   * Obtiene el template y lo compila on-the-fly si compiledHtml es null.
+   * Guarda el resultado para futuras ejecuciones.
+   */
+  private async resolveTemplate(entityType: string, notifType: string, key: string) {
+    let template = await this.templatesService.findByType(entityType, notifType);
+
+    if (!template) {
+      this.logger.warn(`No existe template para '${key}'`);
+      return null;
+    }
+
+    if (!template.compiledHtml) {
+      this.logger.debug(`Compilando template '${key}' por primera vez`);
+      template = await this.templatesService.compileAndSave(template);
+    }
+
+    if (!template.compiledHtml) {
+      this.logger.warn(`No se pudo compilar template para '${key}'`);
+      return null;
+    }
+
+    return template;
   }
 
   /**
@@ -158,11 +180,8 @@ export class NotificationsService implements OnModuleInit {
       }
 
       const [entityType, type] = notificationTypeKey.split('.');
-      const template = await this.templatesService.findByType(entityType, type);
-      if (!template?.compiledHtml) {
-        this.logger.warn(`No hay template compilado para '${notificationTypeKey}'`);
-        return;
-      }
+      const template = await this.resolveTemplate(entityType, type, notificationTypeKey);
+      if (!template) return;
 
       const globalVars = await this.getGlobalVariables();
       const allVars = { ...globalVars, ...variables };
