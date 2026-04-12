@@ -15,7 +15,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       context.getClass(),
     ]);
 
-    if (isPublic) return true;
+    if (isPublic) {
+      // Intentar extraer usuario del token si existe, pero no fallar si no hay token
+      return super.canActivate(context).catch(() => true);
+    }
 
     return super.canActivate(context);
   }
