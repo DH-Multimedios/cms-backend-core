@@ -86,6 +86,9 @@ export class Setting {
   @Column({ default: 0 })
   order: number;
 
+  @Column({ default: false })
+  isProtected: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 

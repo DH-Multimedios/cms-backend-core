@@ -17,6 +17,12 @@ export async function seedRoles(dataSource: DataSource): Promise<void> {
       weight: 90,
       isProtected: true,
     },
+    {
+      name: 'User',
+      description: 'Usuario estándar con permisos básicos',
+      weight: 50,
+      isProtected: true,
+    },
   ];
 
   for (const roleData of roles) {

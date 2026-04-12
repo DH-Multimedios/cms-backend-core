@@ -11,13 +11,31 @@ export { Setting } from './setting.entity';
 export type { SettingType, SettingInputType, SettingMeta } from './setting.entity';
 export { SettingCategory } from './setting-category.entity';
 export { EmailProvider } from './email-provider.entity';
-export type { EmailProviderType, EmailProviderConfigUnion, SmtpConfig, ResendConfig, GoogleOAuthConfig } from './email-provider.entity';
+export type {
+  EmailProviderType,
+  EmailProviderConfigUnion,
+  SmtpConfig,
+  ResendConfig,
+  GoogleOAuthConfig,
+} from './email-provider.entity';
 export { EmailLayout } from './email-layout.entity';
 export type { EmailLayoutType } from './email-layout.entity';
 export { EmailTemplate } from './email-template.entity';
 export { NotificationType } from './notification-type.entity';
 export { UserNotificationPreference } from './user-notification-preference.entity';
-export type { Section, Column, Block, TextBlock, HeadingBlock, ButtonBlock, ImageBlock, DividerBlock, SpacerBlock } from './notification-block.types';
+export type {
+  Section,
+  Column,
+  Block,
+  TextBlock,
+  HeadingBlock,
+  ButtonBlock,
+  ImageBlock,
+  DividerBlock,
+  SpacerBlock,
+} from './notification-block.types';
+export { UserPreference } from './user-preference.entity';
+export type { ThemePreference } from './user-preference.entity';
 
 import { User } from './user.entity';
 import { Role } from './role.entity';
@@ -35,6 +53,7 @@ import { EmailLayout } from './email-layout.entity';
 import { EmailTemplate } from './email-template.entity';
 import { NotificationType } from './notification-type.entity';
 import { UserNotificationPreference } from './user-notification-preference.entity';
+import { UserPreference } from './user-preference.entity';
 
 /**
  * Array con todas las entidades del core.
@@ -60,4 +79,5 @@ export const CORE_ENTITIES = [
   EmailTemplate,
   NotificationType,
   UserNotificationPreference,
+  UserPreference,
 ];

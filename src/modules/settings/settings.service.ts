@@ -1,4 +1,4 @@
-import { Injectable, HttpStatus, OnModuleInit } from '@nestjs/common';
+import { Injectable, HttpStatus, OnModuleInit, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Setting, SettingInputType, SettingType } from '../../database/entities/setting.entity';
@@ -36,14 +36,25 @@ export class SettingsService implements OnModuleInit {
   async onModuleInit(): Promise<void> {
     await this.permissionsService.registerPermissions([
       { name: 'settings.create', description: 'Crear settings', module: 'settings' },
-      { name: 'settings.update', description: 'Modificar settings y categorías', module: 'settings' },
-      { name: 'settings.delete', description: 'Eliminar settings y categorías', module: 'settings' },
+      {
+        name: 'settings.update',
+        description: 'Modificar settings y categorías',
+        module: 'settings',
+      },
+      {
+        name: 'settings.delete',
+        description: 'Eliminar settings y categorías',
+        module: 'settings',
+      },
     ]);
   }
 
   // ─── Categorías ───────────────────────────────────────────────────────────
 
-  async findAllCategories(page = 1, limit = 20): Promise<PaginatedResult<SettingCategory & { settingsCount: number }>> {
+  async findAllCategories(
+    page = 1,
+    limit = 20,
+  ): Promise<PaginatedResult<SettingCategory & { settingsCount: number }>> {
     const qb = this.categoryRepository
       .createQueryBuilder('category')
       .loadRelationCountAndMap('category.settingsCount', 'category.settings')
@@ -63,10 +74,26 @@ export class SettingsService implements OnModuleInit {
     };
   }
 
-  async findCategoryBySlug(slug: string, page = 1, limit = 20): Promise<SettingCategory & { settings: Setting[]; settingsTotal: number; settingsPage: number; settingsLimit: number; settingsPages: number }> {
+  async findCategoryBySlug(
+    slug: string,
+    page = 1,
+    limit = 20,
+  ): Promise<
+    SettingCategory & {
+      settings: Setting[];
+      settingsTotal: number;
+      settingsPage: number;
+      settingsLimit: number;
+      settingsPages: number;
+    }
+  > {
     const category = await this.categoryRepository.findOneBy({ slug });
     if (!category) {
-      throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, `Categoría '${slug}' no encontrada`);
+      throw new ApiException(
+        HttpStatus.NOT_FOUND,
+        ErrorCode.NOT_FOUND,
+        `Categoría '${slug}' no encontrada`,
+      );
     }
 
     const [settings, settingsTotal] = await this.settingRepository.findAndCount({
@@ -90,7 +117,11 @@ export class SettingsService implements OnModuleInit {
 
     const existing = await this.categoryRepository.findOneBy({ slug });
     if (existing) {
-      throw new ApiException(HttpStatus.CONFLICT, ErrorCode.CONFLICT, `Ya existe una categoría con el slug '${slug}'`);
+      throw new ApiException(
+        HttpStatus.CONFLICT,
+        ErrorCode.CONFLICT,
+        `Ya existe una categoría con el slug '${slug}'`,
+      );
     }
 
     const category = this.categoryRepository.create({ ...dto, slug });
@@ -109,7 +140,11 @@ export class SettingsService implements OnModuleInit {
   async updateCategory(id: number, dto: UpdateCategoryDto): Promise<SettingCategory> {
     const category = await this.categoryRepository.findOneBy({ id });
     if (!category) {
-      throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, `Categoría ${id} no encontrada`);
+      throw new ApiException(
+        HttpStatus.NOT_FOUND,
+        ErrorCode.NOT_FOUND,
+        `Categoría ${id} no encontrada`,
+      );
     }
 
     // Resolver slug: explícito > auto desde label > mantener el actual
@@ -117,7 +152,11 @@ export class SettingsService implements OnModuleInit {
       if (dto.slug !== category.slug) {
         const existing = await this.categoryRepository.findOneBy({ slug: dto.slug });
         if (existing) {
-          throw new ApiException(HttpStatus.CONFLICT, ErrorCode.CONFLICT, `Ya existe una categoría con el slug '${dto.slug}'`);
+          throw new ApiException(
+            HttpStatus.CONFLICT,
+            ErrorCode.CONFLICT,
+            `Ya existe una categoría con el slug '${dto.slug}'`,
+          );
         }
       }
     } else if (dto.label && dto.label !== category.label) {
@@ -125,7 +164,11 @@ export class SettingsService implements OnModuleInit {
       if (dto.slug !== category.slug) {
         const existing = await this.categoryRepository.findOneBy({ slug: dto.slug });
         if (existing) {
-          throw new ApiException(HttpStatus.CONFLICT, ErrorCode.CONFLICT, `El slug generado '${dto.slug}' ya existe. Enviá un slug explícito.`);
+          throw new ApiException(
+            HttpStatus.CONFLICT,
+            ErrorCode.CONFLICT,
+            `El slug generado '${dto.slug}' ya existe. Enviá un slug explícito.`,
+          );
         }
       }
     }
@@ -146,9 +189,7 @@ export class SettingsService implements OnModuleInit {
 
   async reorderCategories(dto: ReorderCategoriesDto): Promise<{ message: string }> {
     await Promise.all(
-      dto.ids.map((id, index) =>
-        this.categoryRepository.update(id, { order: index }),
-      ),
+      dto.ids.map((id, index) => this.categoryRepository.update(id, { order: index })),
     );
     return { message: 'Orden actualizado correctamente' };
   }
@@ -159,7 +200,14 @@ export class SettingsService implements OnModuleInit {
       relations: ['settings'],
     });
     if (!category) {
-      throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, `Categoría ${id} no encontrada`);
+      throw new ApiException(
+        HttpStatus.NOT_FOUND,
+        ErrorCode.NOT_FOUND,
+        `Categoría ${id} no encontrada`,
+      );
+    }
+    if (category.isProtected) {
+      throw new ForbiddenException('Esta categoría está protegida y no puede eliminarse');
     }
     if (category.settings?.length) {
       throw new ApiException(
@@ -207,7 +255,11 @@ export class SettingsService implements OnModuleInit {
       relations: ['category'],
     });
     if (!setting) {
-      throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, `Setting '${key}' no encontrado`);
+      throw new ApiException(
+        HttpStatus.NOT_FOUND,
+        ErrorCode.NOT_FOUND,
+        `Setting '${key}' no encontrado`,
+      );
     }
     return setting;
   }
@@ -220,13 +272,21 @@ export class SettingsService implements OnModuleInit {
   async create(dto: CreateSettingDto): Promise<Setting> {
     const existing = await this.settingRepository.findOneBy({ key: dto.key });
     if (existing) {
-      throw new ApiException(HttpStatus.CONFLICT, ErrorCode.CONFLICT, `Ya existe un setting con el key '${dto.key}'`);
+      throw new ApiException(
+        HttpStatus.CONFLICT,
+        ErrorCode.CONFLICT,
+        `Ya existe un setting con el key '${dto.key}'`,
+      );
     }
 
     if (dto.categoryId) {
       const category = await this.categoryRepository.findOneBy({ id: dto.categoryId });
       if (!category) {
-        throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, `Categoría ${dto.categoryId} no encontrada`);
+        throw new ApiException(
+          HttpStatus.NOT_FOUND,
+          ErrorCode.NOT_FOUND,
+          `Categoría ${dto.categoryId} no encontrada`,
+        );
       }
     }
 
@@ -237,7 +297,9 @@ export class SettingsService implements OnModuleInit {
       action: 'create',
       entity: 'Setting',
       entityId: saved.id,
-      metadata: { after: { key: saved.key, value: saved.type === 'password' ? '***' : saved.value } },
+      metadata: {
+        after: { key: saved.key, value: saved.type === 'password' ? '***' : saved.value },
+      },
     });
 
     return saved;
@@ -249,24 +311,36 @@ export class SettingsService implements OnModuleInit {
       relations: ['category'],
     });
     if (!setting) {
-      throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, `Setting ${id} no encontrado`);
+      throw new ApiException(
+        HttpStatus.NOT_FOUND,
+        ErrorCode.NOT_FOUND,
+        `Setting ${id} no encontrado`,
+      );
     }
 
     if (dto.key && dto.key !== setting.key) {
       const existing = await this.settingRepository.findOneBy({ key: dto.key });
       if (existing) {
-        throw new ApiException(HttpStatus.CONFLICT, ErrorCode.CONFLICT, `Ya existe un setting con el key '${dto.key}'`);
+        throw new ApiException(
+          HttpStatus.CONFLICT,
+          ErrorCode.CONFLICT,
+          `Ya existe un setting con el key '${dto.key}'`,
+        );
       }
     }
 
     if (dto.categoryId && dto.categoryId !== setting.categoryId) {
       const category = await this.categoryRepository.findOneBy({ id: dto.categoryId });
       if (!category) {
-        throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, `Categoría ${dto.categoryId} no encontrada`);
+        throw new ApiException(
+          HttpStatus.NOT_FOUND,
+          ErrorCode.NOT_FOUND,
+          `Categoría ${dto.categoryId} no encontrada`,
+        );
       }
     }
 
-    const isSensitive = (setting.type === 'password' || dto.type === 'password');
+    const isSensitive = setting.type === 'password' || dto.type === 'password';
     const before = { key: setting.key, value: isSensitive ? '***' : setting.value };
 
     Object.assign(setting, dto);
@@ -288,7 +362,14 @@ export class SettingsService implements OnModuleInit {
   async remove(id: string): Promise<{ message: string }> {
     const setting = await this.settingRepository.findOneBy({ id });
     if (!setting) {
-      throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, `Setting ${id} no encontrado`);
+      throw new ApiException(
+        HttpStatus.NOT_FOUND,
+        ErrorCode.NOT_FOUND,
+        `Setting ${id} no encontrado`,
+      );
+    }
+    if (setting.isProtected) {
+      throw new ForbiddenException('Esta configuración está protegida y no puede eliminarse');
     }
 
     await this.auditService.log({

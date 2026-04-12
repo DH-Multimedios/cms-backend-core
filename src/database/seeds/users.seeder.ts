@@ -97,4 +97,34 @@ export async function seedUsers(dataSource: DataSource): Promise<void> {
       console.log(`⏭️  Admin ya existe: ${adminEmail}`);
     }
   }
+
+  // 4. Usuario normal del cliente (opcional)
+  const userEmail = process.env.USER_EMAIL;
+  const userPassword = process.env.USER_PASSWORD;
+
+  if (userEmail && userPassword) {
+    let user = await userRepository.findOne({
+      where: { email: userEmail },
+      relations: ['roles'],
+    });
+
+    if (!user) {
+      const hashedPassword = await bcrypt.hash(userPassword, 10);
+      const userRole = await roleRepository.findOne({ where: { name: 'User' } });
+
+      user = userRepository.create({
+        email: userEmail,
+        password: hashedPassword,
+        firstName: 'User',
+        lastName: 'User',
+        isProtected: false,
+        isActive: true,
+        roles: userRole ? [userRole] : [],
+      });
+      await userRepository.save(user);
+      console.log(`✅ Usuario normal creado: ${userEmail}`);
+    } else {
+      console.log(`⏭️  Usuario normal ya existe: ${userEmail}`);
+    }
+  }
 }

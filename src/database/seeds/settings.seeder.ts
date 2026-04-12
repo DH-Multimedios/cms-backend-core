@@ -9,6 +9,7 @@ const CATEGORIES = [
     label: 'Configuración General',
     description: 'Ajustes globales de la aplicación',
     order: 0,
+    isProtected: true,
   },
   {
     id: 2,
@@ -16,6 +17,7 @@ const CATEGORIES = [
     label: 'Email',
     description: 'Configuración general de correo electrónico',
     order: 1,
+    isProtected: true,
   },
   {
     id: 3,
@@ -23,6 +25,7 @@ const CATEGORIES = [
     label: 'Archivos',
     description: 'Configuración de gestión de archivos',
     order: 2,
+    isProtected: true,
   },
   {
     id: 4,
@@ -30,6 +33,7 @@ const CATEGORIES = [
     label: 'Imágenes',
     description: 'Configuración de gestión de imágenes',
     order: 3,
+    isProtected: true,
   },
 ];
 
@@ -42,6 +46,7 @@ const SETTINGS: Array<{
   type: 'string' | 'number' | 'boolean' | 'json' | 'password';
   inputType?: string;
   order: number;
+  isProtected?: boolean;
 }> = [
   // ─── General ──────────────────────────────────────────────────────────────
   {
@@ -52,6 +57,7 @@ const SETTINGS: Array<{
     description: 'Nombre que se muestra en el dashboard y notificaciones',
     type: 'string',
     order: 1,
+    isProtected: true,
   },
   {
     categoryKey: 'general',
@@ -61,6 +67,7 @@ const SETTINGS: Array<{
     description: 'URL base del frontend (ej: https://miapp.com)',
     type: 'string',
     order: 2,
+    isProtected: true,
   },
   {
     categoryKey: 'general',
@@ -71,6 +78,7 @@ const SETTINGS: Array<{
     type: 'string',
     inputType: 'url',
     order: 3,
+    isProtected: true,
   },
   // ─── Email ────────────────────────────────────────────────────────────────
   {
@@ -81,6 +89,7 @@ const SETTINGS: Array<{
     description: 'Dirección de correo que aparece como remitente (ej: noreply@miapp.com)',
     type: 'string',
     order: 1,
+    isProtected: true,
   },
   // ─── Files ────────────────────────────────────────────────────────────────
   {
@@ -100,6 +109,7 @@ const SETTINGS: Array<{
     type: 'json',
     inputType: 'stringArray',
     order: 1,
+    isProtected: true,
   },
   {
     categoryKey: 'files-settings',
@@ -110,6 +120,7 @@ const SETTINGS: Array<{
     type: 'number',
     inputType: 'number',
     order: 2,
+    isProtected: true,
   },
   // ─── Media ────────────────────────────────────────────────────────────────
   {
@@ -121,6 +132,7 @@ const SETTINGS: Array<{
     type: 'json',
     inputType: 'stringArray',
     order: 1,
+    isProtected: true,
   },
   {
     categoryKey: 'media-settings',
@@ -131,6 +143,7 @@ const SETTINGS: Array<{
     type: 'number',
     inputType: 'number',
     order: 2,
+    isProtected: true,
   },
 ];
 
@@ -174,6 +187,7 @@ export async function seedSettings(dataSource: DataSource): Promise<void> {
         description: def.description,
         type: def.type,
         order: def.order,
+        isProtected: def.isProtected ?? false,
       }),
     );
     console.log(`  ✓ Setting creado: ${def.key}`);

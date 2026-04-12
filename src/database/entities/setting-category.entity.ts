@@ -25,6 +25,9 @@ export class SettingCategory {
   @Column({ default: 0 })
   order: number;
 
+  @Column({ default: false })
+  isProtected: boolean;
+
   @OneToMany(() => Setting, (setting) => setting.category)
   settings: Setting[];
 

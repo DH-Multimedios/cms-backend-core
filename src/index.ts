@@ -96,3 +96,11 @@ export { ListMediaDto } from './modules/media/dto/list-media.dto';
 // Notifications
 export { NotificationsModule } from './modules/notifications/notifications.module';
 export { NotificationsService } from './modules/notifications/notifications.service';
+
+// User Preferences
+export { UserPreferencesModule } from './modules/user-preferences/user-preferences.module';
+export { UserPreferencesService } from './modules/user-preferences/user-preferences.service';
+export { BaseUserPreferencesService } from './modules/user-preferences/base-user-preferences.service';
+export { UpdateUserPreferenceDto } from './modules/user-preferences/dto/update-user-preference.dto';
+export type { ThemePreference } from './database/entities/user-preference.entity';
+export { UserPreference } from './database/entities/user-preference.entity';

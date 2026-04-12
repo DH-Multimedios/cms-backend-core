@@ -53,6 +53,11 @@ export async function seedPermissions(dataSource: DataSource): Promise<void> {
     // Settings
     { name: 'settings.read', description: 'Ver configuración', module: 'settings' },
     { name: 'settings.update', description: 'Actualizar configuración', module: 'settings' },
+    {
+      name: 'settings.delete',
+      description: 'Eliminar configuraciones y categorías',
+      module: 'settings',
+    },
   ];
 
   // Crear permisos
@@ -102,5 +107,29 @@ export async function seedPermissions(dataSource: DataSource): Promise<void> {
     adminRole.permissions = adminPermissions;
     await roleRepository.save(adminRole);
     console.log(`✅ Permisos asignados a Admin: ${adminPermissions.length}`);
+  }
+
+  // Asignar permisos básicos a User
+  const userRole = await roleRepository.findOne({
+    where: { name: 'User' },
+    relations: ['permissions'],
+  });
+
+  if (userRole) {
+    const userPermissions = createdPermissions.filter((p) =>
+      [
+        'files.list',
+        'files.read',
+        'files.download',
+        'files.upload',
+        'media.list',
+        'media.read',
+        'media.upload',
+        'taxonomies.read',
+      ].includes(p.name),
+    );
+    userRole.permissions = userPermissions;
+    await roleRepository.save(userRole);
+    console.log(`✅ Permisos asignados a User: ${userPermissions.length}`);
   }
 }
