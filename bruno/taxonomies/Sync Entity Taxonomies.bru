@@ -1,0 +1,21 @@
+meta {
+  name: Sync Entity Taxonomies
+  type: http
+  seq: 8
+}
+
+put {
+  url: {{baseUrl}}/taxonomies/entity/Product/ENTITY-UUID-AQUI
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "taxonomyIds": ["TAXONOMY-UUID-1", "TAXONOMY-UUID-2"]
+  }
+}

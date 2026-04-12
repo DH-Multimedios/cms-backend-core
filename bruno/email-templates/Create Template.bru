@@ -1,0 +1,63 @@
+meta {
+  name: Create Template
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/email-templates
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "entityType": "user",
+    "notificationType": "welcome",
+    "name": "Bienvenida",
+    "subject": "Bienvenido a {{appName}}, {{firstName}}",
+    "headerId": 1,
+    "footerId": 2,
+    "bodySections": [
+      {
+        "type": "section",
+        "backgroundColor": "#ffffff",
+        "padding": "40px",
+        "columns": [
+          {
+            "width": "100%",
+            "blocks": [
+              {
+                "type": "heading",
+                "level": 1,
+                "content": "Hola {{firstName}}",
+                "color": "#1a1a2e",
+                "align": "left"
+              },
+              {
+                "type": "text",
+                "content": "Tu cuenta fue creada correctamente en {{appName}}.",
+                "color": "#444444",
+                "fontSize": "16px",
+                "align": "left"
+              },
+              {
+                "type": "button",
+                "label": "Verificar mi email",
+                "url": "{{appUrl}}/verify?token={{verificationToken}}",
+                "align": "center",
+                "backgroundColor": "#1a1a2e",
+                "color": "#ffffff"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "variables": ["firstName", "verificationToken"]
+  }
+}

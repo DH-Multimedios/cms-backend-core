@@ -1,0 +1,15 @@
+meta {
+  name: Get Layout by ID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/email-layouts/1
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

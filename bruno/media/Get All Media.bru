@@ -1,0 +1,21 @@
+meta {
+  name: Get All Media
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/media
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+params:query {
+  ~usage: logos
+  ~uploadedByUserId: USER-UUID-AQUI
+  ~search: logo
+}

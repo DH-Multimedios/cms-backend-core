@@ -1,0 +1,24 @@
+meta {
+  name: Upload File
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/files/upload
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:multipart-form {
+  file: @file(/path/to/document.pdf)
+  usage: contracts
+  ~name: Contrato de servicios 2024
+  ~description: Contrato anual con cliente ABC
+  ~fileOwnerUserId: USER-UUID-AQUI
+  ~isPublic: false
+}

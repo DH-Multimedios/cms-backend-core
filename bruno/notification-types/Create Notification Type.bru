@@ -1,0 +1,27 @@
+meta {
+  name: Create Notification Type
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/notification-types
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "key": "order.created",
+    "entityType": "order",
+    "notificationType": "created",
+    "name": "Pedido recibido",
+    "description": "Se envía cuando el cliente realiza un pedido",
+    "userConfigurable": true,
+    "defaultEnabled": true
+  }
+}

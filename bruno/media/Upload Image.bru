@@ -1,0 +1,21 @@
+meta {
+  name: Upload Image
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/media/upload
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:multipart-form {
+  file: @file(/path/to/image.jpg)
+  alt: Logo de la empresa en fondo blanco
+  ~usage: logos
+}

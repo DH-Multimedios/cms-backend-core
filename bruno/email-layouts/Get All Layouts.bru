@@ -1,0 +1,19 @@
+meta {
+  name: Get All Layouts
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/email-layouts
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+params:query {
+  ~type: header
+}

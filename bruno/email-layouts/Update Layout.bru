@@ -1,0 +1,21 @@
+meta {
+  name: Update Layout
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/email-layouts/1
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Header corporativo (actualizado)"
+  }
+}

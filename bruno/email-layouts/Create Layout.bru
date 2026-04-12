@@ -1,0 +1,45 @@
+meta {
+  name: Create Layout
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/email-layouts
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "type": "header",
+    "name": "Header corporativo",
+    "isDefault": false,
+    "sections": [
+      {
+        "type": "section",
+        "backgroundColor": "#1a1a2e",
+        "padding": "20px 40px",
+        "columns": [
+          {
+            "width": "100%",
+            "blocks": [
+              {
+                "type": "image",
+                "src": "{{appLogoUrl}}",
+                "alt": "Logo",
+                "width": "140px",
+                "align": "left",
+                "link": "{{appUrl}}"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

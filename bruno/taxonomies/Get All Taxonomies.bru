@@ -1,0 +1,20 @@
+meta {
+  name: Get All Taxonomies
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/taxonomies
+  body: none
+  auth: none
+}
+
+params:query {
+  ~type: product-category
+  ~parentId: PARENT-UUID-AQUI
+  ~root: true
+  ~search: electronica
+  ~page: 1
+  ~limit: 20
+}

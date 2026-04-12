@@ -1,0 +1,22 @@
+meta {
+  name: Update Taxonomy
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/taxonomies/TAXONOMY-UUID-AQUI
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Electrónica y Gadgets",
+    "description": "Descripción actualizada"
+  }
+}

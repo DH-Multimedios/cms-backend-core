@@ -1,0 +1,15 @@
+meta {
+  name: Get Media by ID
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/media/MEDIA-UUID-AQUI
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

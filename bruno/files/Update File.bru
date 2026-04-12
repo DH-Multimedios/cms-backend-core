@@ -1,0 +1,23 @@
+meta {
+  name: Update File
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{baseUrl}}/files/FILE-UUID-AQUI
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Contrato actualizado",
+    "description": "Nueva descripción del archivo",
+    "fileOwnerUserId": "OTRO-USER-UUID-AQUI"
+  }
+}

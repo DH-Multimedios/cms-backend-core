@@ -1,0 +1,15 @@
+meta {
+  name: Delete Template
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/email-templates/1
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

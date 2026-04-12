@@ -1,0 +1,21 @@
+meta {
+  name: Update Template
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/email-templates/1
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "subject": "Bienvenido a {{appName}}"
+  }
+}

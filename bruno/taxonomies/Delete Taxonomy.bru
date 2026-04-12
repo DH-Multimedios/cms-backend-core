@@ -1,0 +1,15 @@
+meta {
+  name: Delete Taxonomy
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/taxonomies/TAXONOMY-UUID-AQUI
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

@@ -1,0 +1,24 @@
+meta {
+  name: Create Taxonomy
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/taxonomies
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Electrónica",
+    "type": "product-category",
+    "description": "Productos electrónicos",
+    "order": 0
+  }
+}

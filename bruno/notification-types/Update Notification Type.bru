@@ -1,0 +1,22 @@
+meta {
+  name: Update Notification Type
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/notification-types/1
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Pedido recibido (actualizado)",
+    "isEnabled": true
+  }
+}

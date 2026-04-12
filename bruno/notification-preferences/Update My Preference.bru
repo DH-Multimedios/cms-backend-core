@@ -1,0 +1,22 @@
+meta {
+  name: Update My Preference
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{baseUrl}}/notification-preferences/me
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "notificationTypeKey": "user.email-verification",
+    "enabled": false
+  }
+}

@@ -1,0 +1,21 @@
+meta {
+  name: Update Media
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/media/MEDIA-UUID-AQUI
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "alt": "Logo de la empresa actualizado 2026"
+  }
+}

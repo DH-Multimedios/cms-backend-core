@@ -1,0 +1,21 @@
+meta {
+  name: Reorder Taxonomies
+  type: http
+  seq: 6
+}
+
+patch {
+  url: {{baseUrl}}/taxonomies/reorder
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "ids": ["UUID-3", "UUID-1", "UUID-2"]
+  }
+}

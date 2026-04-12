@@ -1,0 +1,24 @@
+meta {
+  name: Get All Permissions
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/permissions
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+params:query {
+  ~search: users
+  ~module: users
+  ~sortBy: createdAt
+  ~sortOrder: ASC
+  ~page: 1
+  ~limit: 20
+}
