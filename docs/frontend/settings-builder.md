@@ -13,6 +13,7 @@ GET /settings/input-types   → público, sin auth
 Devuelve el schema completo de cada tipo soportado. Usar para construir el formulario de creación/edición de settings dinámicamente.
 
 **Respuesta:**
+
 ```json
 [
   {
@@ -50,11 +51,13 @@ Devuelve el schema completo de cada tipo soportado. Usar para construir el formu
 ## Lógica del builder
 
 ### 1. Cargar tipos disponibles
+
 ```
 GET /settings/input-types
 ```
 
 ### 2. Mostrar selector de inputType
+
 Usar el array como fuente para un `<select>`. Mostrar `label`, enviar `value`.
 
 ### 3. Renderizar campos de meta dinámicamente
@@ -89,20 +92,20 @@ Renderizar como una lista editable de pares `value` / `label` con botón para ag
 
 Usar `compatibleTypes` para filtrar qué `type` (dato de DB) se puede combinar con cada `inputType`:
 
-| inputType | compatibleTypes |
-|-----------|----------------|
-| text | string |
-| textarea | string |
-| number | number |
-| password | string, password |
-| toggle | boolean |
-| checkbox | boolean |
-| radio | string |
-| select | string |
-| color | string |
-| url | string |
-| email | string |
-| date | string |
+| inputType | compatibleTypes  |
+| --------- | ---------------- |
+| text      | string           |
+| textarea  | string           |
+| number    | number           |
+| password  | string, password |
+| toggle    | boolean          |
+| checkbox  | boolean          |
+| radio     | string           |
+| select    | string           |
+| color     | string           |
+| url       | string           |
+| email     | string           |
+| date      | string           |
 
 > Si el usuario no elige `type`, inferirlo automáticamente desde `compatibleTypes[0]`.
 
@@ -113,7 +116,7 @@ Usar `compatibleTypes` para filtrar qué `type` (dato de DB) se puede combinar c
 ```
 GET  /settings/input-types       → schema de tipos (público)
 GET  /settings/:key              → obtener setting por key (público)
-POST /settings                   → crear setting (requiere settings.create)
+POST /settings                   → crear setting (requiere settings.read + update)
 PATCH /settings/:id              → actualizar setting (requiere settings.update)
 DELETE /settings/:id             → eliminar setting (requiere settings.delete)
 ```
@@ -129,7 +132,18 @@ DELETE /setting-categories/:id          → eliminar (solo si no tiene settings)
 POST   /setting-categories/reorder      → reordenar drag & drop
 ```
 
+### Campo `isProtected`
+
+Settings y categorías creadas por el seed del core tienen `isProtected: true`. Las creadas por el admin tienen `isProtected: false` por defecto.
+
+**Reglas en UI:**
+
+- Si `isProtected: true` → deshabilitar el botón de eliminar
+- Se puede editar el `value` de un setting protegido — solo está bloqueada la eliminación
+- Las categorías protegidas tampoco se pueden eliminar
+
 **Body de reorder:**
+
 ```json
 { "ids": [3, 1, 2] }
 ```
@@ -153,6 +167,7 @@ POST /settings
 ```
 
 **Con opciones (select):**
+
 ```json
 {
   "key": "app.language",
@@ -170,6 +185,7 @@ POST /settings
 ```
 
 **Con rango (number):**
+
 ```json
 {
   "key": "pagination.limit",
