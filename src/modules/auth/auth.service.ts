@@ -153,7 +153,7 @@ export class AuthService {
 
     // Invalidar tokens anteriores del usuario
     await this.passwordResetTokenRepository.update(
-      { userId: user.id, usedAt: null },
+      { userId: user.id, usedAt: IsNull() },
       { usedAt: new Date() },
     );
 
@@ -200,7 +200,7 @@ export class AuthService {
       where: {
         userId: user.id,
         codeHash,
-        usedAt: null,
+        usedAt: IsNull(),
       },
     });
 
@@ -226,7 +226,7 @@ export class AuthService {
     const resetTokenHash = createHash('sha256').update(resetToken).digest('hex');
 
     const token = await this.passwordResetTokenRepository.findOne({
-      where: { resetTokenHash, usedAt: null },
+      where: { resetTokenHash, usedAt: IsNull() },
       relations: ['user'],
     });
 
@@ -248,7 +248,7 @@ export class AuthService {
 
     // Revocar todas las sesiones activas del usuario
     await this.refreshTokenRepository.update(
-      { userId: token.userId, revokedAt: null },
+      { userId: token.userId, revokedAt: IsNull() },
       { revokedAt: new Date() },
     );
 
