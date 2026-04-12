@@ -16,7 +16,6 @@ import sharp from 'sharp';
 @Injectable()
 export class MediaService {
   private readonly uploadPath = process.env.UPLOADS_PATH || 'uploads/media';
-  private readonly baseUrl = process.env.BASE_URL || 'http://localhost:3000';
 
   constructor(
     @InjectRepository(Media)
@@ -113,7 +112,7 @@ export class MediaService {
    * Genera la URL pública de la imagen
    */
   private generatePublicUrl(relativePath: string): string {
-    return `${this.baseUrl}/uploads/media/${relativePath}`;
+    return `/uploads/media/${relativePath}`;
   }
 
   /**
