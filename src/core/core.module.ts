@@ -16,6 +16,7 @@ import { TaxonomiesModule } from '../modules/taxonomies/taxonomies.module';
 import { FilesModule } from '../modules/files/files.module';
 import { MediaModule } from '../modules/media/media.module';
 import { NotificationsModule } from '../modules/notifications/notifications.module';
+import { UserPreferencesModule } from '../modules/user-preferences/user-preferences.module';
 import { AuditContextInterceptor } from '../modules/audit/interceptors/audit-context.interceptor';
 import { HttpExceptionFilter } from '../common/filters/http-exception.filter';
 import { ResponseInterceptor } from '../common/interceptors/response.interceptor';
@@ -49,6 +50,7 @@ export class CoreModule {
         MediaModule,
         EmailProvidersModule,
         NotificationsModule,
+        UserPreferencesModule,
       ],
       exports: [
         ConfigModule,
@@ -65,6 +67,7 @@ export class CoreModule {
         MediaModule,
         EmailProvidersModule,
         NotificationsModule,
+        UserPreferencesModule,
       ],
     };
   }
@@ -108,6 +111,7 @@ export class CoreModule {
         MediaModule,
         EmailProvidersModule,
         NotificationsModule,
+        UserPreferencesModule,
       ],
       exports: [
         ConfigModule,
@@ -124,6 +128,7 @@ export class CoreModule {
         MediaModule,
         EmailProvidersModule,
         NotificationsModule,
+        UserPreferencesModule,
       ],
     };
   }
