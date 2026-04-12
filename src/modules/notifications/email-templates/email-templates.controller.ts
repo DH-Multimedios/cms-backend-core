@@ -1,8 +1,20 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, ParseIntPipe, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  ParseIntPipe,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { EmailTemplatesService } from './email-templates.service';
 import { CreateEmailTemplateDto } from './dto/create-email-template.dto';
 import { UpdateEmailTemplateDto } from './dto/update-email-template.dto';
+import { ListEmailTemplatesDto } from './dto/list-email-templates.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../auth/guards/permissions.guard';
 import { RequirePermissions } from '../../auth/decorators/require-permissions.decorator';
@@ -17,8 +29,8 @@ export class EmailTemplatesController {
   @Get()
   @RequirePermissions('notifications.manage')
   @ApiOperation({ summary: 'Listar todos los templates de email' })
-  findAll() {
-    return this.service.findAll();
+  findAll(@Query() query: ListEmailTemplatesDto) {
+    return this.service.findAll(query);
   }
 
   @Get(':id')

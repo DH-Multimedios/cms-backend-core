@@ -170,16 +170,8 @@ export class AuthService {
       }),
     );
 
-    // Enviar email
-    await this.notificationsService.sendEmail({
-      to: email,
-      subject: 'Código de recuperación de contraseña',
-      html: `
-        <p>Tu código de recuperación es:</p>
-        <h1 style="letter-spacing: 8px; font-size: 36px;">${code}</h1>
-        <p>Válido por 15 minutos. Si no solicitaste esto, ignorá este email.</p>
-      `,
-    });
+    // Enviar email vía sistema de templates
+    await this.notificationsService.notifySystem('user.forgot-password-code', email, { code });
 
     return { message: 'Si el email existe, recibirás un código en breve' };
   }

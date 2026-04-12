@@ -140,4 +140,42 @@ export class NotificationsService implements OnModuleInit {
   async sendEmail(options: { to: string; subject: string; html: string }): Promise<void> {
     await this.sender.send(options);
   }
+
+  /**
+   * Envía una notificación del sistema usando el sistema de templates.
+   * No chequea preferencias del usuario — siempre envía si el tipo está habilitado.
+   */
+  async notifySystem(
+    notificationTypeKey: string,
+    recipientEmail: string,
+    variables: Record<string, unknown>,
+  ): Promise<void> {
+    try {
+      const notifType = await this.notifTypesService.findByKey(notificationTypeKey);
+      if (!notifType?.isEnabled) {
+        this.logger.debug(`Notificación '${notificationTypeKey}' desactivada globalmente`);
+        return;
+      }
+
+      const [entityType, type] = notificationTypeKey.split('.');
+      const template = await this.templatesService.findByType(entityType, type);
+      if (!template?.compiledHtml) {
+        this.logger.warn(`No hay template compilado para '${notificationTypeKey}'`);
+        return;
+      }
+
+      const globalVars = await this.getGlobalVariables();
+      const allVars = { ...globalVars, ...variables };
+
+      const subject = this.renderer.render(template.subject, allVars);
+      const html = this.renderer.render(template.compiledHtml, allVars);
+
+      await this.sender.send({ to: recipientEmail, subject, html });
+    } catch (err) {
+      this.logger.error(
+        `Error despachando notificación de sistema '${notificationTypeKey}' para ${recipientEmail}`,
+        err,
+      );
+    }
+  }
 }

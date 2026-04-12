@@ -5,9 +5,11 @@ import { EmailTemplate } from '../../../database/entities/email-template.entity'
 import { EmailLayout } from '../../../database/entities/email-layout.entity';
 import { CreateEmailTemplateDto } from './dto/create-email-template.dto';
 import { UpdateEmailTemplateDto } from './dto/update-email-template.dto';
+import { ListEmailTemplatesDto } from './dto/list-email-templates.dto';
 import { TemplateRendererService } from '../template-renderer.service';
 import { ApiException } from '../../../common/exceptions/api.exception';
 import { ErrorCode } from '../../../common/enums/error-codes.enum';
+import { PaginatedResult } from '../../../common/interfaces/paginated-result.interface';
 
 @Injectable()
 export class EmailTemplatesService {
@@ -19,8 +21,22 @@ export class EmailTemplatesService {
     private readonly renderer: TemplateRendererService,
   ) {}
 
-  findAll(): Promise<EmailTemplate[]> {
-    return this.repository.find({ order: { entityType: 'ASC', notificationType: 'ASC' } });
+  async findAll(query: ListEmailTemplatesDto = {}): Promise<PaginatedResult<EmailTemplate>> {
+    const { page = 1, limit = 20, sortOrder = 'ASC', sortBy = 'entityType', entityType } = query;
+
+    const qb = this.repository.createQueryBuilder('template');
+
+    if (entityType) {
+      qb.where('template.entityType = :entityType', { entityType });
+    }
+
+    qb.orderBy(`template.${sortBy}`, sortOrder)
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    const [items, total] = await qb.getManyAndCount();
+
+    return { items, total, page, limit, pages: Math.ceil(total / limit) };
   }
 
   async findOne(id: number): Promise<EmailTemplate> {
@@ -29,7 +45,11 @@ export class EmailTemplatesService {
       relations: ['header', 'footer'],
     });
     if (!template) {
-      throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, `Template ${id} no encontrado`);
+      throw new ApiException(
+        HttpStatus.NOT_FOUND,
+        ErrorCode.NOT_FOUND,
+        `Template ${id} no encontrado`,
+      );
     }
     return template;
   }

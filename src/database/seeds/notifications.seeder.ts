@@ -94,6 +94,15 @@ const NOTIFICATION_TYPES = [
     userConfigurable: true,
     defaultEnabled: true,
   },
+  {
+    key: 'user.forgot-password-code',
+    entityType: 'user',
+    notificationType: 'forgot-password-code',
+    name: 'Código de recuperación de contraseña',
+    description: 'Se envía al solicitar recuperación de contraseña con código numérico',
+    userConfigurable: false,
+    defaultEnabled: true,
+  },
 ];
 
 // ─── Email templates (body sections) ────────────────────────────────────────
@@ -107,10 +116,28 @@ const WELCOME_BODY: Section[] = [
       {
         width: '100%',
         blocks: [
-          { type: 'heading', level: 1, content: 'Bienvenido, {{firstName}}', color: '#1a1a2e', align: 'left' },
-          { type: 'text', content: 'Tu cuenta fue creada exitosamente. Ya podés acceder a la plataforma.', color: '#444444', fontSize: '16px' },
+          {
+            type: 'heading',
+            level: 1,
+            content: 'Bienvenido, {{firstName}}',
+            color: '#1a1a2e',
+            align: 'left',
+          },
+          {
+            type: 'text',
+            content: 'Tu cuenta fue creada exitosamente. Ya podés acceder a la plataforma.',
+            color: '#444444',
+            fontSize: '16px',
+          },
           { type: 'spacer', height: 20 },
-          { type: 'button', label: 'Verificar mi email', url: '{{appUrl}}/verify?token={{verificationToken}}', backgroundColor: '#1a1a2e', color: '#ffffff', align: 'center' },
+          {
+            type: 'button',
+            label: 'Verificar mi email',
+            url: '{{appUrl}}/verify?token={{verificationToken}}',
+            backgroundColor: '#1a1a2e',
+            color: '#ffffff',
+            align: 'center',
+          },
         ],
       },
     ],
@@ -126,11 +153,34 @@ const PASSWORD_RESET_BODY: Section[] = [
       {
         width: '100%',
         blocks: [
-          { type: 'heading', level: 1, content: 'Recuperar contraseña', color: '#1a1a2e', align: 'left' },
-          { type: 'text', content: 'Hola {{firstName}}, recibimos una solicitud para restablecer tu contraseña.', color: '#444444', fontSize: '16px' },
-          { type: 'text', content: 'Si no fuiste vos, ignorá este email. El enlace expira en 1 hora.', color: '#888888', fontSize: '14px' },
+          {
+            type: 'heading',
+            level: 1,
+            content: 'Recuperar contraseña',
+            color: '#1a1a2e',
+            align: 'left',
+          },
+          {
+            type: 'text',
+            content: 'Hola {{firstName}}, recibimos una solicitud para restablecer tu contraseña.',
+            color: '#444444',
+            fontSize: '16px',
+          },
+          {
+            type: 'text',
+            content: 'Si no fuiste vos, ignorá este email. El enlace expira en 1 hora.',
+            color: '#888888',
+            fontSize: '14px',
+          },
           { type: 'spacer', height: 20 },
-          { type: 'button', label: 'Restablecer contraseña', url: '{{appUrl}}/reset-password?token={{resetToken}}', backgroundColor: '#e74c3c', color: '#ffffff', align: 'center' },
+          {
+            type: 'button',
+            label: 'Restablecer contraseña',
+            url: '{{appUrl}}/reset-password?token={{resetToken}}',
+            backgroundColor: '#e74c3c',
+            color: '#ffffff',
+            align: 'center',
+          },
         ],
       },
     ],
@@ -146,10 +196,71 @@ const EMAIL_VERIFICATION_BODY: Section[] = [
       {
         width: '100%',
         blocks: [
-          { type: 'heading', level: 1, content: 'Verificá tu email', color: '#1a1a2e', align: 'left' },
-          { type: 'text', content: 'Hola {{firstName}}, hacé clic en el botón para verificar tu dirección de email.', color: '#444444', fontSize: '16px' },
+          {
+            type: 'heading',
+            level: 1,
+            content: 'Verificá tu email',
+            color: '#1a1a2e',
+            align: 'left',
+          },
+          {
+            type: 'text',
+            content:
+              'Hola {{firstName}}, hacé clic en el botón para verificar tu dirección de email.',
+            color: '#444444',
+            fontSize: '16px',
+          },
           { type: 'spacer', height: 20 },
-          { type: 'button', label: 'Verificar email', url: '{{appUrl}}/verify?token={{verificationToken}}', backgroundColor: '#27ae60', color: '#ffffff', align: 'center' },
+          {
+            type: 'button',
+            label: 'Verificar email',
+            url: '{{appUrl}}/verify?token={{verificationToken}}',
+            backgroundColor: '#27ae60',
+            color: '#ffffff',
+            align: 'center',
+          },
+        ],
+      },
+    ],
+  },
+];
+
+const FORGOT_PASSWORD_CODE_BODY: Section[] = [
+  {
+    type: 'section',
+    backgroundColor: '#ffffff',
+    padding: '40px 40px 20px',
+    columns: [
+      {
+        width: '100%',
+        blocks: [
+          {
+            type: 'heading',
+            level: 1,
+            content: 'Recuperar contraseña',
+            color: '#1a1a2e',
+            align: 'left',
+          },
+          {
+            type: 'text',
+            content: 'Usá este código para restablecer tu contraseña. Válido por 15 minutos.',
+            color: '#444444',
+            fontSize: '16px',
+          },
+          { type: 'spacer', height: 20 },
+          {
+            type: 'text',
+            content:
+              '<span style="letter-spacing: 12px; font-size: 40px; font-weight: bold; color: #1a1a2e;">{{code}}</span>',
+            align: 'center',
+          },
+          { type: 'spacer', height: 20 },
+          {
+            type: 'text',
+            content: 'Si no solicitaste este código, ignorá este email.',
+            color: '#888888',
+            fontSize: '14px',
+          },
         ],
       },
     ],
@@ -184,6 +295,15 @@ const EMAIL_TEMPLATES = [
     variables: ['firstName', 'verificationToken', 'appName', 'appLogoUrl', 'appUrl', 'currentYear'],
     isDefault: true,
   },
+  {
+    entityType: 'user',
+    notificationType: 'forgot-password-code',
+    name: 'Código de recuperación de contraseña',
+    subject: 'Tu código de recuperación en {{appName}}',
+    bodySections: FORGOT_PASSWORD_CODE_BODY,
+    variables: ['code', 'appName', 'appLogoUrl', 'appUrl', 'currentYear'],
+    isDefault: true,
+  },
 ];
 
 // ─── Seeder ─────────────────────────────────────────────────────────────────
@@ -197,7 +317,12 @@ export async function seedNotifications(dataSource: DataSource): Promise<void> {
   let header = await layoutRepo.findOneBy({ type: 'header', isDefault: true });
   if (!header) {
     header = await layoutRepo.save(
-      layoutRepo.create({ type: 'header', name: 'Header por defecto', sections: DEFAULT_HEADER, isDefault: true }),
+      layoutRepo.create({
+        type: 'header',
+        name: 'Header por defecto',
+        sections: DEFAULT_HEADER,
+        isDefault: true,
+      }),
     );
     console.log('  ✓ Header por defecto creado');
   } else {
@@ -208,7 +333,12 @@ export async function seedNotifications(dataSource: DataSource): Promise<void> {
   let footer = await layoutRepo.findOneBy({ type: 'footer', isDefault: true });
   if (!footer) {
     footer = await layoutRepo.save(
-      layoutRepo.create({ type: 'footer', name: 'Footer por defecto', sections: DEFAULT_FOOTER, isDefault: true }),
+      layoutRepo.create({
+        type: 'footer',
+        name: 'Footer por defecto',
+        sections: DEFAULT_FOOTER,
+        isDefault: true,
+      }),
     );
     console.log('  ✓ Footer por defecto creado');
   } else {
