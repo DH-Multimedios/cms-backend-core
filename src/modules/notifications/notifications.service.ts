@@ -98,7 +98,7 @@ export class NotificationsService implements OnModuleInit {
       const allVars = { ...globalVars, ...variables };
 
       const subject = this.renderer.render(template.subject, allVars);
-      const html = this.renderer.render(template.compiledHtml, allVars);
+      const html = this.renderer.render(template.compiledHtml!, allVars);
 
       await this.sender.send({ to: recipientEmail, subject, html });
     } catch (err) {
@@ -187,7 +187,7 @@ export class NotificationsService implements OnModuleInit {
       const allVars = { ...globalVars, ...variables };
 
       const subject = this.renderer.render(template.subject, allVars);
-      const html = this.renderer.render(template.compiledHtml, allVars);
+      const html = this.renderer.render(template.compiledHtml!, allVars);
 
       await this.sender.send({ to: recipientEmail, subject, html });
     } catch (err) {
