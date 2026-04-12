@@ -151,22 +151,31 @@ export async function seedSettings(dataSource: DataSource): Promise<void> {
   const categoryRepo = dataSource.getRepository(SettingCategory);
   const settingRepo = dataSource.getRepository(Setting);
 
-  // Upsert categorías por key
+  // Upsert categorías por slug — actualiza isProtected si ya existe
   for (const cat of CATEGORIES) {
     const existing = await categoryRepo.findOneBy({ slug: cat.slug });
     if (!existing) {
       await categoryRepo.save(categoryRepo.create(cat));
       console.log(`  ✓ Categoría creada: ${cat.label}`);
+    } else if (existing.isProtected !== cat.isProtected) {
+      await categoryRepo.save({ ...existing, isProtected: cat.isProtected });
+      console.log(`  ↺ Categoría actualizada: ${cat.label}`);
     } else {
       console.log(`  – Categoría existente: ${cat.label}`);
     }
   }
 
-  // Upsert settings por key
+  // Upsert settings por key — actualiza isProtected si ya existe
   for (const def of SETTINGS) {
     const existing = await settingRepo.findOneBy({ key: def.key });
+
     if (existing) {
-      console.log(`  – Setting existente: ${def.key}`);
+      if (existing.isProtected !== (def.isProtected ?? false)) {
+        await settingRepo.save({ ...existing, isProtected: def.isProtected ?? false });
+        console.log(`  ↺ Setting actualizado: ${def.key}`);
+      } else {
+        console.log(`  – Setting existente: ${def.key}`);
+      }
       continue;
     }
 
