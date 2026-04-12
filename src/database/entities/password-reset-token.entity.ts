@@ -23,7 +23,7 @@ export class PasswordResetToken {
   @Column()
   codeHash: string; // SHA-256 del código de 6 dígitos
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   resetTokenHash: string | null; // SHA-256 del token de reset (se setea al verificar el código)
 
   @Column({ type: 'timestamptz' })
