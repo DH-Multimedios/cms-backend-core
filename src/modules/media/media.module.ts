@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MulterModule } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { Media } from '../../database/entities/media.entity';
 import { MediaService } from './media.service';
 import { MediaController } from './media.controller';
@@ -11,7 +12,7 @@ import { AuditModule } from '../audit/audit.module';
   imports: [
     TypeOrmModule.forFeature([Media]),
     MulterModule.register({
-      storage: 'memory', // Guardamos en memoria para validar y procesar con Sharp antes de escribir
+      storage: memoryStorage(), // Guardamos en memoria para validar y procesar con Sharp antes de escribir
     }),
     SettingsModule,
     AuditModule,
