@@ -6,8 +6,10 @@ import { ErrorCode } from '../../common/enums/error-codes.enum';
 import { AuthService } from './auth.service';
 import { RefreshToken } from '../../database/entities/refresh-token.entity';
 import { User } from '../../database/entities/user.entity';
+import { PasswordResetToken } from '../../database/entities/password-reset-token.entity';
 import { UsersService } from '../users/users.service';
 import { AuditService } from '../audit/audit.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 const mockRefreshTokenRepository = () => ({
   findOne: jest.fn(),
@@ -27,6 +29,18 @@ const mockUsersService = () => ({
 
 const mockAuditService = () => ({
   log: jest.fn().mockResolvedValue(undefined),
+});
+
+const mockPasswordResetTokenRepository = () => ({
+  findOne: jest.fn(),
+  save: jest.fn(),
+  create: jest.fn((dto) => dto),
+  update: jest.fn(),
+});
+
+const mockNotificationsService = () => ({
+  notifySystem: jest.fn().mockResolvedValue(undefined),
+  sendEmail: jest.fn().mockResolvedValue(undefined),
 });
 
 const makeUser = (overrides: Partial<User> = {}): User =>
@@ -59,11 +73,19 @@ describe('AuthService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
-        { provide: 'CORE_AUTH_CONFIG', useValue: { jwtSecret: 'test-secret', jwtExpiration: '15m', jwtRefreshExpiration: '7' } },
+        {
+          provide: 'CORE_AUTH_CONFIG',
+          useValue: { jwtSecret: 'test-secret', jwtExpiration: '15m', jwtRefreshExpiration: '7' },
+        },
         { provide: getRepositoryToken(RefreshToken), useFactory: mockRefreshTokenRepository },
+        {
+          provide: getRepositoryToken(PasswordResetToken),
+          useFactory: mockPasswordResetTokenRepository,
+        },
         { provide: JwtService, useFactory: mockJwtService },
         { provide: UsersService, useFactory: mockUsersService },
         { provide: AuditService, useFactory: mockAuditService },
+        { provide: NotificationsService, useFactory: mockNotificationsService },
       ],
     }).compile();
 
@@ -144,6 +166,45 @@ describe('AuthService', () => {
         expect.objectContaining({ userId: 'user-1' }),
         expect.objectContaining({ revokedAt: expect.any(Date) }),
       );
+    });
+  });
+
+  describe('forgotPassword', () => {
+    it('genera código y envía notificación si el usuario existe', async () => {
+      const user = makeUser();
+      usersService.findByEmail.mockResolvedValue(user);
+
+      const result = await service.forgotPassword('user@test.com');
+
+      expect(result.message).toBeDefined();
+      expect(usersService.findByEmail).toHaveBeenCalledWith('user@test.com');
+    });
+
+    it('responde igual si el usuario no existe (no revela existencia)', async () => {
+      usersService.findByEmail.mockResolvedValue(null);
+
+      const result = await service.forgotPassword('noexiste@test.com');
+
+      expect(result.message).toBeDefined();
+      expect(result.message).toBe('Si el email existe, recibirás un código en breve');
+    });
+  });
+
+  describe('verifyResetCode', () => {
+    it('lanza error si el código no existe o expiró', async () => {
+      usersService.findByEmail.mockResolvedValue(makeUser());
+
+      await expect(service.verifyResetCode('user@test.com', '123456')).rejects.toMatchObject({
+        code: ErrorCode.VALIDATION_ERROR,
+      });
+    });
+  });
+
+  describe('resetPassword', () => {
+    it('lanza error si el resetToken no existe o expiró', async () => {
+      await expect(service.resetPassword('invalid-token', 'newpass123')).rejects.toMatchObject({
+        code: ErrorCode.VALIDATION_ERROR,
+      });
     });
   });
 });
