@@ -1,7 +1,8 @@
-import { IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsOptional, IsString, IsUUID, IsIn } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { PaginationDto } from '../../../common/dto/pagination.dto';
 
-export class ListMediaDto {
+export class ListMediaDto extends PaginationDto {
   @ApiPropertyOptional({ description: 'Filtrar por categoría de uso' })
   @IsOptional()
   @IsString()
@@ -16,4 +17,9 @@ export class ListMediaDto {
   @IsOptional()
   @IsString()
   search?: string;
+
+  @ApiPropertyOptional({ enum: ['createdAt', 'originalName', 'size'], default: 'createdAt' })
+  @IsOptional()
+  @IsIn(['createdAt', 'originalName', 'size'])
+  sortBy?: string = 'createdAt';
 }

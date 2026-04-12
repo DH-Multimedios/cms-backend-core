@@ -6,6 +6,7 @@ import { SettingsService } from '../settings/settings.service';
 import { AuditService } from '../audit/audit.service';
 import { ApiException } from '../../common/exceptions/api.exception';
 import { ErrorCode } from '../../common/enums/error-codes.enum';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 import { ListMediaDto, UpdateMediaDto } from './dto';
 import * as fs from 'fs/promises';
 import * as path from 'path';
@@ -184,15 +185,15 @@ export class MediaService {
     filters: ListMediaDto,
     userId?: string,
     hasListPermission = false,
-  ): Promise<Media[]> {
+  ): Promise<PaginatedResult<Media>> {
+    const { page = 1, limit = 20, sortOrder = 'DESC', sortBy = 'createdAt' } = filters;
+
     const qb = this.mediaRepository.createQueryBuilder('media');
 
-    // Si el usuario NO tiene permiso list, solo ve sus imágenes
     if (!hasListPermission && userId) {
       qb.where('media.uploadedByUserId = :userId', { userId });
     }
 
-    // Filtros opcionales
     if (filters.usage) {
       qb.andWhere('media.usage = :usage', { usage: filters.usage });
     }
@@ -209,9 +210,13 @@ export class MediaService {
       });
     }
 
-    qb.orderBy('media.createdAt', 'DESC');
+    qb.orderBy(`media.${sortBy}`, sortOrder)
+      .skip((page - 1) * limit)
+      .take(limit);
 
-    return await qb.getMany();
+    const [items, total] = await qb.getManyAndCount();
+
+    return { items, total, page, limit, pages: Math.ceil(total / limit) };
   }
 
   /**

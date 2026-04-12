@@ -6,6 +6,7 @@ import { SettingsService } from '../settings/settings.service';
 import { AuditService } from '../audit/audit.service';
 import { ApiException } from '../../common/exceptions/api.exception';
 import { ErrorCode } from '../../common/enums/error-codes.enum';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 import { ListFilesDto, UpdateFileDto } from './dto';
 import * as fs from 'fs/promises';
 import * as path from 'path';
@@ -153,15 +154,15 @@ export class FilesService {
     filters: ListFilesDto,
     userId?: string,
     hasListPermission = false,
-  ): Promise<File[]> {
+  ): Promise<PaginatedResult<File>> {
+    const { page = 1, limit = 20, sortOrder = 'DESC', sortBy = 'createdAt' } = filters;
+
     const qb = this.fileRepository.createQueryBuilder('file');
 
-    // Si el usuario NO tiene permiso list, solo ve sus archivos
     if (!hasListPermission && userId) {
       qb.where('file.fileOwnerUserId = :userId', { userId });
     }
 
-    // Filtros opcionales
     if (filters.usage) {
       qb.andWhere('file.usage = :usage', { usage: filters.usage });
     }
@@ -182,9 +183,13 @@ export class FilesService {
       });
     }
 
-    qb.orderBy('file.createdAt', 'DESC');
+    qb.orderBy(`file.${sortBy}`, sortOrder)
+      .skip((page - 1) * limit)
+      .take(limit);
 
-    return qb.getMany();
+    const [items, total] = await qb.getManyAndCount();
+
+    return { items, total, page, limit, pages: Math.ceil(total / limit) };
   }
 
   /**
