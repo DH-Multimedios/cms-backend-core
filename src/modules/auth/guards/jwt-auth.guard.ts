@@ -2,6 +2,7 @@ import { Injectable, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { Observable, lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -9,7 +10,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     super();
   }
 
-  canActivate(context: ExecutionContext) {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
@@ -17,9 +18,21 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
     if (isPublic) {
       // Intentar extraer usuario del token si existe, pero no fallar si no hay token
-      return super.canActivate(context).catch(() => true);
+      try {
+        const result = super.canActivate(context);
+        if (result instanceof Observable) {
+          return await lastValueFrom(result);
+        }
+        return await Promise.resolve(result);
+      } catch {
+        return true;
+      }
     }
 
-    return super.canActivate(context);
+    const result = super.canActivate(context);
+    if (result instanceof Observable) {
+      return await lastValueFrom(result);
+    }
+    return await Promise.resolve(result);
   }
 }
