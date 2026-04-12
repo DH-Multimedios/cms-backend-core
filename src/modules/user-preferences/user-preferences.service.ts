@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserPreference } from '../../../database/entities/user-preference.entity';
+import { UserPreference } from '../../database/entities/user-preference.entity';
 import { BaseUserPreferencesService } from './base-user-preferences.service';
 import { UpdateUserPreferenceDto } from './dto/update-user-preference.dto';
 

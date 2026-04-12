@@ -25,28 +25,20 @@ export abstract class BaseUserPreferencesService<T extends { userId: string }> {
    * provistos (o vacío si no se pasan).
    */
   async findOrCreate(userId: string, defaults: Partial<Omit<T, 'userId'>> = {}): Promise<T> {
-    let preference = await this.repository.findOneBy({ userId } as any);
+    const existing = await this.repository.findOneBy({ userId } as any);
+    if (existing) return existing;
 
-    if (!preference) {
-      preference = this.repository.create({ userId, ...defaults } as any);
-      await this.repository.save(preference);
-    }
-
-    return preference;
+    const created = this.repository.create({ userId, ...defaults } as any) as T;
+    return this.repository.save(created) as Promise<T>;
   }
 
   /**
    * Actualiza (upsert) las preferencias del usuario.
    */
   async update(userId: string, dto: Partial<Omit<T, 'userId'>>): Promise<T> {
-    let preference = await this.repository.findOneBy({ userId } as any);
-
-    if (!preference) {
-      preference = this.repository.create({ userId } as any);
-    }
-
+    const existing = await this.repository.findOneBy({ userId } as any);
+    const preference = existing ?? (this.repository.create({ userId } as any) as T);
     Object.assign(preference, dto);
-
-    return this.repository.save(preference);
+    return this.repository.save(preference) as Promise<T>;
   }
 }
