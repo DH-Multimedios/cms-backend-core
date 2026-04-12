@@ -1,11 +1,5 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Body,
-  UseGuards,
-  Req,
-} from '@nestjs/common';
+import { Controller, Post, Get, Body, UseGuards, Req, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -14,6 +8,9 @@ import { Public } from './decorators/public.decorator';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { LoginDto } from './dto/login.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { VerifyResetCodeDto } from './dto/verify-reset-code.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { User } from '../../database/entities/user.entity';
 import { UserResponseDto } from '../users/dto/user-response.dto';
 
@@ -27,36 +24,89 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @ApiOperation({ summary: 'Login con email y password' })
-  login(@CurrentUser() user: User, @Req() req: any, @Body() _dto: LoginDto) {
-    return this.authService.login(
-      user,
-      req.ip,
-      req.headers['user-agent'],
-    );
+  async login(
+    @CurrentUser() user: User,
+    @Req() req: any,
+    @Body() _dto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.authService.login(user, req.ip, req.headers['user-agent']);
+
+    res.cookie('access_token', result.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 15 * 60 * 1000, // 15 minutos
+    });
+
+    res.cookie('refresh_token', result.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
+      path: '/auth/refresh', // solo se envía al endpoint de refresh
+    });
+
+    return result; // igual devuelve el body para compatibilidad con Bearer
   }
 
   @Public()
   @Post('refresh')
   @ApiOperation({ summary: 'Obtener nuevo access token usando refresh token' })
-  refresh(@Body() dto: RefreshTokenDto, @Req() req: any) {
-    return this.authService.refresh(
-      dto.refreshToken,
-      req.ip,
-      req.headers['user-agent'],
-    );
+  async refresh(
+    @Body() dto: RefreshTokenDto,
+    @Req() req: any,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    // Leer de cookie si no viene en el body
+    const refreshToken = dto.refreshToken ?? req.cookies?.refresh_token;
+
+    const result = await this.authService.refresh(refreshToken, req.ip, req.headers['user-agent']);
+
+    res.cookie('access_token', result.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 15 * 60 * 1000,
+    });
+
+    res.cookie('refresh_token', result.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/auth/refresh',
+    });
+
+    return result;
   }
 
   @Post('logout')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Cerrar sesión (revoca el refresh token)' })
-  async logout(@Body() dto: RefreshTokenDto, @CurrentUser() user: User): Promise<{ message: string }> {
-    return this.authService.logout(dto.refreshToken, user.id);
+  async logout(
+    @Body() dto: RefreshTokenDto,
+    @CurrentUser() user: User,
+    @Req() req: any,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ message: string }> {
+    const refreshToken = dto.refreshToken ?? req.cookies?.refresh_token;
+
+    res.clearCookie('access_token');
+    res.clearCookie('refresh_token', { path: '/auth/refresh' });
+
+    return this.authService.logout(refreshToken, user.id);
   }
 
   @Post('logout-all')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Cerrar todas las sesiones del usuario' })
-  async logoutAll(@CurrentUser() user: User): Promise<{ message: string }> {
+  async logoutAll(
+    @CurrentUser() user: User,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ message: string }> {
+    res.clearCookie('access_token');
+    res.clearCookie('refresh_token', { path: '/auth/refresh' });
     return this.authService.logoutAll(user.id);
   }
 
@@ -65,5 +115,26 @@ export class AuthController {
   @ApiOperation({ summary: 'Obtener usuario actual' })
   me(@CurrentUser() user: User): UserResponseDto {
     return UserResponseDto.from(user);
+  }
+
+  @Public()
+  @Post('forgot-password')
+  @ApiOperation({ summary: 'Solicitar código de recuperación de contraseña' })
+  forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto.email);
+  }
+
+  @Public()
+  @Post('verify-reset-code')
+  @ApiOperation({ summary: 'Verificar código y obtener token de reset' })
+  verifyResetCode(@Body() dto: VerifyResetCodeDto) {
+    return this.authService.verifyResetCode(dto.email, dto.code);
+  }
+
+  @Public()
+  @Post('reset-password')
+  @ApiOperation({ summary: 'Establecer nueva contraseña con el token de reset' })
+  resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto.resetToken, dto.newPassword);
   }
 }

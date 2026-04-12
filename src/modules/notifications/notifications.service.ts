@@ -27,7 +27,11 @@ export class NotificationsService implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     await this.permissionsService.registerPermissions([
-      { name: 'notifications.manage', description: 'Gestionar tipos, templates y layouts de notificaciones', module: 'notifications' },
+      {
+        name: 'notifications.manage',
+        description: 'Gestionar tipos, templates y layouts de notificaciones',
+        module: 'notifications',
+      },
     ]);
   }
 
@@ -50,7 +54,9 @@ export class NotificationsService implements OnModuleInit {
   }
 
   @OnEvent('user.email-verification-requested', { async: true })
-  async handleEmailVerificationRequested(event: UserEmailVerificationRequestedEvent): Promise<void> {
+  async handleEmailVerificationRequested(
+    event: UserEmailVerificationRequestedEvent,
+  ): Promise<void> {
     await this.dispatch('user.email-verification', event.user.id, event.user.email, {
       firstName: event.user.firstName,
       verificationToken: event.verificationToken,
@@ -99,7 +105,10 @@ export class NotificationsService implements OnModuleInit {
 
       await this.sender.send({ to: recipientEmail, subject, html });
     } catch (err) {
-      this.logger.error(`Error despachando notificación '${notificationTypeKey}' para ${recipientEmail}`, err);
+      this.logger.error(
+        `Error despachando notificación '${notificationTypeKey}' para ${recipientEmail}`,
+        err,
+      );
     }
   }
 
@@ -122,5 +131,13 @@ export class NotificationsService implements OnModuleInit {
       appLogoUrl,
       currentYear: new Date().getFullYear(),
     };
+  }
+
+  /**
+   * Envía un email directo sin pasar por el sistema de templates.
+   * Útil para emails transaccionales simples (códigos OTP, etc).
+   */
+  async sendEmail(options: { to: string; subject: string; html: string }): Promise<void> {
+    await this.sender.send(options);
   }
 }

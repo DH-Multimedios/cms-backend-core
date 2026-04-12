@@ -8,7 +8,6 @@ export { EntityTaxonomy } from './entity-taxonomy.entity';
 export { File } from './file.entity';
 export { Media } from './media.entity';
 export { Setting } from './setting.entity';
-export type { SettingType, SettingInputType, SettingMeta } from './setting.entity';
 export { SettingCategory } from './setting-category.entity';
 export { EmailProvider } from './email-provider.entity';
 export type {
@@ -36,6 +35,7 @@ export type {
 } from './notification-block.types';
 export { UserPreference } from './user-preference.entity';
 export type { ThemePreference } from './user-preference.entity';
+export { PasswordResetToken } from './password-reset-token.entity';
 
 import { User } from './user.entity';
 import { Role } from './role.entity';
@@ -54,6 +54,7 @@ import { EmailTemplate } from './email-template.entity';
 import { NotificationType } from './notification-type.entity';
 import { UserNotificationPreference } from './user-notification-preference.entity';
 import { UserPreference } from './user-preference.entity';
+import { PasswordResetToken } from './password-reset-token.entity';
 
 /**
  * Array con todas las entidades del core.
@@ -80,4 +81,5 @@ export const CORE_ENTITIES = [
   NotificationType,
   UserNotificationPreference,
   UserPreference,
+  PasswordResetToken,
 ];

@@ -22,6 +22,35 @@ Agregar en `package.json` para permitir el build:
 
 ---
 
+## main.ts
+
+El core usa cookies HttpOnly para auth. Hay que habilitar `cookie-parser` antes de arrancar la app:
+
+```typescript
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import * as cookieParser from 'cookie-parser';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  app.use(cookieParser()); // ← requerido para auth con cookies
+
+  // CORS — requerido si el frontend está en otro dominio
+  app.enableCors({
+    origin: process.env.FRONTEND_URL, // ej: http://localhost:3001
+    credentials: true, // ← requerido para que el browser envíe cookies
+  });
+
+  await app.listen(process.env.PORT ?? 3000);
+}
+bootstrap();
+```
+
+> ⚠️ Sin `credentials: true` en CORS el browser no envía las cookies HttpOnly. Sin `cookieParser()` el backend no las lee.
+
+---
+
 ## AppModule
 
 ```typescript
@@ -134,9 +163,9 @@ import { seedProducts } from './products.seeder';
 async function runSeed() {
   await AppDataSource.initialize();
 
-  await runCoreSeeds(AppDataSource);   // Siempre primero
+  await runCoreSeeds(AppDataSource); // Siempre primero
 
-  await seedProducts(AppDataSource);   // Tus seeds después
+  await seedProducts(AppDataSource); // Tus seeds después
 }
 
 runSeed();
@@ -164,18 +193,18 @@ migrations: [
 
 Al registrar `CoreModule`, los siguientes módulos están disponibles para inyectar en toda la app (son `@Global`):
 
-| Módulo | Servicios exportados |
-|--------|---------------------|
-| `ConfigModule` | `ConfigService` |
-| `EventEmitterModule` | `EventEmitter2` |
-| `AuthModule` | `AuthService`, `JwtAuthGuard`, `PermissionsGuard` |
-| `UsersModule` | `UsersService` |
-| `RolesModule` | `RolesService` |
-| `PermissionsModule` | `PermissionsService` |
-| `AuditModule` | `AuditService` |
-| `SettingsModule` | `SettingsService` |
-| `EmailProvidersModule` | `EmailProvidersService` |
-| `NotificationsModule` | `NotificationsService`, `EmailSenderService`, `NotificationTypesService` |
+| Módulo                 | Servicios exportados                                                     |
+| ---------------------- | ------------------------------------------------------------------------ |
+| `ConfigModule`         | `ConfigService`                                                          |
+| `EventEmitterModule`   | `EventEmitter2`                                                          |
+| `AuthModule`           | `AuthService`, `JwtAuthGuard`, `PermissionsGuard`                        |
+| `UsersModule`          | `UsersService`                                                           |
+| `RolesModule`          | `RolesService`                                                           |
+| `PermissionsModule`    | `PermissionsService`                                                     |
+| `AuditModule`          | `AuditService`                                                           |
+| `SettingsModule`       | `SettingsService`                                                        |
+| `EmailProvidersModule` | `EmailProvidersService`                                                  |
+| `NotificationsModule`  | `NotificationsService`, `EmailSenderService`, `NotificationTypesService` |
 
 ---
 
@@ -183,9 +212,9 @@ Al registrar `CoreModule`, los siguientes módulos están disponibles para inyec
 
 ```typescript
 import {
-  Public,               // Marca endpoint como público
-  CurrentUser,          // Inyecta el usuario autenticado
-  RequirePermissions,   // Valida permisos
+  Public, // Marca endpoint como público
+  CurrentUser, // Inyecta el usuario autenticado
+  RequirePermissions, // Valida permisos
   JwtAuthGuard,
   PermissionsGuard,
 } from '@dh/backend-core';
@@ -215,14 +244,34 @@ getProfile(@CurrentUser() user: User) { ... }
 ```typescript
 import type {
   // Entidades
-  User, Role, Permission, RefreshToken, AuditLog,
-  Setting, SettingCategory, SettingType, SettingInputType, SettingMeta,
-  EmailProvider, EmailProviderType, EmailProviderConfigUnion,
-  EmailLayout, EmailLayoutType, EmailTemplate,
-  NotificationType, UserNotificationPreference,
+  User,
+  Role,
+  Permission,
+  RefreshToken,
+  AuditLog,
+  Setting,
+  SettingCategory,
+  SettingType,
+  SettingInputType,
+  SettingMeta,
+  EmailProvider,
+  EmailProviderType,
+  EmailProviderConfigUnion,
+  EmailLayout,
+  EmailLayoutType,
+  EmailTemplate,
+  NotificationType,
+  UserNotificationPreference,
   // Bloques
-  Section, Column, Block, TextBlock, HeadingBlock,
-  ButtonBlock, ImageBlock, DividerBlock, SpacerBlock,
+  Section,
+  Column,
+  Block,
+  TextBlock,
+  HeadingBlock,
+  ButtonBlock,
+  ImageBlock,
+  DividerBlock,
+  SpacerBlock,
   // Entidades del cliente
   CORE_ENTITIES,
   // Seeds

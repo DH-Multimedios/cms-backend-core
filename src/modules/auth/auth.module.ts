@@ -4,9 +4,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthConfig } from '../../core/interfaces/core-config.interface';
 import { RefreshToken } from '../../database/entities/refresh-token.entity';
+import { PasswordResetToken } from '../../database/entities/password-reset-token.entity';
 import { User } from '../../database/entities/user.entity';
 import { UsersModule } from '../users/users.module';
 import { AuditModule } from '../audit/audit.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { LocalStrategy } from './strategies/local.strategy';
@@ -25,9 +27,10 @@ export class AuthModule {
           secret: authConfig.jwtSecret,
           signOptions: { expiresIn: (authConfig.jwtExpiration || '15m') as any },
         }),
-        TypeOrmModule.forFeature([RefreshToken, User]),
+        TypeOrmModule.forFeature([RefreshToken, PasswordResetToken, User]),
         UsersModule,
         AuditModule,
+        NotificationsModule,
       ],
       controllers: [AuthController],
       providers: [
@@ -63,9 +66,10 @@ export class AuthModule {
           },
           inject: options.inject || [],
         }),
-        TypeOrmModule.forFeature([RefreshToken, User]),
+        TypeOrmModule.forFeature([RefreshToken, PasswordResetToken, User]),
         UsersModule,
         AuditModule,
+        NotificationsModule,
       ],
       controllers: [AuthController],
       providers: [

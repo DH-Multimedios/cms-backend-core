@@ -3,6 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Request } from 'express';
 import { AuthConfig } from '../../../core/interfaces/core-config.interface';
 import { User } from '../../../database/entities/user.entity';
 import { ApiException } from '../../../common/exceptions/api.exception';
@@ -12,6 +13,14 @@ export interface JwtPayload {
   sub: string;
 }
 
+// Extrae token de cookie 'access_token' o de header Authorization: Bearer
+function extractFromCookieOrBearer(req: Request): string | null {
+  if (req?.cookies?.access_token) {
+    return req.cookies.access_token;
+  }
+  return ExtractJwt.fromAuthHeaderAsBearerToken()(req);
+}
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
@@ -19,7 +28,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: extractFromCookieOrBearer,
       ignoreExpiration: false,
       secretOrKey: authConfig.jwtSecret,
     });
@@ -29,7 +38,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     const user = await this.userRepository.findOne({ where: { id: payload.sub } });
 
     if (!user || !user.isActive) {
-      throw new ApiException(HttpStatus.UNAUTHORIZED, ErrorCode.INVALID_CREDENTIALS, 'Token inválido o usuario inactivo');
+      throw new ApiException(
+        HttpStatus.UNAUTHORIZED,
+        ErrorCode.INVALID_CREDENTIALS,
+        'Token inválido o usuario inactivo',
+      );
     }
 
     return user;

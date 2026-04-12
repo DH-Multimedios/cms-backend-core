@@ -25,9 +25,18 @@ export class UsersService {
   ) {}
 
   async findAll(query: UsersQueryDto): Promise<PaginatedResult<UserResponseDto>> {
-    const { page = 1, limit = 20, sortOrder = 'DESC', sortBy = 'createdAt', search, isActive, roleId } = query;
+    const {
+      page = 1,
+      limit = 20,
+      sortOrder = 'DESC',
+      sortBy = 'createdAt',
+      search,
+      isActive,
+      roleId,
+    } = query;
 
-    const qb = this.userRepository.createQueryBuilder('user')
+    const qb = this.userRepository
+      .createQueryBuilder('user')
       .leftJoinAndSelect('user.roles', 'role')
       .leftJoinAndSelect('role.permissions', 'permission')
       .where('user.isSystemUser = false');
@@ -69,7 +78,12 @@ export class UsersService {
     const user = await this.userRepository.findOne({
       where: { id, isSystemUser: false },
     });
-    if (!user) throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND, `Usuario ${id} no encontrado`);
+    if (!user)
+      throw new ApiException(
+        HttpStatus.NOT_FOUND,
+        ErrorCode.USER_NOT_FOUND,
+        `Usuario ${id} no encontrado`,
+      );
     return UserResponseDto.from(user);
   }
 
@@ -85,16 +99,24 @@ export class UsersService {
 
   async create(dto: CreateUserDto): Promise<UserResponseDto> {
     const existing = await this.userRepository.findOneBy({ email: dto.email });
-    if (existing) throw new ApiException(HttpStatus.CONFLICT, ErrorCode.USER_EMAIL_TAKEN, 'El email ya está en uso');
+    if (existing)
+      throw new ApiException(
+        HttpStatus.CONFLICT,
+        ErrorCode.USER_EMAIL_TAKEN,
+        'El email ya está en uso',
+      );
 
     if (dto.username) {
       const existingUsername = await this.userRepository.findOneBy({ username: dto.username });
-      if (existingUsername) throw new ApiException(HttpStatus.CONFLICT, ErrorCode.USERNAME_TAKEN, 'El username ya está en uso');
+      if (existingUsername)
+        throw new ApiException(
+          HttpStatus.CONFLICT,
+          ErrorCode.USERNAME_TAKEN,
+          'El username ya está en uso',
+        );
     }
 
-    const roles = dto.roleIds?.length
-      ? await this.roleRepository.findByIds(dto.roleIds)
-      : [];
+    const roles = dto.roleIds?.length ? await this.roleRepository.findByIds(dto.roleIds) : [];
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
     const user = this.userRepository.create({
@@ -128,10 +150,19 @@ export class UsersService {
 
   async update(id: string, dto: UpdateUserDto, currentUser: User): Promise<UserResponseDto> {
     const user = await this.userRepository.findOne({ where: { id, isSystemUser: false } });
-    if (!user) throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND, `Usuario ${id} no encontrado`);
+    if (!user)
+      throw new ApiException(
+        HttpStatus.NOT_FOUND,
+        ErrorCode.USER_NOT_FOUND,
+        `Usuario ${id} no encontrado`,
+      );
 
     if (user.isProtected && !currentUser.isSystemUser) {
-      throw new ApiException(HttpStatus.FORBIDDEN, ErrorCode.USER_PROTECTED, 'No podés modificar un usuario protegido');
+      throw new ApiException(
+        HttpStatus.FORBIDDEN,
+        ErrorCode.USER_PROTECTED,
+        'No podés modificar un usuario protegido',
+      );
     }
 
     const auditBefore: Record<string, any> = {};
@@ -144,7 +175,11 @@ export class UsersService {
       if (!currentUser.isSystemUser) {
         const hasHigherRole = newRoles.some((r) => r.weight > currentMaxWeight);
         if (hasHigherRole) {
-          throw new ApiException(HttpStatus.FORBIDDEN, ErrorCode.ROLE_WEIGHT_EXCEEDED, 'No podés asignar un rol de mayor peso al tuyo');
+          throw new ApiException(
+            HttpStatus.FORBIDDEN,
+            ErrorCode.ROLE_WEIGHT_EXCEEDED,
+            'No podés asignar un rol de mayor peso al tuyo',
+          );
         }
       }
 
@@ -155,7 +190,12 @@ export class UsersService {
 
     if (dto.email !== undefined && dto.email !== user.email) {
       const existing = await this.userRepository.findOneBy({ email: dto.email });
-      if (existing) throw new ApiException(HttpStatus.CONFLICT, ErrorCode.USER_EMAIL_TAKEN, 'El email ya está en uso');
+      if (existing)
+        throw new ApiException(
+          HttpStatus.CONFLICT,
+          ErrorCode.USER_EMAIL_TAKEN,
+          'El email ya está en uso',
+        );
       auditBefore.email = user.email;
       auditAfter.email = dto.email;
       user.email = dto.email;
@@ -163,7 +203,12 @@ export class UsersService {
 
     if (dto.username !== undefined && dto.username !== user.username) {
       const existing = await this.userRepository.findOneBy({ username: dto.username });
-      if (existing) throw new ApiException(HttpStatus.CONFLICT, ErrorCode.USERNAME_TAKEN, 'El username ya está en uso');
+      if (existing)
+        throw new ApiException(
+          HttpStatus.CONFLICT,
+          ErrorCode.USERNAME_TAKEN,
+          'El username ya está en uso',
+        );
       auditBefore.username = user.username;
       auditAfter.username = dto.username;
       user.username = dto.username;
@@ -196,7 +241,8 @@ export class UsersService {
       action: 'update',
       entity: 'User',
       entityId: saved.id,
-      metadata: Object.keys(auditAfter).length > 0 ? { before: auditBefore, after: auditAfter } : null,
+      metadata:
+        Object.keys(auditAfter).length > 0 ? { before: auditBefore, after: auditAfter } : null,
     });
 
     return UserResponseDto.from(saved);
@@ -204,10 +250,19 @@ export class UsersService {
 
   async remove(id: string, currentUser: User): Promise<{ message: string }> {
     const user = await this.userRepository.findOne({ where: { id, isSystemUser: false } });
-    if (!user) throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND, `Usuario ${id} no encontrado`);
+    if (!user)
+      throw new ApiException(
+        HttpStatus.NOT_FOUND,
+        ErrorCode.USER_NOT_FOUND,
+        `Usuario ${id} no encontrado`,
+      );
 
     if (user.isProtected && !currentUser.isSystemUser) {
-      throw new ApiException(HttpStatus.FORBIDDEN, ErrorCode.USER_PROTECTED, 'No podés eliminar un usuario protegido');
+      throw new ApiException(
+        HttpStatus.FORBIDDEN,
+        ErrorCode.USER_PROTECTED,
+        'No podés eliminar un usuario protegido',
+      );
     }
 
     await this.auditService.log({
@@ -230,14 +285,24 @@ export class UsersService {
 
   async updateProfile(currentUser: User, dto: UpdateProfileDto): Promise<UserResponseDto> {
     const user = await this.userRepository.findOne({ where: { id: currentUser.id } });
-    if (!user) throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND, 'Usuario no encontrado');
+    if (!user)
+      throw new ApiException(
+        HttpStatus.NOT_FOUND,
+        ErrorCode.USER_NOT_FOUND,
+        'Usuario no encontrado',
+      );
 
     const auditBefore: Record<string, any> = {};
     const auditAfter: Record<string, any> = {};
 
     if (dto.email !== undefined && dto.email !== user.email) {
       const existing = await this.userRepository.findOneBy({ email: dto.email });
-      if (existing) throw new ApiException(HttpStatus.CONFLICT, ErrorCode.USER_EMAIL_TAKEN, 'El email ya está en uso');
+      if (existing)
+        throw new ApiException(
+          HttpStatus.CONFLICT,
+          ErrorCode.USER_EMAIL_TAKEN,
+          'El email ya está en uso',
+        );
       auditBefore.email = user.email;
       auditAfter.email = dto.email;
       user.email = dto.email;
@@ -265,7 +330,8 @@ export class UsersService {
       action: 'update_profile',
       entity: 'User',
       entityId: saved.id,
-      metadata: Object.keys(auditAfter).length > 0 ? { before: auditBefore, after: auditAfter } : null,
+      metadata:
+        Object.keys(auditAfter).length > 0 ? { before: auditBefore, after: auditAfter } : null,
     });
 
     return UserResponseDto.from(saved);
@@ -273,5 +339,9 @@ export class UsersService {
 
   async updateLastLogin(id: string): Promise<void> {
     await this.userRepository.update(id, { lastLoginAt: new Date() });
+  }
+
+  async updatePassword(id: string, hashedPassword: string): Promise<void> {
+    await this.userRepository.update(id, { password: hashedPassword });
   }
 }
