@@ -80,9 +80,9 @@ export class FilesController {
     summary: 'Listar archivos — con permiso files.list ve todos, sin permiso solo los suyos',
   })
   async findAll(@Query() filters: ListFilesDto, @CurrentUser() user?: User) {
-    const hasListPermission = user?.roles?.some((role) =>
-      role.permissions?.some((p) => p.name === 'files.list'),
-    );
+    const hasListPermission =
+      user?.isSystemUser ||
+      user?.roles?.some((role) => role.permissions?.some((p) => p.name === 'files.list'));
 
     return this.filesService.findAll(filters, user?.id, hasListPermission);
   }
@@ -92,9 +92,9 @@ export class FilesController {
   @ApiOperation({ summary: 'Obtener detalles de un archivo (público si isPublic=true)' })
   @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
   async findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user?: User) {
-    const hasDownloadPermission = user?.roles?.some((role) =>
-      role.permissions?.some((p) => p.name === 'files.download'),
-    );
+    const hasDownloadPermission =
+      user?.isSystemUser ||
+      user?.roles?.some((role) => role.permissions?.some((p) => p.name === 'files.download'));
 
     return this.filesService.findOne(id, user?.id, hasDownloadPermission);
   }
@@ -110,9 +110,9 @@ export class FilesController {
     @Res({ passthrough: true }) res: Response,
     @CurrentUser() user?: User,
   ) {
-    const hasDownloadPermission = user?.roles?.some((role) =>
-      role.permissions?.some((p) => p.name === 'files.download'),
-    );
+    const hasDownloadPermission =
+      user?.isSystemUser ||
+      user?.roles?.some((role) => role.permissions?.some((p) => p.name === 'files.download'));
 
     const { file, stream } = await this.filesService.download(id, user?.id, hasDownloadPermission);
 
