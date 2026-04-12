@@ -1,7 +1,10 @@
 import { Injectable, HttpStatus, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { EmailProvider, EmailProviderConfigUnion } from '../../database/entities/email-provider.entity';
+import {
+  EmailProvider,
+  EmailProviderConfigUnion,
+} from '../../database/entities/email-provider.entity';
 import { AuditService } from '../audit/audit.service';
 import { PermissionsService } from '../permissions/permissions.service';
 import { CreateEmailProviderDto } from './dto/create-email-provider.dto';
@@ -20,10 +23,26 @@ export class EmailProvidersService implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     await this.permissionsService.registerPermissions([
-      { name: 'email-providers.read', description: 'Ver providers de email', module: 'email-providers' },
-      { name: 'email-providers.create', description: 'Crear providers de email', module: 'email-providers' },
-      { name: 'email-providers.update', description: 'Modificar providers de email', module: 'email-providers' },
-      { name: 'email-providers.delete', description: 'Eliminar providers de email', module: 'email-providers' },
+      {
+        name: 'email-providers.read',
+        description: 'Ver providers de email',
+        module: 'email-providers',
+      },
+      {
+        name: 'email-providers.create',
+        description: 'Crear providers de email',
+        module: 'email-providers',
+      },
+      {
+        name: 'email-providers.update',
+        description: 'Modificar providers de email',
+        module: 'email-providers',
+      },
+      {
+        name: 'email-providers.delete',
+        description: 'Eliminar providers de email',
+        module: 'email-providers',
+      },
     ]);
   }
 
@@ -34,7 +53,11 @@ export class EmailProvidersService implements OnModuleInit {
   async findOne(id: number): Promise<EmailProvider> {
     const provider = await this.repository.findOneBy({ id });
     if (!provider) {
-      throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND, `Provider ${id} no encontrado`);
+      throw new ApiException(
+        HttpStatus.NOT_FOUND,
+        ErrorCode.NOT_FOUND,
+        `Provider ${id} no encontrado`,
+      );
     }
     return provider;
   }
@@ -72,7 +95,10 @@ export class EmailProvidersService implements OnModuleInit {
       provider.config = this.extractConfig(dto as CreateEmailProviderDto);
       provider.provider = dto.provider;
     } else if (dto.smtp || dto.resend || dto.googleOAuth) {
-      provider.config = this.extractConfig({ ...dto, provider: provider.provider } as CreateEmailProviderDto);
+      provider.config = this.extractConfig({
+        ...dto,
+        provider: provider.provider,
+      } as CreateEmailProviderDto);
     }
 
     if (dto.name !== undefined) provider.name = dto.name;
@@ -98,7 +124,12 @@ export class EmailProvidersService implements OnModuleInit {
     const provider = await this.findOne(id);
 
     // Desactivar todos
-    await this.repository.update({}, { isActive: false });
+    await this.repository
+      .createQueryBuilder()
+      .update()
+      .set({ isActive: false })
+      .where('isActive = true')
+      .execute();
 
     // Activar el elegido
     provider.isActive = true;
@@ -139,17 +170,29 @@ export class EmailProvidersService implements OnModuleInit {
     switch (dto.provider) {
       case 'smtp':
         if (!dto.smtp) {
-          throw new ApiException(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_ERROR, 'Falta configuración SMTP');
+          throw new ApiException(
+            HttpStatus.BAD_REQUEST,
+            ErrorCode.VALIDATION_ERROR,
+            'Falta configuración SMTP',
+          );
         }
         return dto.smtp;
       case 'resend':
         if (!dto.resend) {
-          throw new ApiException(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_ERROR, 'Falta configuración Resend');
+          throw new ApiException(
+            HttpStatus.BAD_REQUEST,
+            ErrorCode.VALIDATION_ERROR,
+            'Falta configuración Resend',
+          );
         }
         return dto.resend;
       case 'google-oauth':
         if (!dto.googleOAuth) {
-          throw new ApiException(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_ERROR, 'Falta configuración Google OAuth');
+          throw new ApiException(
+            HttpStatus.BAD_REQUEST,
+            ErrorCode.VALIDATION_ERROR,
+            'Falta configuración Google OAuth',
+          );
         }
         return dto.googleOAuth;
     }
