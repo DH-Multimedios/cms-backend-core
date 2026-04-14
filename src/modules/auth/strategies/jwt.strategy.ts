@@ -11,6 +11,10 @@ import { ErrorCode } from '../../../common/enums/error-codes.enum';
 
 export interface JwtPayload {
   sub: string;
+  /** Peso máximo entre todos los roles del usuario — solo para routing del proxy, el backend no autoriza por peso */
+  maxWeight: number;
+  /** Indica si es el usuario del sistema — bypass total en el proxy */
+  isSystemUser: boolean;
 }
 
 // Extrae token de cookie 'access_token' o de header Authorization: Bearer
