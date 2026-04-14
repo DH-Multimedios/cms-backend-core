@@ -389,6 +389,44 @@ export class UsersService {
     return UserResponseDto.from(saved);
   }
 
+  async removeAvatar(userId: string): Promise<UserResponseDto> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new ApiException(
+        HttpStatus.NOT_FOUND,
+        ErrorCode.USER_NOT_FOUND,
+        `Usuario ${userId} no encontrado`,
+      );
+    }
+
+    if (user.avatarUrl) {
+      const oldPath = user.avatarUrl.replace('/uploads/media/', '');
+      const oldMedia = await this.userRepository.manager
+        .createQueryBuilder()
+        .select('m')
+        .from('media', 'm')
+        .where('m.path = :path', { path: oldPath })
+        .getOne();
+
+      if (oldMedia) {
+        await this.mediaService.remove(oldMedia.id, userId, true);
+      }
+
+      user.avatarUrl = null;
+      await this.userRepository.save(user);
+
+      await this.auditService.log({
+        action: 'remove_avatar',
+        entity: 'User',
+        entityId: user.id,
+        userId,
+        metadata: { removedAvatarUrl: oldPath },
+      });
+    }
+
+    return UserResponseDto.from(user);
+  }
+
   async updateLastLogin(id: string): Promise<void> {
     await this.userRepository.update(id, { lastLoginAt: new Date() });
   }

@@ -155,6 +155,24 @@ Sube o reemplaza el avatar del usuario autenticado. No requiere permisos especia
 
 ---
 
+### DELETE /users/me/avatar
+
+Elimina el avatar del usuario autenticado. No requiere permisos especiales. Si no tiene avatar, no hace nada.
+
+**Response `204`:** Sin contenido.
+
+---
+
+### DELETE /users/:id/avatar
+
+Elimina el avatar de cualquier usuario. Requiere permiso `users.update`.
+
+**Response `204`:** Sin contenido.
+
+**Errores:** `USER_NOT_FOUND`
+
+---
+
 ### POST /users/:id/avatar
 
 Sube o reemplaza el avatar de cualquier usuario. Requiere permiso `users.update`.
@@ -218,10 +236,10 @@ Elimina un usuario.
 
 ## Campos a tener en cuenta
 
-| Campo            | Descripción                                                                                                   |
-| ---------------- | ------------------------------------------------------------------------------------------------------------- |
-| `isActive`       | Si `false`, el usuario no puede autenticarse. Mostrar badge de estado.                                        |
-| `isProtected`    | Si `true`, deshabilitar el botón de eliminar en UI.                                                           |
-| `avatarUrl`      | URL del avatar del usuario. `null` si no tiene. Se obtiene/sube via `/users/me/avatar` o `/users/:id/avatar`. |
-| `roles[].weight` | El peso del rol determina jerarquía. No permite asignar roles de mayor peso.                                  |
-| `lastLoginAt`    | Null si el usuario nunca se logueó.                                                                           |
+| Campo            | Descripción                                                                                                                        |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `isActive`       | Si `false`, el usuario no puede autenticarse. Mostrar badge de estado.                                                             |
+| `isProtected`    | Si `true`, deshabilitar el botón de eliminar en UI.                                                                                |
+| `avatarUrl`      | URL del avatar del usuario. `null` si no tiene. Se gestiona via `/users/me/avatar` (subir/eliminar) o `/users/:id/avatar` (admin). |
+| `roles[].weight` | El peso del rol determina jerarquía. No permite asignar roles de mayor peso.                                                       |
+| `lastLoginAt`    | Null si el usuario nunca se logueó.                                                                                                |
