@@ -133,7 +133,7 @@ Revoca **todos** los refresh tokens del usuario. Cierra todas las sesiones abier
 
 ### GET /auth/me
 
-Devuelve el usuario autenticado con sus roles y permisos. Requiere JWT.
+Devuelve el usuario autenticado con sus roles. Requiere JWT.
 
 **Response `200`:**
 
@@ -149,19 +149,48 @@ Devuelve el usuario autenticado con sus roles y permisos. Requiere JWT.
     "isActive": true,
     "isProtected": false,
     "avatarUrl": "/uploads/media/uuid/avatars/2026-04-14/avatar.jpg",
+    "roles": [{ "id": "uuid", "name": "Admin", "weight": 90 }],
+    "lastLoginAt": "2026-04-11T...",
+    "createdAt": "2026-01-01T...",
+    "updatedAt": "2026-04-11T..."
+  }
+}
+```
+
+> `roles` incluye `id`, `name` y `weight` pero **no** incluye permisos. Para permisos, usar `GET /auth/me/permissions`.
+
+---
+
+### GET /auth/me/permissions
+
+Devuelve los permisos efectivos del usuario autenticado. Requiere JWT.
+
+**Response `200`:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "permissions": ["users.read", "users.create", "users.update", "roles.read", "*"],
     "roles": [
       {
         "id": "uuid",
         "name": "Admin",
         "weight": 90,
-        "permissions": [{ "id": "uuid", "name": "users.read", "module": "users" }]
+        "permissions": [
+          { "id": "uuid", "name": "users.read", "module": "users" },
+          { "id": "uuid", "name": "users.create", "module": "users" }
+        ]
       }
-    ],
-    "lastLoginAt": "2026-04-11T...",
-    "createdAt": "2026-01-01T..."
+    ]
   }
 }
 ```
+
+- `permissions`: flat array de nombres de permisos únicos (deduplicados). El valor `*` indica que el usuario es `isSystemUser` y bypassa todos los permisos.
+- `roles`: detalle de cada rol con sus permisos individuales.
+
+````
 
 ---
 
@@ -173,7 +202,7 @@ Solicita un código de recuperación de 6 dígitos por email. Siempre responde i
 
 ```json
 { "email": "user@example.com" }
-```
+````
 
 **Response `200`:**
 
