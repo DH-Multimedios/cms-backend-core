@@ -65,7 +65,7 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   avatarUrl: string | null;
 
   @Column({ nullable: true })
