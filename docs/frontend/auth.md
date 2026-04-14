@@ -40,6 +40,7 @@ Además del body, el servidor setea automáticamente dos cookies HttpOnly:
       "lastName": "Pérez",
       "isActive": true,
       "isProtected": false,
+      "avatarUrl": "/uploads/media/uuid/avatars/2026-04-14/avatar.jpg",
       "roles": [{ "id": "uuid", "name": "Admin", "weight": 90 }],
       "lastLoginAt": "2026-04-11T...",
       "createdAt": "2026-01-01T...",
@@ -147,6 +148,7 @@ Devuelve el usuario autenticado con sus roles y permisos. Requiere JWT.
     "lastName": "Pérez",
     "isActive": true,
     "isProtected": false,
+    "avatarUrl": "/uploads/media/uuid/avatars/2026-04-14/avatar.jpg",
     "roles": [
       {
         "id": "uuid",

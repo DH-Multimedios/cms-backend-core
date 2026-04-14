@@ -66,5 +66,8 @@ export class User {
   updatedAt: Date;
 
   @Column({ nullable: true })
+  avatarUrl: string;
+
+  @Column({ nullable: true })
   lastLoginAt: Date;
 }

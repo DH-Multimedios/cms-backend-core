@@ -8,6 +8,7 @@ export class UserResponseDto {
   lastName: string;
   isActive: boolean;
   isProtected: boolean;
+  avatarUrl: string | null;
   roles: { id: string; name: string; weight: number }[];
   lastLoginAt: Date;
   createdAt: Date;
@@ -22,6 +23,7 @@ export class UserResponseDto {
     dto.lastName = user.lastName;
     dto.isActive = user.isActive;
     dto.isProtected = user.isProtected;
+    dto.avatarUrl = user.avatarUrl;
     dto.roles = (user.roles || []).map((r) => ({ id: r.id, name: r.name, weight: r.weight }));
     dto.lastLoginAt = user.lastLoginAt;
     dto.createdAt = user.createdAt;

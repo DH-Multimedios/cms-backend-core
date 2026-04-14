@@ -10,6 +10,8 @@ TypeORM no soporta herencia de entidades de forma directa para proyectos externo
 
 ### Ejemplo: agregar datos de perfil al usuario
 
+El campo `avatarUrl` ya está incluido en el core. Si necesitás datos adicionales (bio, teléfono, etc.), creá una relación 1-a-1:
+
 ```typescript
 // src/entities/user-profile.entity.ts (en tu proyecto cliente)
 @Entity('user_profiles')
@@ -25,10 +27,10 @@ export class UserProfile {
   user: User;
 
   @Column({ nullable: true })
-  avatar: string;
+  bio: string;
 
   @Column({ nullable: true })
-  bio: string;
+  phone: string;
 }
 ```
 
@@ -48,9 +50,9 @@ export class ProductsService implements OnModuleInit {
 
   async onModuleInit() {
     await this.permissionsService.registerPermissions([
-      { name: 'products.read',   description: 'Ver productos',     module: 'products' },
-      { name: 'products.create', description: 'Crear productos',   module: 'products' },
-      { name: 'products.update', description: 'Editar productos',  module: 'products' },
+      { name: 'products.read', description: 'Ver productos', module: 'products' },
+      { name: 'products.create', description: 'Crear productos', module: 'products' },
+      { name: 'products.update', description: 'Editar productos', module: 'products' },
       { name: 'products.delete', description: 'Eliminar productos', module: 'products' },
     ]);
   }
@@ -84,28 +86,30 @@ export async function seedClientSettings(dataSource: DataSource) {
   let category = await categoryRepo.findOneBy({ slug: 'ecommerce' });
   if (!category) {
     category = await categoryRepo.save(
-      categoryRepo.create({ slug: 'ecommerce', label: 'E-commerce', order: 10 })
+      categoryRepo.create({ slug: 'ecommerce', label: 'E-commerce', order: 10 }),
     );
   }
 
   // Setting propio
   const existing = await settingRepo.findOneBy({ key: 'store.currency' });
   if (!existing) {
-    await settingRepo.save(settingRepo.create({
-      categoryId: category.id,
-      key: 'store.currency',
-      label: 'Moneda',
-      value: 'ARS',
-      type: 'string',
-      inputType: 'select',
-      meta: {
-        options: [
-          { value: 'ARS', label: 'Peso argentino' },
-          { value: 'USD', label: 'Dólar' },
-        ],
-      },
-      order: 1,
-    }));
+    await settingRepo.save(
+      settingRepo.create({
+        categoryId: category.id,
+        key: 'store.currency',
+        label: 'Moneda',
+        value: 'ARS',
+        type: 'string',
+        inputType: 'select',
+        meta: {
+          options: [
+            { value: 'ARS', label: 'Peso argentino' },
+            { value: 'USD', label: 'Dólar' },
+          ],
+        },
+        order: 1,
+      }),
+    );
   }
 }
 ```

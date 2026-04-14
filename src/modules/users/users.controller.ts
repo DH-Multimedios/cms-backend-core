@@ -9,8 +9,18 @@ import {
   Query,
   ParseUUIDPipe,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiBody,
+  ApiParam,
+} from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -54,6 +64,52 @@ export class UsersController {
   @ApiOperation({ summary: 'Actualizar perfil propio' })
   updateMe(@CurrentUser() currentUser: User, @Body() dto: UpdateProfileDto) {
     return this.usersService.updateProfile(currentUser, dto);
+  }
+
+  @Post('me/avatar')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: { type: 'string', format: 'binary' },
+        alt: { type: 'string', nullable: true },
+      },
+      required: ['file'],
+    },
+  })
+  @ApiOperation({ summary: 'Subir avatar propio' })
+  uploadMyAvatar(
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() currentUser: User,
+    @Body('alt') alt?: string,
+  ) {
+    return this.usersService.uploadAvatar(currentUser.id, file, alt);
+  }
+
+  @Post(':id/avatar')
+  @RequirePermissions('users.update')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: { type: 'string', format: 'binary' },
+        alt: { type: 'string', nullable: true },
+      },
+      required: ['file'],
+    },
+  })
+  @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
+  @ApiOperation({ summary: 'Subir avatar de un usuario (admin)' })
+  uploadUserAvatar(
+    @Param('id', ParseUUIDPipe) id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Body('alt') alt?: string,
+  ) {
+    return this.usersService.uploadAvatar(id, file, alt);
   }
 
   @Patch(':id')

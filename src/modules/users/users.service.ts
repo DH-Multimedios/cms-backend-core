@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../../database/entities/user.entity';
 import { Role } from '../../database/entities/role.entity';
 import { AuditService } from '../audit/audit.service';
+import { MediaService } from '../media/media.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -22,6 +23,7 @@ export class UsersService {
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
     private readonly auditService: AuditService,
+    private readonly mediaService: MediaService,
   ) {}
 
   async findAll(query: UsersQueryDto): Promise<PaginatedResult<UserResponseDto>> {
@@ -332,6 +334,56 @@ export class UsersService {
       entityId: saved.id,
       metadata:
         Object.keys(auditAfter).length > 0 ? { before: auditBefore, after: auditAfter } : null,
+    });
+
+    return UserResponseDto.from(saved);
+  }
+
+  async uploadAvatar(
+    userId: string,
+    file: Express.Multer.File,
+    alt?: string,
+  ): Promise<UserResponseDto> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new ApiException(
+        HttpStatus.NOT_FOUND,
+        ErrorCode.USER_NOT_FOUND,
+        `Usuario ${userId} no encontrado`,
+      );
+    }
+
+    // Subir nueva imagen
+    const avatar = await this.mediaService.upload(file, userId, {
+      alt: alt || `Avatar de ${user.firstName || user.email}`,
+      usage: 'avatars',
+    });
+
+    // Borrar avatar anterior si existe
+    if (user.avatarUrl) {
+      const oldPath = user.avatarUrl.replace('/uploads/media/', '');
+      const oldMedia = await this.userRepository.manager
+        .createQueryBuilder()
+        .select('m')
+        .from('media', 'm')
+        .where('m.path = :path', { path: oldPath })
+        .getOne();
+
+      if (oldMedia) {
+        await this.mediaService.remove(oldMedia.id, userId, true);
+      }
+    }
+
+    // Actualizar URL en el usuario
+    user.avatarUrl = avatar.url;
+    const saved = await this.userRepository.save(user);
+
+    await this.auditService.log({
+      action: 'update_avatar',
+      entity: 'User',
+      entityId: saved.id,
+      userId,
+      metadata: { avatarUrl: avatar.url },
     });
 
     return UserResponseDto.from(saved);
