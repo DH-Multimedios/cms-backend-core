@@ -112,7 +112,11 @@ export class AuthService {
   }
 
   private async generateTokens(user: User, ip?: string, userAgent?: string): Promise<TokensDto> {
-    const maxWeight = user.roles?.length ? Math.max(...user.roles.map((r) => r.weight)) : 0;
+    const maxWeight = user.isSystemUser
+      ? 100
+      : user.roles?.length
+        ? Math.max(...user.roles.map((r) => r.weight))
+        : 0;
 
     const payload: JwtPayload = {
       sub: user.id,
