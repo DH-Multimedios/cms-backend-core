@@ -3,6 +3,8 @@ import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ClsModule } from 'nestjs-cls';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { DatabaseModule } from '../database/database.module';
 import { HealthModule } from '../modules/health/health.module';
 import { AuthModule } from '../modules/auth/auth.module';
@@ -20,12 +22,26 @@ import { UserPreferencesModule } from '../modules/user-preferences/user-preferen
 import { AuditContextInterceptor } from '../modules/audit/interceptors/audit-context.interceptor';
 import { HttpExceptionFilter } from '../common/filters/http-exception.filter';
 import { ResponseInterceptor } from '../common/interceptors/response.interceptor';
-import { CoreModuleConfig, CoreModuleAsyncOptions } from './interfaces/core-config.interface';
+import {
+  CoreModuleConfig,
+  CoreModuleAsyncOptions,
+  ModulesConfig,
+} from './interfaces/core-config.interface';
 
 @Global()
 @Module({})
 export class CoreModule {
+  private static getMediaPath(modules?: ModulesConfig): string {
+    const mediaConfig = modules?.media;
+    if (mediaConfig && mediaConfig !== true && mediaConfig.path) {
+      return mediaConfig.path;
+    }
+    return process.env.UPLOADS_PATH || 'uploads/media';
+  }
+
   static register(config: CoreModuleConfig): DynamicModule {
+    const mediaPath = this.getMediaPath(config.modules);
+
     return {
       module: CoreModule,
       providers: [
@@ -37,6 +53,11 @@ export class CoreModule {
         ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
         EventEmitterModule.forRoot(),
         ClsModule.forRoot({ global: true, middleware: { mount: true } }),
+        ServeStaticModule.forRoot({
+          rootPath: join(process.cwd(), mediaPath),
+          serveRoot: '/uploads/media/',
+          serveStaticOptions: { index: false },
+        }),
         DatabaseModule.forRoot(config.database),
         HealthModule,
         AuthModule.register(config.auth),
@@ -89,6 +110,29 @@ export class CoreModule {
           useFactory: async (...args: any[]) => {
             const config = await options.useFactory(...args);
             return config.database;
+          },
+          inject: options.inject || [],
+        }),
+        AuthModule.registerAsync({
+          imports: options.imports,
+          useFactory: async (...args: any[]) => {
+            const config = await options.useFactory(...args);
+            return config.auth;
+          },
+          inject: options.inject || [],
+        }),
+        ServeStaticModule.forRootAsync({
+          imports: options.imports || [],
+          useFactory: async (...args: any[]) => {
+            const config = await options.useFactory(...args);
+            const mediaPath = CoreModule.getMediaPath(config.modules);
+            return [
+              {
+                rootPath: join(process.cwd(), mediaPath),
+                serveRoot: '/uploads/media/',
+                serveStaticOptions: { index: false },
+              },
+            ];
           },
           inject: options.inject || [],
         }),
