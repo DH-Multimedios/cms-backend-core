@@ -171,24 +171,14 @@ Devuelve los permisos efectivos del usuario autenticado. Requiere JWT.
 {
   "success": true,
   "data": {
-    "permissions": ["users.read", "users.create", "users.update", "roles.read", "*"],
-    "roles": [
-      {
-        "id": "uuid",
-        "name": "Admin",
-        "weight": 90,
-        "permissions": [
-          { "id": "uuid", "name": "users.read", "module": "users" },
-          { "id": "uuid", "name": "users.create", "module": "users" }
-        ]
-      }
-    ]
+    "isSystemUser": false,
+    "permissions": ["users.read", "users.create", "roles.read", "media.upload"]
   }
 }
 ```
 
-- `permissions`: flat array de nombres de permisos únicos (deduplicados). El valor `*` indica que el usuario es `isSystemUser` y bypassa todos los permisos.
-- `roles`: detalle de cada rol con sus permisos individuales.
+- `permissions`: flat array deduplicado de nombres de permisos — listo para `permissions.includes('users.read')`.
+- `isSystemUser`: si es `true`, el usuario bypassa todos los permisos (no hace falta chequear el array).
 
 ````
 

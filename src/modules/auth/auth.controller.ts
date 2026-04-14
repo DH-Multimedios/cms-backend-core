@@ -11,7 +11,6 @@ import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { VerifyResetCodeDto } from './dto/verify-reset-code.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { UserPermissionsDto } from './dto/user-permissions.dto';
 import { User } from '../../database/entities/user.entity';
 import { UserResponseDto } from '../users/dto/user-response.dto';
 
@@ -121,18 +120,7 @@ export class AuthController {
   @Get('me/permissions')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Obtener permisos del usuario actual' })
-  myPermissions(@CurrentUser() user: User): UserPermissionsDto {
-    const roles = (user.roles || []).map((role) => ({
-      id: role.id,
-      name: role.name,
-      weight: role.weight,
-      permissions: (role.permissions || []).map((p) => ({
-        id: p.id,
-        name: p.name,
-        module: p.module,
-      })),
-    }));
-
+  myPermissions(@CurrentUser() user: User) {
     const permissionSet = new Set<string>();
     for (const role of user.roles || []) {
       for (const perm of role.permissions || []) {
@@ -140,13 +128,9 @@ export class AuthController {
       }
     }
 
-    if (user.isSystemUser) {
-      permissionSet.add('*');
-    }
-
     return {
+      isSystemUser: user.isSystemUser,
       permissions: Array.from(permissionSet),
-      roles,
     };
   }
 
