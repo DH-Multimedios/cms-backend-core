@@ -74,7 +74,7 @@ await fetch('/files/upload', {
 
 ```json
 {
-  "success": true,
+  "statusCode": 201,
   "data": {
     "id": "uuid",
     "filename": "abc-123.pdf",
@@ -128,7 +128,7 @@ GET /files?usage=contracts&fileOwnerUserId=uuid&isPublic=false&search=contrato
 
 ```json
 {
-  "success": true,
+  "statusCode": 200,
   "data": [
     {
       "id": "uuid",
@@ -160,7 +160,7 @@ Obtiene detalles de un archivo.
 
 ```json
 {
-  "success": true,
+  "statusCode": 200,
   "data": {
     "id": "uuid",
     "filename": "abc-123.pdf",
@@ -252,7 +252,7 @@ Edita nombre, descripción o dueño del archivo. Requiere permiso `files.edit`.
 
 ```json
 {
-  "success": true,
+  "statusCode": 200,
   "data": {
     "id": "uuid",
     "name": "Nuevo nombre del archivo",

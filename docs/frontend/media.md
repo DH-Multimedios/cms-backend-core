@@ -66,7 +66,7 @@ await fetch('/media/upload', {
 
 ```json
 {
-  "success": true,
+  "statusCode": 201,
   "data": {
     "id": "uuid",
     "filename": "abc-123.jpg",
@@ -117,7 +117,7 @@ GET /media?usage=logos&search=empresa&uploadedByUserId=uuid
 
 ```json
 {
-  "success": true,
+  "statusCode": 200,
   "data": [
     {
       "id": "uuid",
@@ -382,7 +382,7 @@ function ImageUploader() {
     });
 
     const result = await response.json();
-    if (result.success) {
+    if (result.statusCode >= 200 && result.statusCode < 300) {
       console.log('Imagen subida:', result.data.url);
       // Resetear form
       setFile(null);

@@ -24,7 +24,7 @@ Lista paginada de roles con sus permisos.
 
 ```json
 {
-  "success": true,
+  "statusCode": 200,
   "data": {
     "items": [
       {
@@ -153,7 +153,7 @@ Lista todos los permisos del sistema, agrupables por `module`.
 
 ```json
 {
-  "success": true,
+  "statusCode": 200,
   "data": {
     "items": [
       { "id": "uuid", "name": "users.read", "description": "Ver usuarios", "module": "users" },

@@ -27,69 +27,186 @@ Los endpoints marcados como `@Public` no requieren el header.
 
 ## Estructura de respuesta
 
-Todas las respuestas siguen el mismo envelope:
-
-### Respuesta exitosa
+### Respuesta exitosa (2xx)
 
 ```json
 {
-  "success": true,
-  "data": { ... },
-  "timestamp": "2026-04-11T15:30:00.000Z"
+  "statusCode": 200,
+  "data": { ... }
 }
 ```
 
-### Respuesta paginada
+### Respuesta exitosa paginada
 
 ```json
 {
-  "success": true,
+  "statusCode": 200,
   "data": {
     "items": [ ... ],
     "total": 100,
     "page": 1,
     "limit": 20,
     "pages": 5
-  },
-  "timestamp": "..."
+  }
 }
 ```
 
 ### Respuesta de error
 
+Errores del dominio (validaciones, permisos, recursos no encontrados, etc.):
+
 ```json
 {
-  "success": false,
-  "error": {
-    "statusCode": 404,
-    "code": "USER_NOT_FOUND",
-    "message": "Usuario no encontrado"
-  },
-  "timestamp": "..."
+  "statusCode": 409,
+  "code": "USER_EMAIL_TAKEN",
+  "message": "El email ya está en uso"
 }
+```
+
+Errores de validación de class-validator (campos inválidos):
+
+```json
+{
+  "statusCode": 400,
+  "code": "VALIDATION_ERROR",
+  "message": "email must be an email; password must be longer than or equal to 8 characters"
+}
+```
+
+Error inesperado del servidor:
+
+```json
+{
+  "statusCode": 500,
+  "code": "INTERNAL_ERROR",
+  "message": "Internal server error"
+}
+```
+
+---
+
+## Manejo de errores en el frontend
+
+### Interceptor recomendado
+
+```typescript
+async function apiFetch(url: string, options: RequestInit = {}) {
+  const res = await fetch(url, {
+    ...options,
+    credentials: 'include', // ← necesario para cookies HttpOnly
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers || {}),
+    },
+  });
+
+  // Intentar refresh automático si expiró el token
+  if (res.status === 401 && !options._retried) {
+    const refreshed = await fetch('/api/auth/refresh', {
+      method: 'POST',
+      credentials: 'include',
+    });
+    if (refreshed.ok) {
+      return apiFetch(url, { ...options, _retried: true });
+    }
+    // Refresh falló → redirigir a login
+    window.location.href = '/login';
+    return;
+  }
+
+  const body = await res.json();
+
+  if (!res.ok) {
+    // Estructura: { statusCode, code, message }
+    throw new ApiError(body.statusCode, body.code, body.message);
+  }
+
+  // Estructura: { statusCode, data }
+  return body.data;
+}
+
+class ApiError extends Error {
+  constructor(
+    public statusCode: number,
+    public code: string,
+    message: string,
+  ) {
+    super(message);
+  }
+}
+```
+
+### Interpretar los códigos de error
+
+```typescript
+try {
+  const user = await apiFetch('/api/users/me');
+} catch (err) {
+  if (err instanceof ApiError) {
+    switch (err.code) {
+      case 'INVALID_CREDENTIALS':
+        // Email o contraseña incorrectos
+        break;
+      case 'USER_EMAIL_TAKEN':
+        // El email ya existe → sugerir otro
+        break;
+      case 'VALIDATION_ERROR':
+        // Campos inválidos → err.message tiene el detalle
+        break;
+      case 'FORBIDDEN':
+        // Sin permisos
+        break;
+      // ...
+    }
+  }
+}
+```
+
+### Errores de validación
+
+Cuando class-validator rechaza un request, el `message` contiene todos los errores concatenados con `;`:
+
+```
+"username must be longer than or equal to 3 characters; email must be an email"
+```
+
+Para mostrar errores por campo, splitear el mensaje:
+
+```typescript
+const fieldErrors = err.message.split('; ').reduce((acc, msg) => {
+  const [field] = msg.split(' ');
+  acc[field] = msg;
+  return acc;
+}, {});
+// { username: "username must be longer than or equal to 3 characters", email: "email must be an email" }
 ```
 
 ---
 
 ## Códigos de error
 
-| code                    | HTTP | Descripción                                        |
-| ----------------------- | ---- | -------------------------------------------------- |
-| `INVALID_CREDENTIALS`   | 401  | Email/password incorrectos                         |
-| `INVALID_REFRESH_TOKEN` | 401  | Refresh token inválido, expirado o revocado        |
-| `USER_NOT_FOUND`        | 404  | Usuario no encontrado                              |
-| `USER_EMAIL_TAKEN`      | 409  | El email ya está en uso                            |
-| `USERNAME_TAKEN`        | 409  | El username ya está en uso                         |
-| `USER_PROTECTED`        | 409  | El usuario está protegido (no se puede eliminar)   |
-| `ROLE_NOT_FOUND`        | 404  | Rol no encontrado                                  |
-| `ROLE_NAME_TAKEN`       | 409  | El nombre de rol ya existe                         |
-| `ROLE_PROTECTED`        | 409  | El rol está protegido                              |
-| `ROLE_WEIGHT_EXCEEDED`  | 403  | El rol tiene más peso que el usuario que lo asigna |
-| `PERMISSION_NOT_FOUND`  | 404  | Permiso no encontrado                              |
-| `NOT_FOUND`             | 404  | Recurso no encontrado                              |
-| `CONFLICT`              | 409  | Conflicto de datos                                 |
-| `FORBIDDEN`             | 403  | Sin permisos para esta acción                      |
-| `VALIDATION_ERROR`      | 400  | Error de validación de datos                       |
+| code                      | HTTP | Descripción                                                |
+| ------------------------- | ---- | ---------------------------------------------------------- |
+| `INVALID_CREDENTIALS`     | 401  | Email/password incorrectos                                 |
+| `INVALID_REFRESH_TOKEN`   | 401  | Refresh token inválido, expirado o revocado                |
+| `USER_NOT_FOUND`          | 404  | Usuario no encontrado                                      |
+| `USER_EMAIL_TAKEN`        | 409  | El email ya está en uso                                    |
+| `USERNAME_TAKEN`          | 409  | El username ya está en uso                                 |
+| `USER_PROTECTED`          | 409  | El usuario está protegido (no se puede modificar/eliminar) |
+| `ROLE_NOT_FOUND`          | 404  | Rol no encontrado                                          |
+| `ROLE_NAME_TAKEN`         | 409  | El nombre de rol ya existe                                 |
+| `ROLE_PROTECTED`          | 409  | El rol está protegido                                      |
+| `ROLE_WEIGHT_EXCEEDED`    | 403  | El rol tiene más peso que el usuario que lo asigna         |
+| `PERMISSION_NOT_FOUND`    | 404  | Permiso no encontrado                                      |
+| `TAXONOMY_NOT_FOUND`      | 404  | Taxonomía no encontrada                                    |
+| `TAXONOMY_SLUG_EXISTS`    | 409  | El slug ya existe en ese tipo                              |
+| `TAXONOMY_HAS_CHILDREN`   | 409  | No se puede eliminar una taxonomía con hijos               |
+| `TAXONOMY_INVALID_PARENT` | 400  | Padre inválido (crear un ciclo o hije de sí mismo)         |
+| `NOT_FOUND`               | 404  | Recurso genérico no encontrado                             |
+| `FORBIDDEN`               | 403  | Sin permisos para esta acción                              |
+| `CONFLICT`                | 409  | Conflicto de datos genérico                                |
+| `VALIDATION_ERROR`        | 400  | Error de validación de datos                               |
+| `INTERNAL_ERROR`          | 500  | Error inesperado del servidor                              |
 
 ---
 

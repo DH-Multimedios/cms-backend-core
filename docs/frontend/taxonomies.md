@@ -48,7 +48,7 @@ Lista paginada de taxonomías. **Público** (no requiere auth).
 
 ```json
 {
-  "success": true,
+  "statusCode": 200,
   "data": {
     "items": [
       {
@@ -156,7 +156,7 @@ Elimina una taxonomía.
 **Response `200`:**
 
 ```json
-{ "success": true, "data": { "message": "Taxonomía 'Electrónica' eliminada" } }
+{ "statusCode": 200, "data": { "message": "Taxonomía 'Electrónica' eliminada" } }
 ```
 
 **Errores:**
@@ -183,7 +183,7 @@ Reordena taxonomías (drag & drop). Todas las taxonomías del array deben ser de
 **Response `200`:**
 
 ```json
-{ "success": true, "data": { "message": "Orden actualizado" } }
+{ "statusCode": 200, "data": { "message": "Orden actualizado" } }
 ```
 
 ---
@@ -202,7 +202,7 @@ GET /taxonomies/entity/Product/uuid-del-producto
 
 ```json
 {
-  "success": true,
+  "statusCode": 200,
   "data": [
     {
       "id": "uuid",

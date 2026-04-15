@@ -14,22 +14,23 @@ Lista paginada de logs de auditoría.
 
 **Query params:**
 
-| Param | Tipo | Descripción |
-|-------|------|-------------|
-| `page` | number | Default: 1 |
-| `limit` | number | Default: 20 |
-| `sortBy` | string | Default: `createdAt` |
-| `sortOrder` | string | `ASC` \| `DESC` (default: `DESC`) |
-| `userId` | UUID | Filtrar por usuario |
-| `entity` | string | Filtrar por entidad (ej: `User`, `Role`, `Setting`) |
-| `action` | string | Filtrar por acción (ej: `create`, `update`, `delete`, `login`) |
-| `from` | ISO Date | Fecha de inicio del rango |
-| `to` | ISO Date | Fecha de fin del rango |
+| Param       | Tipo     | Descripción                                                    |
+| ----------- | -------- | -------------------------------------------------------------- |
+| `page`      | number   | Default: 1                                                     |
+| `limit`     | number   | Default: 20                                                    |
+| `sortBy`    | string   | Default: `createdAt`                                           |
+| `sortOrder` | string   | `ASC` \| `DESC` (default: `DESC`)                              |
+| `userId`    | UUID     | Filtrar por usuario                                            |
+| `entity`    | string   | Filtrar por entidad (ej: `User`, `Role`, `Setting`)            |
+| `action`    | string   | Filtrar por acción (ej: `create`, `update`, `delete`, `login`) |
+| `from`      | ISO Date | Fecha de inicio del rango                                      |
+| `to`        | ISO Date | Fecha de fin del rango                                         |
 
 **Response `200`:**
+
 ```json
 {
-  "success": true,
+  "statusCode": 200,
   "data": {
     "items": [
       {
@@ -65,9 +66,10 @@ Obtiene un log completo con metadata de before/after.
 **Permiso:** `audit.read`
 
 **Response `200`:**
+
 ```json
 {
-  "success": true,
+  "statusCode": 200,
   "data": {
     "id": "uuid",
     "userId": "uuid",
@@ -90,16 +92,16 @@ Obtiene un log completo con metadata de before/after.
 
 ## Acciones registradas
 
-| Acción | Entidades |
-|--------|-----------|
-| `login` | auth |
-| `create` | User, Role, Setting, SettingCategory, EmailProvider, EmailTemplate, EmailLayout, NotificationType |
-| `update` | User, Role, Setting, SettingCategory, EmailProvider, EmailTemplate |
-| `delete` | User, Role, Setting, SettingCategory, EmailProvider |
-| `activate` | EmailProvider |
-| `refresh_failed` | auth |
-| `logout` | auth |
-| `reorder` | SettingCategory |
+| Acción           | Entidades                                                                                         |
+| ---------------- | ------------------------------------------------------------------------------------------------- |
+| `login`          | auth                                                                                              |
+| `create`         | User, Role, Setting, SettingCategory, EmailProvider, EmailTemplate, EmailLayout, NotificationType |
+| `update`         | User, Role, Setting, SettingCategory, EmailProvider, EmailTemplate                                |
+| `delete`         | User, Role, Setting, SettingCategory, EmailProvider                                               |
+| `activate`       | EmailProvider                                                                                     |
+| `refresh_failed` | auth                                                                                              |
+| `logout`         | auth                                                                                              |
+| `reorder`        | SettingCategory                                                                                   |
 
 ---
 

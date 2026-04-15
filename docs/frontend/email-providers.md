@@ -13,9 +13,10 @@ Lista todos los providers ordenados por `isActive DESC, createdAt ASC`.
 **Permiso:** `email-providers.read`
 
 **Response `200`:**
+
 ```json
 {
-  "success": true,
+  "statusCode": 200,
   "data": [
     {
       "id": 1,
@@ -63,6 +64,7 @@ Crea un nuevo provider. Se crea **inactivo** por defecto.
 **Permiso:** `email-providers.create`
 
 **Request — SMTP:**
+
 ```json
 {
   "name": "SMTP corporativo",
@@ -79,6 +81,7 @@ Crea un nuevo provider. Se crea **inactivo** por defecto.
 ```
 
 **Request — Resend:**
+
 ```json
 {
   "name": "Resend producción",
@@ -91,6 +94,7 @@ Crea un nuevo provider. Se crea **inactivo** por defecto.
 ```
 
 **Request — Google OAuth:**
+
 ```json
 {
   "name": "Gmail OAuth",
@@ -105,11 +109,11 @@ Crea un nuevo provider. Se crea **inactivo** por defecto.
 }
 ```
 
-| Campo global | Requerido |
-|--------------|-----------|
-| `name` | ✓ |
-| `provider` | ✓ — `smtp` \| `resend` \| `google-oauth` |
-| `from` | ✗ — Overridea el remitente por defecto |
+| Campo global | Requerido                                |
+| ------------ | ---------------------------------------- |
+| `name`       | ✓                                        |
+| `provider`   | ✓ — `smtp` \| `resend` \| `google-oauth` |
+| `from`       | ✗ — Overridea el remitente por defecto   |
 
 ---
 
@@ -120,6 +124,7 @@ Actualiza configuración del provider.
 **Permiso:** `email-providers.update`
 
 **Request:** (todos opcionales)
+
 ```json
 {
   "name": "SMTP nuevo nombre",

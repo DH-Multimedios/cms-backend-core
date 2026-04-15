@@ -28,7 +28,7 @@ Además del body, el servidor setea automáticamente dos cookies HttpOnly:
 
 ```json
 {
-  "success": true,
+  "statusCode": 200,
   "data": {
     "accessToken": "eyJhbGci...",
     "refreshToken": "eyJhbGci...",
@@ -75,7 +75,7 @@ Renueva el access token usando el refresh token. Implementa **token rotation**: 
 
 ```json
 {
-  "success": true,
+  "statusCode": 200,
   "data": {
     "accessToken": "eyJhbGci...",
     "refreshToken": "eyJhbGci..."
@@ -107,7 +107,7 @@ Revoca el refresh token actual. Requiere JWT.
 
 ```json
 {
-  "success": true,
+  "statusCode": 200,
   "data": { "message": "Sesión cerrada correctamente" }
 }
 ```
@@ -124,7 +124,7 @@ Revoca **todos** los refresh tokens del usuario. Cierra todas las sesiones abier
 
 ```json
 {
-  "success": true,
+  "statusCode": 200,
   "data": { "message": "Todas las sesiones cerradas" }
 }
 ```
@@ -139,7 +139,7 @@ Devuelve el usuario autenticado con sus roles. Requiere JWT.
 
 ```json
 {
-  "success": true,
+  "statusCode": 200,
   "data": {
     "id": "uuid",
     "email": "admin@ejemplo.com",
@@ -169,7 +169,7 @@ Devuelve los permisos efectivos del usuario autenticado. Requiere JWT.
 
 ```json
 {
-  "success": true,
+  "statusCode": 200,
   "data": {
     "isSystemUser": false,
     "permissions": ["users.read", "users.create", "roles.read", "media.upload"]
@@ -197,7 +197,7 @@ Solicita un código de recuperación de 6 dígitos por email. Siempre responde i
 **Response `200`:**
 
 ```json
-{ "success": true, "data": { "message": "Si el email existe, recibirás un código en breve" } }
+{ "statusCode": 200, "data": { "message": "Si el email existe, recibirás un código en breve" } }
 ```
 
 ---
@@ -218,7 +218,7 @@ Verifica el código recibido por email. Si es válido, devuelve un `resetToken` 
 **Response `200`:**
 
 ```json
-{ "success": true, "data": { "resetToken": "uuid-de-un-solo-uso" } }
+{ "statusCode": 200, "data": { "resetToken": "uuid-de-un-solo-uso" } }
 ```
 
 **Errores:**
@@ -250,7 +250,7 @@ Establece la nueva contraseña usando el `resetToken` del paso anterior. Revoca 
 **Response `200`:**
 
 ```json
-{ "success": true, "data": { "message": "Contraseña actualizada correctamente" } }
+{ "statusCode": 200, "data": { "message": "Contraseña actualizada correctamente" } }
 ```
 
 **Errores:**

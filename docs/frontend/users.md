@@ -28,7 +28,7 @@ Lista paginada de usuarios. Excluye el usuario del sistema (`isSystemUser: true`
 
 ```json
 {
-  "success": true,
+  "statusCode": 200,
   "data": {
     "items": [
       {
@@ -140,7 +140,7 @@ Sube o reemplaza el avatar del usuario autenticado. No requiere permisos especia
 
 ```json
 {
-  "success": true,
+  "statusCode": 200,
   "data": {
     "id": "uuid",
     "email": "usuario@ejemplo.com",
@@ -225,7 +225,7 @@ Elimina un usuario.
 **Response `200`:**
 
 ```json
-{ "success": true, "data": { "message": "Usuario eliminado correctamente" } }
+{ "statusCode": 200, "data": { "message": "Usuario eliminado correctamente" } }
 ```
 
 **Errores:** `USER_NOT_FOUND`, `USER_PROTECTED`
