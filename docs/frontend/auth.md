@@ -271,6 +271,35 @@ Establece la nueva contraseña usando el `resetToken` del paso anterior. Revoca 
 
 ---
 
+## Configuración de cookies (para el proyecto consumidor)
+
+El backend setea cookies HttpOnly automáticamente, pero hay que configurarlas correctamente según el entorno. En el `AuthConfig` del proyecto consumidor:
+
+```typescript
+auth: {
+  jwtSecret: process.env.JWT_SECRET!,
+  jwtExpiration: '15m',
+  jwtRefreshExpiration: '7d',
+  // ⚠️ IMPORTANTE: estas 3 opciones son necesarias si el frontend y el backend
+  // están en orígenes distintos (ej: localhost:4200 vs localhost:3000)
+  cookiePath: '/api/auth/refresh',  // debe incluir el API prefix (default: '/auth/refresh')
+  cookieSecure: false,               // en dev es false, en prod es true (default: NODE_ENV === 'production')
+  cookieSameSite: 'none',           // 'none' para cross-origin, 'lax' para same-origin (default: 'none' en dev, 'lax' en prod)
+},
+```
+
+**¿Por qué `cookieSameSite: 'none'` en desarrollo?**
+
+Si el frontend (`localhost:4200`) y el backend (`localhost:3000`) están en puertos distintos, son **orígenes distintos**. Con `sameSite: 'lax'`, el browser NO envía cookies en requests cross-origin tipo POST/fetch. Necesitás `sameSite: 'none'` para que funcione.
+
+> `sameSite: 'none'` requiere `secure: true`, pero los browsers hacen una **excepción para localhost** — así que `cookieSecure: false` funciona en desarrollo.
+
+**`cookiePath` es crucial:**
+
+Si tu API tiene prefix `/api`, el path del refresh cookie DEBE ser `/api/auth/refresh`. Si no, el browser nunca va a enviar la cookie al endpoint correcto.
+
+---
+
 ## Flujo recomendado
 
 ### Al iniciar la app (con cookies)

@@ -8,6 +8,7 @@ import {
   Res,
   HttpException,
   HttpStatus,
+  Inject,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
@@ -23,12 +24,30 @@ import { VerifyResetCodeDto } from './dto/verify-reset-code.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { User } from '../../database/entities/user.entity';
 import { UserResponseDto } from '../users/dto/user-response.dto';
+import { AuthConfig } from '../../core/interfaces/core-config.interface';
 
 @ApiTags('Auth')
 @UseGuards(JwtAuthGuard)
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    @Inject('CORE_AUTH_CONFIG') private readonly authConfig: AuthConfig,
+  ) {}
+
+  private get cookiePath() {
+    return this.authConfig.cookiePath ?? '/auth/refresh';
+  }
+
+  private get cookieSecure() {
+    return this.authConfig.cookieSecure ?? process.env.NODE_ENV === 'production';
+  }
+
+  private get cookieSameSite(): 'strict' | 'lax' | 'none' {
+    return (
+      this.authConfig.cookieSameSite ?? (process.env.NODE_ENV === 'production' ? 'lax' : 'none')
+    );
+  }
 
   @Public()
   @UseGuards(LocalAuthGuard)
@@ -44,17 +63,17 @@ export class AuthController {
 
     res.cookie('access_token', result.accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: this.cookieSecure,
+      sameSite: this.cookieSameSite,
       maxAge: 15 * 60 * 1000, // 15 minutos
     });
 
     res.cookie('refresh_token', result.refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: this.cookieSecure,
+      sameSite: this.cookieSameSite,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
-      path: '/auth/refresh', // solo se envía al endpoint de refresh
+      path: this.cookiePath,
     });
 
     return result; // igual devuelve el body para compatibilidad con Bearer
@@ -79,17 +98,17 @@ export class AuthController {
 
     res.cookie('access_token', result.accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: this.cookieSecure,
+      sameSite: this.cookieSameSite,
       maxAge: 15 * 60 * 1000,
     });
 
     res.cookie('refresh_token', result.refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: this.cookieSecure,
+      sameSite: this.cookieSameSite,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: '/auth/refresh',
+      path: this.cookiePath,
     });
 
     return result;
@@ -111,7 +130,7 @@ export class AuthController {
     }
 
     res.clearCookie('access_token');
-    res.clearCookie('refresh_token', { path: '/auth/refresh' });
+    res.clearCookie('refresh_token', { path: this.cookiePath });
 
     return this.authService.logout(refreshToken, user.id);
   }
@@ -124,7 +143,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<{ message: string }> {
     res.clearCookie('access_token');
-    res.clearCookie('refresh_token', { path: '/auth/refresh' });
+    res.clearCookie('refresh_token', { path: this.cookiePath });
     return this.authService.logoutAll(user.id);
   }
 

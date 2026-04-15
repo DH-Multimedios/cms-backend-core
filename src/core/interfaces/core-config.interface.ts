@@ -27,6 +27,9 @@ export interface AuthConfig {
   jwtExpiration?: string;
   jwtRefreshSecret?: string;
   jwtRefreshExpiration?: string;
+  cookiePath?: string;
+  cookieSecure?: boolean;
+  cookieSameSite?: 'strict' | 'lax' | 'none';
 }
 
 export interface ModulesConfig {
