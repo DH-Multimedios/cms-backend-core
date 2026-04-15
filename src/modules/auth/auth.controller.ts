@@ -1,4 +1,14 @@
-import { Controller, Post, Get, Body, UseGuards, Req, Res } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  UseGuards,
+  Req,
+  Res,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
@@ -61,6 +71,10 @@ export class AuthController {
     // Leer de cookie si no viene en el body
     const refreshToken = dto.refreshToken ?? req.cookies?.refresh_token;
 
+    if (!refreshToken) {
+      throw new HttpException('Refresh token requerido', HttpStatus.UNAUTHORIZED);
+    }
+
     const result = await this.authService.refresh(refreshToken, req.ip, req.headers['user-agent']);
 
     res.cookie('access_token', result.accessToken, {
@@ -91,6 +105,10 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<{ message: string }> {
     const refreshToken = dto.refreshToken ?? req.cookies?.refresh_token;
+
+    if (!refreshToken) {
+      throw new HttpException('Refresh token requerido', HttpStatus.UNAUTHORIZED);
+    }
 
     res.clearCookie('access_token');
     res.clearCookie('refresh_token', { path: '/auth/refresh' });

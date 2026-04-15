@@ -1,4 +1,5 @@
-import { Module, DynamicModule, Global } from '@nestjs/common';
+import { Module, DynamicModule, Global, MiddlewareConsumer, NestModule } from '@nestjs/common';
+import * as cookieParser from 'cookie-parser';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
@@ -30,7 +31,11 @@ import {
 
 @Global()
 @Module({})
-export class CoreModule {
+export class CoreModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(cookieParser()).forRoutes('*');
+  }
+
   private static getMediaPath(modules?: ModulesConfig): string {
     const mediaConfig = modules?.media;
     if (mediaConfig && mediaConfig !== true && mediaConfig.path) {
