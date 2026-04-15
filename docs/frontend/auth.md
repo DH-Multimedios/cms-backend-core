@@ -63,13 +63,19 @@ Además del body, el servidor setea automáticamente dos cookies HttpOnly:
 
 Renueva el access token usando el refresh token. Implementa **token rotation**: el refresh token usado se revoca y se genera uno nuevo.
 
-**Request:**
+**Request (con body):**
 
 ```json
 { "refreshToken": "eyJhbGci..." }
 ```
 
-> `refreshToken` es opcional si usás cookies — el servidor lo lee automáticamente de la cookie `refresh_token`.
+**Request (con cookies):**
+
+```json
+{}
+```
+
+> Si usás cookies HttpOnly, no necesitás enviar el token en el body. El servidor lo lee de la cookie `refresh_token` automáticamente. Si no hay token ni en el body ni en la cookie, devuelve `401`.
 
 **Response `200`:** Nuevos tokens en body + renueva las cookies automáticamente.
 
@@ -97,11 +103,13 @@ Renueva el access token usando el refresh token. Implementa **token rotation**: 
 
 Revoca el refresh token actual. Requiere JWT.
 
-**Request:**
+**Request (con body):**
 
 ```json
 { "refreshToken": "eyJhbGci..." }
 ```
+
+**Request (con cookies):** body vacío — el servidor lee el token de la cookie automáticamente.
 
 **Response `200`:**
 
@@ -172,6 +180,7 @@ Devuelve los permisos efectivos del usuario autenticado. Requiere JWT.
   "statusCode": 200,
   "data": {
     "isSystemUser": false,
+    "maxWeight": 90,
     "permissions": ["users.read", "users.create", "roles.read", "media.upload"]
   }
 }
@@ -179,6 +188,7 @@ Devuelve los permisos efectivos del usuario autenticado. Requiere JWT.
 
 - `permissions`: flat array deduplicado de nombres de permisos — listo para `permissions.includes('users.read')`.
 - `isSystemUser`: si es `true`, el usuario bypassa todos los permisos (no hace falta chequear el array).
+- `maxWeight`: el peso más alto entre los roles del usuario. Si `isSystemUser` es `true`, siempre es `100`. Útil para determinar qué nivel de UI mostrar (ej: acceso a panels restringidos).
 
 ````
 
@@ -278,6 +288,18 @@ POST /auth/forgot-password  →  el usuario recibe email con código
 POST /auth/verify-reset-code  →  validar código, guardar resetToken
 POST /auth/reset-password  →  nueva contraseña con el resetToken
 → redirigir a login (todas las sesiones fueron cerradas)
+```
+
+### ⚠️ Importante: `credentials: 'include'`
+
+Si usás cookies HttpOnly para auth, **todos** los requests al backend DEBEN incluir `credentials: 'include'` (fetch) o `withCredentials: true` (Axios). Sin esto, el browser no envía ni recibe cookies, y el refresh token será siempre `undefined`.
+
+```typescript
+// fetch
+fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' });
+
+// axios
+axios.post('/api/auth/refresh', {}, { withCredentials: true });
 ```
 
 ### Interceptor recomendado (con cookies)
