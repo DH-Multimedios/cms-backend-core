@@ -36,14 +36,21 @@ export class AuthController {
   ) {}
 
   private get cookiePath() {
+    // El path debe incluir el API prefix del proyecto consumidor
+    // Si el backend usa /api como prefix, debe ser /api/auth/refresh
     return this.authConfig.cookiePath ?? '/auth/refresh';
   }
 
   private get cookieSecure() {
+    // SameSite=None REQUIERE Secure=true — Chrome rechaza la cookie si no
+    // localhost es tratado como contexto seguro, así que Secure funciona sin HTTPS
+    if (this.cookieSameSite === 'none') return true;
     return this.authConfig.cookieSecure ?? process.env.NODE_ENV === 'production';
   }
 
   private get cookieSameSite(): 'strict' | 'lax' | 'none' {
+    // En dev (cross-origin: localhost:3000 → localhost:5010) necesitamos 'none'
+    // En prod (mismo origin o behind proxy) usamos 'lax'
     return (
       this.authConfig.cookieSameSite ?? (process.env.NODE_ENV === 'production' ? 'lax' : 'none')
     );
