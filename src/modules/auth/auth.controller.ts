@@ -140,14 +140,18 @@ export class AuthController {
   @ApiOperation({ summary: 'Obtener permisos del usuario actual' })
   myPermissions(@CurrentUser() user: User) {
     const permissionSet = new Set<string>();
+    let maxWeight = 0;
     for (const role of user.roles || []) {
+      if (role.weight > maxWeight) maxWeight = role.weight;
       for (const perm of role.permissions || []) {
         permissionSet.add(perm.name);
       }
     }
+    if (user.isSystemUser) maxWeight = 100;
 
     return {
       isSystemUser: user.isSystemUser,
+      maxWeight,
       permissions: Array.from(permissionSet),
     };
   }
