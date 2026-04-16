@@ -73,6 +73,7 @@ import { CoreModule } from '@dh/backend-core';
           jwtExpiration: config.get('JWT_EXPIRATION') || '1d',
           jwtRefreshSecret: config.getOrThrow<string>('JWT_REFRESH_SECRET'),
           jwtRefreshExpiration: config.get('JWT_REFRESH_EXPIRATION') || '7d',
+          cookiePath: '/api/auth/refresh', // ⚠️ DEBE incluir el API prefix
         },
         modules: {
           audit: true,
@@ -117,7 +118,7 @@ async function bootstrap() {
   app.setGlobalPrefix(process.env.API_PREFIX || 'api');
 
   app.enableCors({
-    origin: process.env.CORS_ORIGINS?.split(',') || '*',
+    origin: process.env.CORS_ORIGINS?.split(',') || '*', // ⚠️ Nunca usar '*' con credentials:true — siempre configurar CORS_ORIGINS en .env
     credentials: true,
   });
 
