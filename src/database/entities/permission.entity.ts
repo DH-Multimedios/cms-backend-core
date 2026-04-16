@@ -32,6 +32,13 @@ export class Permission {
   @Column()
   module: string;
 
+  /**
+   * Nombre legible del módulo para mostrar en UI
+   * Ejemplos: Usuarios, Roles, Archivos
+   */
+  @Column({ nullable: true })
+  moduleName: string;
+
   @ManyToMany(() => Role, (role) => role.permissions)
   roles: Role[];
 

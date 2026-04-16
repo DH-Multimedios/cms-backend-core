@@ -9,54 +9,165 @@ export async function seedPermissions(dataSource: DataSource): Promise<void> {
   // Permisos base del core
   const corePermissions = [
     // Users
-    { name: 'users.read', description: 'Ver usuarios', module: 'users' },
-    { name: 'users.create', description: 'Crear usuarios', module: 'users' },
-    { name: 'users.update', description: 'Actualizar usuarios', module: 'users' },
-    { name: 'users.delete', description: 'Eliminar usuarios', module: 'users' },
+    { name: 'users.read', description: 'Ver usuarios', module: 'users', moduleName: 'Usuarios' },
+    {
+      name: 'users.create',
+      description: 'Crear usuarios',
+      module: 'users',
+      moduleName: 'Usuarios',
+    },
+    {
+      name: 'users.update',
+      description: 'Actualizar usuarios',
+      module: 'users',
+      moduleName: 'Usuarios',
+    },
+    {
+      name: 'users.delete',
+      description: 'Eliminar usuarios',
+      module: 'users',
+      moduleName: 'Usuarios',
+    },
 
     // Roles
-    { name: 'roles.read', description: 'Ver roles', module: 'roles' },
-    { name: 'roles.create', description: 'Crear roles', module: 'roles' },
-    { name: 'roles.update', description: 'Actualizar roles', module: 'roles' },
-    { name: 'roles.delete', description: 'Eliminar roles', module: 'roles' },
+    { name: 'roles.read', description: 'Ver roles', module: 'roles', moduleName: 'Roles' },
+    { name: 'roles.create', description: 'Crear roles', module: 'roles', moduleName: 'Roles' },
+    { name: 'roles.update', description: 'Actualizar roles', module: 'roles', moduleName: 'Roles' },
+    { name: 'roles.delete', description: 'Eliminar roles', module: 'roles', moduleName: 'Roles' },
 
     // Permissions
-    { name: 'permissions.read', description: 'Ver permisos', module: 'permissions' },
-    { name: 'permissions.create', description: 'Crear permisos', module: 'permissions' },
-    { name: 'permissions.update', description: 'Actualizar permisos', module: 'permissions' },
-    { name: 'permissions.delete', description: 'Eliminar permisos', module: 'permissions' },
+    {
+      name: 'permissions.read',
+      description: 'Ver permisos',
+      module: 'permissions',
+      moduleName: 'Permisos',
+    },
+    {
+      name: 'permissions.create',
+      description: 'Crear permisos',
+      module: 'permissions',
+      moduleName: 'Permisos',
+    },
+    {
+      name: 'permissions.update',
+      description: 'Actualizar permisos',
+      module: 'permissions',
+      moduleName: 'Permisos',
+    },
+    {
+      name: 'permissions.delete',
+      description: 'Eliminar permisos',
+      module: 'permissions',
+      moduleName: 'Permisos',
+    },
 
     // Audit
-    { name: 'audit.read', description: 'Ver auditoría', module: 'audit' },
+    { name: 'audit.read', description: 'Ver auditoría', module: 'audit', moduleName: 'Auditoría' },
 
     // Taxonomies
-    { name: 'taxonomies.read', description: 'Ver taxonomías', module: 'taxonomies' },
-    { name: 'taxonomies.create', description: 'Crear taxonomías', module: 'taxonomies' },
-    { name: 'taxonomies.update', description: 'Actualizar taxonomías', module: 'taxonomies' },
-    { name: 'taxonomies.delete', description: 'Eliminar taxonomías', module: 'taxonomies' },
+    {
+      name: 'taxonomies.read',
+      description: 'Ver taxonomías',
+      module: 'taxonomies',
+      moduleName: 'Taxonomías',
+    },
+    {
+      name: 'taxonomies.create',
+      description: 'Crear taxonomías',
+      module: 'taxonomies',
+      moduleName: 'Taxonomías',
+    },
+    {
+      name: 'taxonomies.update',
+      description: 'Actualizar taxonomías',
+      module: 'taxonomies',
+      moduleName: 'Taxonomías',
+    },
+    {
+      name: 'taxonomies.delete',
+      description: 'Eliminar taxonomías',
+      module: 'taxonomies',
+      moduleName: 'Taxonomías',
+    },
 
     // Files
-    { name: 'files.list', description: 'Listar archivos', module: 'files' },
-    { name: 'files.read', description: 'Ver detalles de archivos', module: 'files' },
-    { name: 'files.upload', description: 'Subir archivos', module: 'files' },
-    { name: 'files.download', description: 'Descargar archivos', module: 'files' },
-    { name: 'files.edit', description: 'Editar archivos', module: 'files' },
-    { name: 'files.delete', description: 'Eliminar archivos', module: 'files' },
+    { name: 'files.list', description: 'Listar archivos', module: 'files', moduleName: 'Archivos' },
+    {
+      name: 'files.read',
+      description: 'Ver detalles de archivos',
+      module: 'files',
+      moduleName: 'Archivos',
+    },
+    {
+      name: 'files.upload',
+      description: 'Subir archivos',
+      module: 'files',
+      moduleName: 'Archivos',
+    },
+    {
+      name: 'files.download',
+      description: 'Descargar archivos',
+      module: 'files',
+      moduleName: 'Archivos',
+    },
+    { name: 'files.edit', description: 'Editar archivos', module: 'files', moduleName: 'Archivos' },
+    {
+      name: 'files.delete',
+      description: 'Eliminar archivos',
+      module: 'files',
+      moduleName: 'Archivos',
+    },
 
     // Media
-    { name: 'media.list', description: 'Listar imágenes', module: 'media' },
-    { name: 'media.read', description: 'Ver detalles de imágenes', module: 'media' },
-    { name: 'media.upload', description: 'Subir imágenes', module: 'media' },
-    { name: 'media.edit', description: 'Editar imágenes (alt text)', module: 'media' },
-    { name: 'media.delete', description: 'Eliminar imágenes', module: 'media' },
+    {
+      name: 'media.list',
+      description: 'Listar imágenes',
+      module: 'media',
+      moduleName: 'Multimedia',
+    },
+    {
+      name: 'media.read',
+      description: 'Ver detalles de imágenes',
+      module: 'media',
+      moduleName: 'Multimedia',
+    },
+    {
+      name: 'media.upload',
+      description: 'Subir imágenes',
+      module: 'media',
+      moduleName: 'Multimedia',
+    },
+    {
+      name: 'media.edit',
+      description: 'Editar imágenes (alt text)',
+      module: 'media',
+      moduleName: 'Multimedia',
+    },
+    {
+      name: 'media.delete',
+      description: 'Eliminar imágenes',
+      module: 'media',
+      moduleName: 'Multimedia',
+    },
 
     // Settings
-    { name: 'settings.read', description: 'Ver configuración', module: 'settings' },
-    { name: 'settings.update', description: 'Actualizar configuración', module: 'settings' },
+    {
+      name: 'settings.read',
+      description: 'Ver configuración',
+      module: 'settings',
+      moduleName: 'Configuración',
+    },
+    {
+      name: 'settings.update',
+      description: 'Actualizar configuración',
+      module: 'settings',
+      moduleName: 'Configuración',
+    },
     {
       name: 'settings.delete',
       description: 'Eliminar configuraciones y categorías',
       module: 'settings',
+      moduleName: 'Configuración',
     },
   ];
 
@@ -68,6 +179,10 @@ export async function seedPermissions(dataSource: DataSource): Promise<void> {
       permission = permissionRepository.create(permData);
       await permissionRepository.save(permission);
       console.log(`✅ Permiso creado: ${permData.name}`);
+    } else if (permission.moduleName !== permData.moduleName) {
+      permission.moduleName = permData.moduleName;
+      await permissionRepository.save(permission);
+      console.log(`🔄 moduleName actualizado: ${permData.name} → ${permData.moduleName}`);
     } else {
       console.log(`⏭️  Permiso ya existe: ${permData.name}`);
     }

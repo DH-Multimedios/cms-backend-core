@@ -21,7 +21,13 @@ export class PermissionsService {
   async findList() {
     return this.permissionRepository
       .createQueryBuilder('permission')
-      .select(['permission.id', 'permission.name', 'permission.description', 'permission.module'])
+      .select([
+        'permission.id',
+        'permission.name',
+        'permission.description',
+        'permission.module',
+        'permission.moduleName',
+      ])
       .orderBy('permission.module', 'ASC')
       .addOrderBy('permission.name', 'ASC')
       .getMany();
