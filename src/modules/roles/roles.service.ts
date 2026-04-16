@@ -21,10 +21,18 @@ export class RolesService {
     private readonly auditService: AuditService,
   ) {}
 
+  async findList() {
+    return this.roleRepository.find({
+      select: ['id', 'name', 'weight', 'isProtected'],
+      order: { weight: 'DESC' },
+    });
+  }
+
   async findAll(query: RolesQueryDto): Promise<PaginatedResult<Role>> {
     const { page = 1, limit = 20, sortOrder = 'DESC', sortBy = 'weight', search } = query;
 
-    const qb = this.roleRepository.createQueryBuilder('role')
+    const qb = this.roleRepository
+      .createQueryBuilder('role')
       .leftJoinAndSelect('role.permissions', 'permission');
 
     if (search) {
@@ -42,16 +50,30 @@ export class RolesService {
 
   async findOne(id: string): Promise<Role> {
     const role = await this.roleRepository.findOneBy({ id });
-    if (!role) throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.ROLE_NOT_FOUND, `Rol ${id} no encontrado`);
+    if (!role)
+      throw new ApiException(
+        HttpStatus.NOT_FOUND,
+        ErrorCode.ROLE_NOT_FOUND,
+        `Rol ${id} no encontrado`,
+      );
     return role;
   }
 
   async create(dto: CreateRoleDto, currentUser: User): Promise<Role> {
     const existing = await this.roleRepository.findOneBy({ name: dto.name });
-    if (existing) throw new ApiException(HttpStatus.CONFLICT, ErrorCode.ROLE_NAME_TAKEN, 'Ya existe un rol con ese nombre');
+    if (existing)
+      throw new ApiException(
+        HttpStatus.CONFLICT,
+        ErrorCode.ROLE_NAME_TAKEN,
+        'Ya existe un rol con ese nombre',
+      );
 
     if (dto.isProtected && !currentUser.isSystemUser) {
-      throw new ApiException(HttpStatus.FORBIDDEN, ErrorCode.ROLE_PROTECTED, 'Solo el usuario del sistema puede crear roles protegidos');
+      throw new ApiException(
+        HttpStatus.FORBIDDEN,
+        ErrorCode.ROLE_PROTECTED,
+        'Solo el usuario del sistema puede crear roles protegidos',
+      );
     }
 
     const role = this.roleRepository.create(dto);
@@ -73,7 +95,11 @@ export class RolesService {
     const role = await this.findOne(id);
 
     if (role.isProtected && !currentUser.isSystemUser) {
-      throw new ApiException(HttpStatus.FORBIDDEN, ErrorCode.ROLE_PROTECTED, 'No podés modificar un rol protegido');
+      throw new ApiException(
+        HttpStatus.FORBIDDEN,
+        ErrorCode.ROLE_PROTECTED,
+        'No podés modificar un rol protegido',
+      );
     }
 
     const auditBefore: Record<string, any> = {};
@@ -81,7 +107,12 @@ export class RolesService {
 
     if (dto.name && dto.name !== role.name) {
       const existing = await this.roleRepository.findOneBy({ name: dto.name });
-      if (existing) throw new ApiException(HttpStatus.CONFLICT, ErrorCode.ROLE_NAME_TAKEN, 'Ya existe un rol con ese nombre');
+      if (existing)
+        throw new ApiException(
+          HttpStatus.CONFLICT,
+          ErrorCode.ROLE_NAME_TAKEN,
+          'Ya existe un rol con ese nombre',
+        );
       auditBefore.name = role.name;
       auditAfter.name = dto.name;
     }
@@ -101,7 +132,8 @@ export class RolesService {
       action: 'update',
       entity: 'Role',
       entityId: saved.id,
-      metadata: Object.keys(auditAfter).length > 0 ? { before: auditBefore, after: auditAfter } : null,
+      metadata:
+        Object.keys(auditAfter).length > 0 ? { before: auditBefore, after: auditAfter } : null,
     });
 
     return saved;
@@ -111,7 +143,11 @@ export class RolesService {
     const role = await this.findOne(id);
 
     if (role.isProtected && !currentUser.isSystemUser) {
-      throw new ApiException(HttpStatus.FORBIDDEN, ErrorCode.ROLE_PROTECTED, 'No podés eliminar un rol protegido');
+      throw new ApiException(
+        HttpStatus.FORBIDDEN,
+        ErrorCode.ROLE_PROTECTED,
+        'No podés eliminar un rol protegido',
+      );
     }
 
     await this.auditService.log({
@@ -130,7 +166,11 @@ export class RolesService {
     const role = await this.findOne(id);
 
     if (role.isProtected && !currentUser.isSystemUser) {
-      throw new ApiException(HttpStatus.FORBIDDEN, ErrorCode.ROLE_PROTECTED, 'No podés modificar permisos de un rol protegido');
+      throw new ApiException(
+        HttpStatus.FORBIDDEN,
+        ErrorCode.ROLE_PROTECTED,
+        'No podés modificar permisos de un rol protegido',
+      );
     }
 
     const previousPermissionIds = role.permissions?.map((p) => p.id) ?? [];

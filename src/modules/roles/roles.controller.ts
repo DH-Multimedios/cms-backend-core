@@ -38,6 +38,13 @@ export class RolesController {
     return this.rolesService.findAll(query);
   }
 
+  @Get('list')
+  @RequirePermissions('roles.read')
+  @ApiOperation({ summary: 'Listar roles (select/checkbox)' })
+  findList() {
+    return this.rolesService.findList();
+  }
+
   @Get(':id')
   @RequirePermissions('roles.read')
   @ApiOperation({ summary: 'Obtener rol por ID' })
