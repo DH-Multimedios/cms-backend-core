@@ -24,6 +24,7 @@ export async function seedUsers(dataSource: DataSource): Promise<void> {
       const hashedPassword = await bcrypt.hash(systemUserPassword, 10);
       const systemUser = userRepository.create({
         email: systemUserEmail,
+        username: 'system',
         password: hashedPassword,
         firstName: 'System',
         lastName: 'User',
@@ -54,6 +55,7 @@ export async function seedUsers(dataSource: DataSource): Promise<void> {
 
       superAdmin = userRepository.create({
         email: superAdminEmail,
+        username: 'superadmin',
         password: hashedPassword,
         firstName: 'Super',
         lastName: 'Admin',
@@ -84,6 +86,7 @@ export async function seedUsers(dataSource: DataSource): Promise<void> {
 
       admin = userRepository.create({
         email: adminEmail,
+        username: 'admin',
         password: hashedPassword,
         firstName: 'Admin',
         lastName: 'User',
@@ -114,6 +117,7 @@ export async function seedUsers(dataSource: DataSource): Promise<void> {
 
       user = userRepository.create({
         email: userEmail,
+        username: 'user',
         password: hashedPassword,
         firstName: 'User',
         lastName: 'User',
