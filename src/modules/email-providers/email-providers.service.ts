@@ -27,21 +27,25 @@ export class EmailProvidersService implements OnModuleInit {
         name: 'email-providers.read',
         description: 'Ver providers de email',
         module: 'email-providers',
+        moduleName: 'Email Providers',
       },
       {
         name: 'email-providers.create',
         description: 'Crear providers de email',
         module: 'email-providers',
+        moduleName: 'Email Providers',
       },
       {
         name: 'email-providers.update',
         description: 'Modificar providers de email',
         module: 'email-providers',
+        moduleName: 'Email Providers',
       },
       {
         name: 'email-providers.delete',
         description: 'Eliminar providers de email',
         module: 'email-providers',
+        moduleName: 'Email Providers',
       },
     ]);
   }

@@ -31,6 +31,7 @@ export class NotificationsService implements OnModuleInit {
         name: 'notifications.manage',
         description: 'Gestionar tipos, templates y layouts de notificaciones',
         module: 'notifications',
+        moduleName: 'Notificaciones',
       },
     ]);
   }

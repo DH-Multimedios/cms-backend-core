@@ -35,16 +35,23 @@ export class SettingsService implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     await this.permissionsService.registerPermissions([
-      { name: 'settings.create', description: 'Crear settings', module: 'settings' },
+      {
+        name: 'settings.create',
+        description: 'Crear settings',
+        module: 'settings',
+        moduleName: 'Configuración',
+      },
       {
         name: 'settings.update',
         description: 'Modificar settings y categorías',
         module: 'settings',
+        moduleName: 'Configuración',
       },
       {
         name: 'settings.delete',
         description: 'Eliminar settings y categorías',
         module: 'settings',
+        moduleName: 'Configuración',
       },
     ]);
   }

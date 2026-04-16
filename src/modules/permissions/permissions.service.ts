@@ -9,6 +9,7 @@ export interface PermissionDefinition {
   name: string;
   description?: string;
   module: string;
+  moduleName?: string;
 }
 
 @Injectable()
@@ -76,7 +77,7 @@ export class PermissionsService {
 
   /**
    * Registra permisos de un módulo de negocio.
-   * Si el permiso ya existe (por name), lo ignora.
+   * Si el permiso ya existe (por name), actualiza moduleName si cambió.
    * Los módulos de negocio llaman esto en OnModuleInit.
    */
   async registerPermissions(permissions: PermissionDefinition[]): Promise<void> {
@@ -84,6 +85,9 @@ export class PermissionsService {
       const exists = await this.permissionRepository.findOneBy({ name: def.name });
       if (!exists) {
         await this.permissionRepository.save(this.permissionRepository.create(def));
+      } else if (def.moduleName && exists.moduleName !== def.moduleName) {
+        exists.moduleName = def.moduleName;
+        await this.permissionRepository.save(exists);
       }
     }
   }

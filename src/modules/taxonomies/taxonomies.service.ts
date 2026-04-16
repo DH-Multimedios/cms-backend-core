@@ -27,15 +27,32 @@ export class TaxonomiesService implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     await this.permissionsService.registerPermissions([
-      { name: 'taxonomies.create', description: 'Crear taxonomías', module: 'taxonomies' },
-      { name: 'taxonomies.update', description: 'Editar y reordenar taxonomías', module: 'taxonomies' },
-      { name: 'taxonomies.delete', description: 'Eliminar taxonomías', module: 'taxonomies' },
+      {
+        name: 'taxonomies.create',
+        description: 'Crear taxonomías',
+        module: 'taxonomies',
+        moduleName: 'Taxonomías',
+      },
+      {
+        name: 'taxonomies.update',
+        description: 'Editar y reordenar taxonomías',
+        module: 'taxonomies',
+        moduleName: 'Taxonomías',
+      },
+      {
+        name: 'taxonomies.delete',
+        description: 'Eliminar taxonomías',
+        module: 'taxonomies',
+        moduleName: 'Taxonomías',
+      },
     ]);
   }
 
   // ─── CRUD ─────────────────────────────────────────────────────────────────
 
-  async findAll(query: QueryTaxonomyDto): Promise<PaginatedResult<Taxonomy & { childrenCount: number }>> {
+  async findAll(
+    query: QueryTaxonomyDto,
+  ): Promise<PaginatedResult<Taxonomy & { childrenCount: number }>> {
     const { type, parentId, root, search, page = 1, limit = 20 } = query;
 
     const qb = this.taxonomyRepo
@@ -81,7 +98,11 @@ export class TaxonomiesService implements OnModuleInit {
 
     const taxonomy = await qb.getOne();
     if (!taxonomy) {
-      throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.TAXONOMY_NOT_FOUND, 'Taxonomía no encontrada');
+      throw new ApiException(
+        HttpStatus.NOT_FOUND,
+        ErrorCode.TAXONOMY_NOT_FOUND,
+        'Taxonomía no encontrada',
+      );
     }
     return taxonomy as Taxonomy & { childrenCount: number };
   }
@@ -91,13 +112,21 @@ export class TaxonomiesService implements OnModuleInit {
 
     const existing = await this.taxonomyRepo.findOneBy({ slug });
     if (existing) {
-      throw new ApiException(HttpStatus.CONFLICT, ErrorCode.TAXONOMY_SLUG_EXISTS, `El slug '${slug}' ya está en uso`);
+      throw new ApiException(
+        HttpStatus.CONFLICT,
+        ErrorCode.TAXONOMY_SLUG_EXISTS,
+        `El slug '${slug}' ya está en uso`,
+      );
     }
 
     if (dto.parentId) {
       const parent = await this.taxonomyRepo.findOneBy({ id: dto.parentId });
       if (!parent) {
-        throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.TAXONOMY_NOT_FOUND, 'Taxonomía padre no encontrada');
+        throw new ApiException(
+          HttpStatus.NOT_FOUND,
+          ErrorCode.TAXONOMY_NOT_FOUND,
+          'Taxonomía padre no encontrada',
+        );
       }
     }
 
@@ -117,7 +146,11 @@ export class TaxonomiesService implements OnModuleInit {
   async update(id: string, dto: UpdateTaxonomyDto): Promise<Taxonomy> {
     const taxonomy = await this.taxonomyRepo.findOneBy({ id });
     if (!taxonomy) {
-      throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.TAXONOMY_NOT_FOUND, 'Taxonomía no encontrada');
+      throw new ApiException(
+        HttpStatus.NOT_FOUND,
+        ErrorCode.TAXONOMY_NOT_FOUND,
+        'Taxonomía no encontrada',
+      );
     }
 
     const before = { name: taxonomy.name, slug: taxonomy.slug, type: taxonomy.type };
@@ -129,17 +162,29 @@ export class TaxonomiesService implements OnModuleInit {
     if (dto.slug && dto.slug !== taxonomy.slug) {
       const conflict = await this.taxonomyRepo.findOneBy({ slug: dto.slug });
       if (conflict) {
-        throw new ApiException(HttpStatus.CONFLICT, ErrorCode.TAXONOMY_SLUG_EXISTS, `El slug '${dto.slug}' ya está en uso`);
+        throw new ApiException(
+          HttpStatus.CONFLICT,
+          ErrorCode.TAXONOMY_SLUG_EXISTS,
+          `El slug '${dto.slug}' ya está en uso`,
+        );
       }
     }
 
     if (dto.parentId) {
       if (dto.parentId === id) {
-        throw new ApiException(HttpStatus.BAD_REQUEST, ErrorCode.TAXONOMY_INVALID_PARENT, 'Una taxonomía no puede ser su propio padre');
+        throw new ApiException(
+          HttpStatus.BAD_REQUEST,
+          ErrorCode.TAXONOMY_INVALID_PARENT,
+          'Una taxonomía no puede ser su propio padre',
+        );
       }
       const parent = await this.taxonomyRepo.findOneBy({ id: dto.parentId });
       if (!parent) {
-        throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.TAXONOMY_NOT_FOUND, 'Taxonomía padre no encontrada');
+        throw new ApiException(
+          HttpStatus.NOT_FOUND,
+          ErrorCode.TAXONOMY_NOT_FOUND,
+          'Taxonomía padre no encontrada',
+        );
       }
     }
 
@@ -159,7 +204,11 @@ export class TaxonomiesService implements OnModuleInit {
   async remove(id: string): Promise<{ message: string }> {
     const taxonomy = await this.taxonomyRepo.findOneBy({ id });
     if (!taxonomy) {
-      throw new ApiException(HttpStatus.NOT_FOUND, ErrorCode.TAXONOMY_NOT_FOUND, 'Taxonomía no encontrada');
+      throw new ApiException(
+        HttpStatus.NOT_FOUND,
+        ErrorCode.TAXONOMY_NOT_FOUND,
+        'Taxonomía no encontrada',
+      );
     }
 
     const childrenCount = await this.taxonomyRepo.countBy({ parentId: id });
@@ -183,9 +232,7 @@ export class TaxonomiesService implements OnModuleInit {
   }
 
   async reorder(dto: ReorderTaxonomiesDto): Promise<{ message: string }> {
-    await Promise.all(
-      dto.ids.map((id, index) => this.taxonomyRepo.update(id, { order: index })),
-    );
+    await Promise.all(dto.ids.map((id, index) => this.taxonomyRepo.update(id, { order: index })));
     return { message: 'Orden actualizado' };
   }
 
