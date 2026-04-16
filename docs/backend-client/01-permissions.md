@@ -18,16 +18,36 @@ export class ProductsService implements OnModuleInit {
 
   async onModuleInit() {
     await this.permissionsService.registerPermissions([
-      { name: 'products.read',    description: 'Ver productos',      module: 'products' },
-      { name: 'products.create',  description: 'Crear productos',    module: 'products' },
-      { name: 'products.update',  description: 'Editar productos',   module: 'products' },
-      { name: 'products.delete',  description: 'Eliminar productos', module: 'products' },
+      {
+        name: 'products.read',
+        description: 'Ver productos',
+        module: 'products',
+        moduleName: 'Productos',
+      },
+      {
+        name: 'products.create',
+        description: 'Crear productos',
+        module: 'products',
+        moduleName: 'Productos',
+      },
+      {
+        name: 'products.update',
+        description: 'Editar productos',
+        module: 'products',
+        moduleName: 'Productos',
+      },
+      {
+        name: 'products.delete',
+        description: 'Eliminar productos',
+        module: 'products',
+        moduleName: 'Productos',
+      },
     ]);
   }
 }
 ```
 
-> `registerPermissions` es **idempotente** — se puede llamar en cada arranque sin duplicar nada.
+> `registerPermissions` es **idempotente** — se puede llamar en cada arranque sin duplicar nada. Si el permiso ya existe y `moduleName` cambió, lo actualiza.
 
 ---
 
@@ -38,6 +58,7 @@ export class ProductsService implements OnModuleInit {
 ```
 
 Ejemplos:
+
 - `products.read`
 - `orders.create`
 - `invoices.export`
@@ -117,9 +138,66 @@ async deleteProduct(id: string, currentUser: User) {
 
 ## Asignar permisos a roles desde UI
 
-Los permisos registrados aparecen automáticamente en:
+Los permisos registrados aparecen automáticamente en los endpoints:
+
+```
+GET /permissions/list
+```
+
+Retorna todos los permisos sin paginación, con `module` (key para agrupar) y `moduleName` (label legible en español):
+
+```json
+[
+  {
+    "id": "uuid",
+    "name": "products.read",
+    "description": "Ver productos",
+    "module": "products",
+    "moduleName": "Productos"
+  },
+  {
+    "id": "uuid",
+    "name": "products.create",
+    "description": "Crear productos",
+    "module": "products",
+    "moduleName": "Productos"
+  }
+]
+```
+
+También podés filtrar por módulo con el endpoint paginado:
+
 ```
 GET /permissions?module=products
 ```
 
-El frontend usa este endpoint para construir el panel de asignación de permisos por rol.
+El frontend usa `/permissions/list` para construir el panel de asignación de permisos por rol, agrupando por `moduleName`.
+
+---
+
+## Asignar permisos incrementalmente
+
+Para prender/apagar permisos individuales (switches/toggles en la UI):
+
+```
+PATCH /roles/:id/permissions
+```
+
+```json
+{
+  "add": ["uuid-perm-1"],
+  "remove": ["uuid-perm-2"]
+}
+```
+
+Para reemplazar todos los permisos de un golpe (bulk replace):
+
+```
+POST /roles/:id/permissions
+```
+
+```json
+{
+  "permissionIds": ["uuid-perm-1", "uuid-perm-2", "uuid-perm-3"]
+}
+```

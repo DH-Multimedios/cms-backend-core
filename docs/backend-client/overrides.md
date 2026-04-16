@@ -50,10 +50,30 @@ export class ProductsService implements OnModuleInit {
 
   async onModuleInit() {
     await this.permissionsService.registerPermissions([
-      { name: 'products.read', description: 'Ver productos', module: 'products' },
-      { name: 'products.create', description: 'Crear productos', module: 'products' },
-      { name: 'products.update', description: 'Editar productos', module: 'products' },
-      { name: 'products.delete', description: 'Eliminar productos', module: 'products' },
+      {
+        name: 'products.read',
+        description: 'Ver productos',
+        module: 'products',
+        moduleName: 'Productos',
+      },
+      {
+        name: 'products.create',
+        description: 'Crear productos',
+        module: 'products',
+        moduleName: 'Productos',
+      },
+      {
+        name: 'products.update',
+        description: 'Editar productos',
+        module: 'products',
+        moduleName: 'Productos',
+      },
+      {
+        name: 'products.delete',
+        description: 'Eliminar productos',
+        module: 'products',
+        moduleName: 'Productos',
+      },
     ]);
   }
 }
@@ -248,10 +268,14 @@ SYSTEM_USER_EMAIL=system@internal
 SYSTEM_USER_PASSWORD=...
 
 # SuperAdmin del cliente
-SUPER_ADMIN_EMAIL=superadmin@cliente.com
-SUPER_ADMIN_PASSWORD=...
+SUPERADMIN_EMAIL=superadmin@cliente.com
+SUPERADMIN_PASSWORD=...
 
 # Admin del cliente
 ADMIN_EMAIL=support@cliente.com
 ADMIN_PASSWORD=...
+
+# Usuario normal del cliente (opcional)
+USER_EMAIL=user@cliente.com
+USER_PASSWORD=...
 ```

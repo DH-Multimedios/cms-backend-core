@@ -140,12 +140,16 @@ SYSTEM_USER_EMAIL=system@internal.dev
 SYSTEM_USER_PASSWORD=password-muy-seguro
 
 # SuperAdmin del cliente
-SUPER_ADMIN_EMAIL=superadmin@cliente.com
-SUPER_ADMIN_PASSWORD=password-seguro
+SUPERADMIN_EMAIL=superadmin@cliente.com
+SUPERADMIN_PASSWORD=password-seguro
 
 # Admin del cliente
 ADMIN_EMAIL=support@cliente.com
 ADMIN_PASSWORD=password-seguro
+
+# Usuario normal del cliente (opcional)
+USER_EMAIL=user@cliente.com
+USER_PASSWORD=password-seguro
 ```
 
 ---
