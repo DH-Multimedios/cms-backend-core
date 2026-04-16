@@ -198,15 +198,38 @@ Lista liviana de permisos para checkboxes agrupados por módulo. Sin paginación
 
 ```json
 [
-  { "id": "uuid", "name": "users.create", "description": "Crear usuarios", "module": "users" },
-  { "id": "uuid", "name": "users.delete", "description": "Eliminar usuarios", "module": "users" },
-  { "id": "uuid", "name": "users.read", "description": "Ver usuarios", "module": "users" },
-  { "id": "uuid", "name": "users.update", "description": "Editar usuarios", "module": "users" },
-  { "id": "uuid", "name": "roles.create", "description": "Crear roles", "module": "roles" }
+  {
+    "id": "uuid",
+    "name": "roles.create",
+    "description": "Crear roles",
+    "module": "roles",
+    "moduleName": "Roles"
+  },
+  {
+    "id": "uuid",
+    "name": "roles.read",
+    "description": "Ver roles",
+    "module": "roles",
+    "moduleName": "Roles"
+  },
+  {
+    "id": "uuid",
+    "name": "users.create",
+    "description": "Crear usuarios",
+    "module": "users",
+    "moduleName": "Usuarios"
+  },
+  {
+    "id": "uuid",
+    "name": "users.read",
+    "description": "Ver usuarios",
+    "module": "users",
+    "moduleName": "Usuarios"
+  }
 ]
 ```
 
-> Ordenado por `module` ASC, `name` ASC. Agrupar en el frontend por `module` para armar los checkboxes.
+> Ordenado por `module` ASC, `name` ASC. Usar `moduleName` como label del grupo en la UI, `module` como key para el agrupado.
 
 ---
 
