@@ -73,7 +73,7 @@ import { CoreModule } from '@dh/backend-core';
           jwtExpiration: config.get('JWT_EXPIRATION') || '1d',
           jwtRefreshSecret: config.getOrThrow<string>('JWT_REFRESH_SECRET'),
           jwtRefreshExpiration: config.get('JWT_REFRESH_EXPIRATION') || '7d',
-          cookiePath: '/api/auth/refresh', // ⚠️ DEBE incluir el API prefix
+          cookiePath: '/api/auth', // ⚠️ DEBE incluir el API prefix, cubre refresh + logout
         },
         modules: {
           audit: true,

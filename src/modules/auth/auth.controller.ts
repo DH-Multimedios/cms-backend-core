@@ -36,9 +36,9 @@ export class AuthController {
   ) {}
 
   private get cookiePath() {
-    // El path debe incluir el API prefix del proyecto consumidor
-    // Si el backend usa /api como prefix, debe ser /api/auth/refresh
-    return this.authConfig.cookiePath ?? '/auth/refresh';
+    // El path cubre todos los endpoints de auth (refresh, logout, logout-all)
+    // No restringimos a /auth/refresh porque logout necesita leer la cookie
+    return this.authConfig.cookiePath ?? '/auth';
   }
 
   private get cookieSecure() {

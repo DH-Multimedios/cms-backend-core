@@ -280,7 +280,7 @@ auth: {
   jwtSecret: process.env.JWT_SECRET!,
   jwtExpiration: '15m',
   jwtRefreshExpiration: '7d',
-  cookiePath: '/api/auth/refresh',  // ⚠️ debe incluir el API prefix
+  cookiePath: '/api/auth',  // ⚠️ debe incluir el API prefix
   // cookieSecure y cookieSameSite tienen defaults inteligentes:
   //   - dev: sameSite='none', secure=true  (cross-origin requiere sameSite=none)
   //   - prod: sameSite='lax', secure=true   (mismo origin o behind proxy)
@@ -296,7 +296,7 @@ Si el frontend (`localhost:3000`) y el backend (`localhost:5010`) están en puer
 
 **`cookiePath` es crucial:**
 
-Si tu API tiene prefix `/api`, el path del refresh cookie DEBE ser `/api/auth/refresh`. Si usás `/auth/refresh`, el browser nunca va a enviar la cookie al endpoint correcto y el refresh siempre va a fallar con `401`.
+Debe cubrir todos los endpoints de auth: `refresh`, `logout` y `logout-all`. Usá el path del módulo auth con el API prefix, por ejemplo `/api/auth`. Si usás solo `/api/auth/refresh`, la cookie no se envía a `/api/auth/logout` y el botón de cerrar sesión no funciona.
 
 ---
 
