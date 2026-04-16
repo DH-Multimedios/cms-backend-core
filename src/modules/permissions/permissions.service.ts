@@ -61,6 +61,7 @@ export class PermissionsService {
   }
 
   findByIds(ids: string[]): Promise<Permission[]> {
+    if (!ids.length) return Promise.resolve([]);
     return this.permissionRepository
       .createQueryBuilder('permission')
       .where('permission.id IN (:...ids)', { ids })
