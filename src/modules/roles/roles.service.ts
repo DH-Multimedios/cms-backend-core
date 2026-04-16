@@ -22,10 +22,11 @@ export class RolesService {
   ) {}
 
   async findList() {
-    return this.roleRepository.find({
-      select: ['id', 'name', 'weight', 'isProtected'],
-      order: { weight: 'DESC' },
-    });
+    return this.roleRepository
+      .createQueryBuilder('role')
+      .select(['role.id', 'role.name', 'role.weight', 'role.isProtected'])
+      .orderBy('role.weight', 'DESC')
+      .getMany();
   }
 
   async findAll(query: RolesQueryDto): Promise<PaginatedResult<Role>> {
