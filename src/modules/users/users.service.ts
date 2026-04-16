@@ -118,7 +118,9 @@ export class UsersService {
         );
     }
 
-    const roles = dto.roleIds?.length ? await this.roleRepository.findByIds(dto.roleIds) : [];
+    const roles = dto.roleIds?.length
+      ? await this.roleRepository.findByIds(dto.roleIds)
+      : await this.roleRepository.find({ order: { weight: 'ASC' }, take: 1 });
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
     const user = this.userRepository.create({
