@@ -50,6 +50,26 @@ Lista paginada de roles con sus permisos.
 
 ---
 
+### GET /roles/list
+
+Lista liviana de roles para selectores, checkboxes, etc. Sin paginación ni permisos incluidos.
+
+**Permiso:** `roles.read`
+
+**Response `200`:**
+
+```json
+[
+  { "id": "uuid", "name": "SuperAdmin", "weight": 100, "isProtected": true },
+  { "id": "uuid", "name": "Admin", "weight": 90, "isProtected": true },
+  { "id": "uuid", "name": "User", "weight": 50, "isProtected": false }
+]
+```
+
+> Ordenado por `weight` DESC. Usar `isProtected` para deshabilitar opciones protegidas en la UI.
+
+---
+
 ### GET /roles/:id
 
 Obtiene un rol por ID con sus permisos.
@@ -134,9 +154,31 @@ Asigna permisos a un rol. **Reemplaza** los permisos actuales (no acumula).
 
 ## Permissions
 
+### GET /permissions/list
+
+Lista liviana de permisos para checkboxes agrupados por módulo. Sin paginación.
+
+**Permiso:** `permissions.read`
+
+**Response `200`:**
+
+```json
+[
+  { "id": "uuid", "name": "users.create", "description": "Crear usuarios", "module": "users" },
+  { "id": "uuid", "name": "users.delete", "description": "Eliminar usuarios", "module": "users" },
+  { "id": "uuid", "name": "users.read", "description": "Ver usuarios", "module": "users" },
+  { "id": "uuid", "name": "users.update", "description": "Editar usuarios", "module": "users" },
+  { "id": "uuid", "name": "roles.create", "description": "Crear roles", "module": "roles" }
+]
+```
+
+> Ordenado por `module` ASC, `name` ASC. Agrupar en el frontend por `module` para armar los checkboxes.
+
+---
+
 ### GET /permissions
 
-Lista todos los permisos del sistema, agrupables por `module`.
+Lista todos los permisos del sistema, con paginación y filtros.
 
 **Permiso:** `permissions.read`
 

@@ -13,6 +13,13 @@ import { RequirePermissions } from '../auth/decorators/require-permissions.decor
 export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) {}
 
+  @Get('list')
+  @RequirePermissions('permissions.read')
+  @ApiOperation({ summary: 'Listar permisos (select/checkbox)' })
+  findList() {
+    return this.permissionsService.findList();
+  }
+
   @Get()
   @RequirePermissions('permissions.read')
   @ApiOperation({ summary: 'Listar permisos' })

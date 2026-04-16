@@ -18,8 +18,24 @@ export class PermissionsService {
     private readonly permissionRepository: Repository<Permission>,
   ) {}
 
+  async findList() {
+    return this.permissionRepository
+      .createQueryBuilder('permission')
+      .select(['permission.id', 'permission.name', 'permission.description', 'permission.module'])
+      .orderBy('permission.module', 'ASC')
+      .addOrderBy('permission.name', 'ASC')
+      .getMany();
+  }
+
   async findAll(query: PermissionsQueryDto): Promise<PaginatedResult<Permission>> {
-    const { page = 1, limit = 20, sortOrder = 'DESC', sortBy = 'createdAt', search, module } = query;
+    const {
+      page = 1,
+      limit = 20,
+      sortOrder = 'DESC',
+      sortBy = 'createdAt',
+      search,
+      module,
+    } = query;
 
     const qb = this.permissionRepository.createQueryBuilder('permission');
 
@@ -60,9 +76,7 @@ export class PermissionsService {
     for (const def of permissions) {
       const exists = await this.permissionRepository.findOneBy({ name: def.name });
       if (!exists) {
-        await this.permissionRepository.save(
-          this.permissionRepository.create(def),
-        );
+        await this.permissionRepository.save(this.permissionRepository.create(def));
       }
     }
   }
