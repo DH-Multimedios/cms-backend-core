@@ -191,4 +191,72 @@ export class RolesService {
 
     return saved;
   }
+
+  async updatePermissions(
+    id: string,
+    dto: { add?: string[]; remove?: string[] },
+    currentUser: User,
+  ): Promise<Role> {
+    if ((!dto.add || dto.add.length === 0) && (!dto.remove || dto.remove.length === 0)) {
+      throw new ApiException(
+        HttpStatus.BAD_REQUEST,
+        ErrorCode.VALIDATION_ERROR,
+        'Debe enviar al menos add o remove con IDs de permisos',
+      );
+    }
+
+    const role = await this.findOne(id);
+    // Need relations loaded
+    const roleWithPerms = await this.roleRepository.findOne({
+      where: { id },
+      relations: ['permissions'],
+    });
+    if (!roleWithPerms) {
+      throw new ApiException(
+        HttpStatus.NOT_FOUND,
+        ErrorCode.ROLE_NOT_FOUND,
+        `Rol ${id} no encontrado`,
+      );
+    }
+
+    if (roleWithPerms.isProtected && !currentUser.isSystemUser) {
+      throw new ApiException(
+        HttpStatus.FORBIDDEN,
+        ErrorCode.ROLE_PROTECTED,
+        'No podés modificar permisos de un rol protegido',
+      );
+    }
+
+    const previousPermissionIds = roleWithPerms.permissions.map((p) => p.id);
+    const currentIds = new Set(roleWithPerms.permissions.map((p) => p.id));
+
+    if (dto.add?.length) {
+      for (const pid of dto.add) {
+        currentIds.add(pid);
+      }
+    }
+
+    if (dto.remove?.length) {
+      for (const pid of dto.remove) {
+        currentIds.delete(pid);
+      }
+    }
+
+    const targetIds = [...currentIds];
+    const permissions = await this.permissionsService.findByIds(targetIds);
+    roleWithPerms.permissions = permissions;
+    const saved = await this.roleRepository.save(roleWithPerms);
+
+    await this.auditService.log({
+      action: 'update_permissions',
+      entity: 'Role',
+      entityId: id,
+      metadata: {
+        before: { permissionIds: previousPermissionIds },
+        after: { add: dto.add ?? [], remove: dto.remove ?? [] },
+      },
+    });
+
+    return saved;
+  }
 }

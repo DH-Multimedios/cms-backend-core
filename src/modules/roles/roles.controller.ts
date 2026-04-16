@@ -17,6 +17,7 @@ import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { AssignPermissionsDto } from './dto/assign-permissions.dto';
+import { UpdatePermissionsDto } from './dto/update-permissions.dto';
 import { RolesQueryDto } from './dto/roles-query.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
@@ -76,6 +77,17 @@ export class RolesController {
   @ApiOperation({ summary: 'Eliminar rol' })
   remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() currentUser: User) {
     return this.rolesService.remove(id, currentUser);
+  }
+
+  @Patch(':id/permissions')
+  @RequirePermissions('roles.update')
+  @ApiOperation({ summary: 'Agregar/remover permisos a un rol (incremental)' })
+  updatePermissions(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdatePermissionsDto,
+    @CurrentUser() currentUser: User,
+  ) {
+    return this.rolesService.updatePermissions(id, dto, currentUser);
   }
 
   @Post(':id/permissions')

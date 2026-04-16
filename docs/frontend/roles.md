@@ -132,9 +132,43 @@ Elimina un rol.
 
 ---
 
+### PATCH /roles/:id/permissions
+
+Agrega o remueve permisos de un rol de forma incremental. Ideal para switches/toggles individuales.
+
+**Permiso:** `roles.update`
+
+**Request:**
+
+```json
+{
+  "add": ["uuid-perm-1"],
+  "remove": ["uuid-perm-2"]
+}
+```
+
+| Campo    | Requerido | Descripción               |
+| -------- | --------- | ------------------------- |
+| `add`    | ✗[]       | IDs de permisos a agregar |
+| `remove` | ✗[]       | IDs de permisos a remover |
+
+> Al menos uno de `add` o `remove` debe contener IDs.
+
+**Response `200`:** Rol con los permisos actualizados.
+
+**Errores:** `ROLE_NOT_FOUND`, `ROLE_PROTECTED`, `VALIDATION_ERROR`
+
+**Ejemplos de uso:**
+
+- Prender un permiso (switch ON): `{ "add": ["uuid-perm-1"] }`
+- Apagar un permiso (switch OFF): `{ "remove": ["uuid-perm-1"] }`
+- Toggle múltiple: `{ "add": ["uuid-perm-1"], "remove": ["uuid-perm-2", "uuid-perm-3"] }`
+
+---
+
 ### POST /roles/:id/permissions
 
-Asigna permisos a un rol. **Reemplaza** los permisos actuales (no acumula).
+Asigna permisos a un rol. **Reemplaza** los permisos actuales (no acumula). Usar solo para bulk replace; para toggles individuales usar `PATCH`.
 
 **Permiso:** `roles.update`
 
