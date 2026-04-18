@@ -7,6 +7,12 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Changed
+
+- **PermissionsGuard**: soporta lógica OR además de AND — si un endpoint usa `@RequireAnyPermission`, el usuario necesita al menos uno de los permisos especificados
+- **`@RequireAnyPermission(...)`**: nuevo decorator para proteger endpoints con lógica OR (complementa `@RequirePermissions` que sigue siendo AND)
+- **`GET /roles/list`**: ahora acepta `roles.read` OR `users.read` — permite que usuarios con gestión de usuarios pero sin acceso completo a roles puedan obtener el listado para asignación
+
 ## [0.1.0] - 2026-04-11
 
 ### Módulos implementados

@@ -21,7 +21,7 @@ import { UpdatePermissionsDto } from './dto/update-permissions.dto';
 import { RolesQueryDto } from './dto/roles-query.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
-import { RequirePermissions } from '../auth/decorators/require-permissions.decorator';
+import { RequirePermissions, RequireAnyPermission } from '../auth/decorators/require-permissions.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../../database/entities/user.entity';
 
@@ -40,7 +40,7 @@ export class RolesController {
   }
 
   @Get('list')
-  @RequirePermissions('roles.read')
+  @RequireAnyPermission('roles.read', 'users.read')
   @ApiOperation({ summary: 'Listar roles (select/checkbox)' })
   findList() {
     return this.rolesService.findList();
