@@ -32,7 +32,8 @@ export type SettingInputType =
   | 'url'
   | 'email'
   | 'date'
-  | 'image';
+  | 'image'
+  | 'stringArray';
 
 /**
  * Metadata extra según el inputType.
