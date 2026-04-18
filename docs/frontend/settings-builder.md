@@ -106,8 +106,34 @@ Usar `compatibleTypes` para filtrar qué `type` (dato de DB) se puede combinar c
 | url       | string           |
 | email     | string           |
 | date      | string           |
+| image     | string           |
 
 > Si el usuario no elige `type`, inferirlo automáticamente desde `compatibleTypes[0]`.
+
+---
+
+## Tipo `image` — comportamiento especial
+
+A diferencia de otros tipos, `image` no guarda una URL sino el **UUID del media** en `value`.
+
+Al leer el setting, el backend resuelve automáticamente la imagen e inyecta en `meta`:
+
+```json
+{
+  "key": "app.logo",
+  "value": "550e8400-e29b-41d4-a716-446655440000",
+  "inputType": "image",
+  "meta": {
+    "url": "/uploads/logo.png",
+    "alt": "Logo del sitio"
+  }
+}
+```
+
+**En el frontend:**
+- Mostrar el picker del módulo de media al editar (subir con `usage: "setting"`)
+- Para renderizar: usar `meta.url` directamente — no resolver el UUID manualmente
+- Si `meta.url` es `null` → la imagen fue borrada, mostrar placeholder
 
 ---
 
@@ -194,5 +220,17 @@ POST /settings
   "type": "number",
   "inputType": "number",
   "meta": { "min": 5, "max": 100 }
+}
+```
+
+**Con imagen (image):**
+
+```json
+{
+  "key": "app.logo",
+  "label": "Logo del sitio",
+  "value": "550e8400-e29b-41d4-a716-446655440000",
+  "type": "string",
+  "inputType": "image"
 }
 ```
