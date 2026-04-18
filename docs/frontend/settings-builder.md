@@ -240,6 +240,26 @@ PATCH /settings/:id              → actualizar setting (requiere settings.updat
 DELETE /settings/:id             → eliminar setting (requiere settings.delete)
 ```
 
+**Nota sobre PATCH:**
+- Acepta **todos** los campos de `POST` como opcionales: `key`, `label`, `value`, `type`, `inputType`, `meta`, `order`, `categoryId`
+- Enviar solo los campos que querés cambiar
+- `meta` se reemplaza completo — si mandás `meta.options`, reemplaza las opciones existentes
+
+**Ejemplo de actualización de opciones:**
+```json
+PATCH /settings/:id
+{
+  "meta": {
+    "options": [
+      { "value": "new1", "label": "Nueva opción 1" },
+      { "value": "new2", "label": "Nueva opción 2" }
+    ]
+  }
+}
+```
+
+---
+
 ### Categorías
 
 ```
