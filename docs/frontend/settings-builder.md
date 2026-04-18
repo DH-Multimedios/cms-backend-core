@@ -99,7 +99,7 @@ Usar `compatibleTypes` para filtrar qué `type` (dato de DB) se puede combinar c
 | number    | number           |
 | password  | string, password |
 | toggle    | boolean          |
-| checkbox  | boolean          |
+| checkbox  | boolean, json    |
 | radio     | string           |
 | select    | string           |
 | color     | string           |
@@ -134,6 +134,74 @@ Al leer el setting, el backend resuelve automáticamente la imagen e inyecta en 
 - Mostrar el picker del módulo de media al editar (subir con `usage: "setting"`)
 - Para renderizar: usar `meta.url` directamente — no resolver el UUID manualmente
 - Si `meta.url` es `null` → la imagen fue borrada, mostrar placeholder
+
+---
+
+## Validación de valores
+
+El backend valida automáticamente ciertos tipos al guardar/actualizar:
+
+| inputType | Validación |
+|-----------|------------|
+| `url`     | Formato URL válido (protocolo + dominio) |
+| `email`   | Formato email válido (regex básico) |
+| otros     | Sin validación de formato |
+
+**Comportamiento:**
+- Valores vacíos (`""`) están permitidos — no se validan
+- Si el valor no cumple el formato, el backend retorna `400 VALIDATION_ERROR`
+- La validación usa el `inputType` del setting — si se cambia el tipo en la misma request, valida contra el nuevo
+
+**Ejemplo de error:**
+```json
+PATCH /settings/:id
+{ "value": "no-es-url" }
+
+→ 400 Bad Request
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "El valor no es una URL válida"
+  }
+}
+```
+
+---
+
+## Tipo `checkbox` con opciones predefinidas
+
+Los settings de tipo `checkbox` con `meta.options` permiten selección múltiple con labels legibles.
+
+**Ejemplo: formatos de archivo permitidos**
+
+```json
+{
+  "key": "files.allowedMimetypes",
+  "inputType": "checkbox",
+  "type": "json",
+  "value": "[\"application/pdf\",\"text/csv\"]",
+  "meta": {
+    "options": [
+      { "value": "application/pdf", "label": "PDF" },
+      { "value": "text/csv", "label": "CSV" },
+      { "value": "application/msword", "label": "Word (.doc)" }
+    ]
+  }
+}
+```
+
+**En el frontend:**
+- Renderizar un checkbox por cada opción en `meta.options`
+- El `value` es un JSON stringificado con el array de valores seleccionados
+- Parsear `value` para saber qué checkboxes marcar: `JSON.parse(value)`
+- Al guardar, stringify el array de valores: `JSON.stringify(selectedValues)`
+- Las opciones NO se pueden agregar/eliminar — son fijas (definidas en el seed)
+
+**Casos de uso:**
+- `files.allowedMimetypes` — formatos de archivo aceptados
+- `media.allowedMimetypes` — formatos de imagen aceptados
+
 
 ---
 
