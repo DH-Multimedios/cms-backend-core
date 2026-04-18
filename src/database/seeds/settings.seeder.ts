@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import { SettingCategory } from '../entities/setting-category.entity';
-import { Setting } from '../entities/setting.entity';
+import { Setting, SettingInputType } from '../entities/setting.entity';
 
 const CATEGORIES = [
   {
@@ -44,7 +44,7 @@ const SETTINGS: Array<{
   value: string;
   description?: string;
   type: 'string' | 'number' | 'boolean' | 'json' | 'password';
-  inputType?: string;
+  inputType?: SettingInputType;
   order: number;
   isProtected?: boolean;
 }> = [
