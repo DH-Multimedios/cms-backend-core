@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Setting, SettingInputType, SettingType } from '../../database/entities/setting.entity';
 import { SettingCategory } from '../../database/entities/setting-category.entity';
+import { Media } from '../../database/entities/media.entity';
 import { AuditService } from '../audit/audit.service';
 import { PermissionsService } from '../permissions/permissions.service';
 import { CreateSettingDto } from './dto/create-setting.dto';
@@ -23,6 +24,8 @@ export class SettingsService implements OnModuleInit {
     private readonly settingRepository: Repository<Setting>,
     @InjectRepository(SettingCategory)
     private readonly categoryRepository: Repository<SettingCategory>,
+    @InjectRepository(Media)
+    private readonly mediaRepository: Repository<Media>,
     private readonly auditService: AuditService,
     private readonly permissionsService: PermissionsService,
   ) {}
@@ -253,7 +256,9 @@ export class SettingsService implements OnModuleInit {
       .addOrderBy('setting.order', 'ASC')
       .addOrderBy('setting.key', 'ASC');
 
-    return qb.getMany();
+    const settings = await qb.getMany();
+    await Promise.all(settings.map((s) => this.injectImageMeta(s)));
+    return settings;
   }
 
   async findByKey(key: string): Promise<Setting> {
@@ -268,6 +273,7 @@ export class SettingsService implements OnModuleInit {
         `Setting '${key}' no encontrado`,
       );
     }
+    await this.injectImageMeta(setting);
     return setting;
   }
 
@@ -390,6 +396,34 @@ export class SettingsService implements OnModuleInit {
 
     return { message: `Setting '${setting.key}' eliminado correctamente` };
   }
+
+  // ─── Image meta resolver ──────────────────────────────────────────────────
+
+  /**
+   * Busca el media por UUID y retorna { url, alt }.
+   * Si el UUID es inválido o el media fue borrado, retorna null (graceful degradation).
+   */
+  private async resolveImageMeta(mediaId: string): Promise<{ url: string; alt: string } | null> {
+    if (!mediaId) return null;
+    try {
+      const media = await this.mediaRepository.findOneBy({ id: mediaId });
+      if (!media) return null;
+      return { url: media.url, alt: media.alt };
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Inyecta url y alt en meta para settings de tipo imagen.
+   * Muta el objeto setting en memoria — no persiste nada en DB.
+   */
+  private async injectImageMeta(setting: Setting): Promise<void> {
+    if (setting.inputType !== 'image' || !setting.value) return;
+    const resolved = await this.resolveImageMeta(setting.value);
+    if (!resolved) return;
+    setting.meta = { ...(setting.meta ?? {}), ...resolved };
+  }
 }
 
 // ─── Input type schema definitions ────────────────────────────────────────────
@@ -497,6 +531,12 @@ const INPUT_TYPE_SCHEMAS: InputTypeSchema[] = [
   {
     value: 'date',
     label: 'Fecha',
+    compatibleTypes: ['string'],
+    meta: null,
+  },
+  {
+    value: 'image',
+    label: 'Imagen',
     compatibleTypes: ['string'],
     meta: null,
   },

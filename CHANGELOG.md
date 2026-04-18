@@ -7,6 +7,10 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- **`inputType: 'image'`**: nuevo tipo en settings — guarda UUID del media en `value`; el servicio resuelve `url` y `alt` desde el media y los inyecta en `meta` al leer (sin segundo request desde el cliente)
+
 ### Changed
 
 - **PermissionsGuard**: soporta lógica OR además de AND — si un endpoint usa `@RequireAnyPermission`, el usuario necesita al menos uno de los permisos especificados

@@ -31,7 +31,8 @@ export type SettingInputType =
   | 'color'
   | 'url'
   | 'email'
-  | 'date';
+  | 'date'
+  | 'image';
 
 /**
  * Metadata extra según el inputType.
@@ -45,6 +46,9 @@ export interface SettingMeta {
   rows?: number;
   min?: number;
   max?: number;
+  /** Resuelto en runtime para inputType === 'image'. No se persiste. */
+  url?: string;
+  alt?: string;
 }
 
 @Entity('settings')
