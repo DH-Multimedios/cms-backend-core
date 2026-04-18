@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import { SettingCategory } from '../entities/setting-category.entity';
-import { Setting, SettingInputType } from '../entities/setting.entity';
+import { Setting, SettingInputType, SettingMeta } from '../entities/setting.entity';
 
 const CATEGORIES = [
   {
@@ -45,6 +45,7 @@ const SETTINGS: Array<{
   description?: string;
   type: 'string' | 'number' | 'boolean' | 'json' | 'password';
   inputType?: SettingInputType;
+  meta?: SettingMeta;
   order: number;
   isProtected?: boolean;
 }> = [
@@ -106,9 +107,20 @@ const SETTINGS: Array<{
       'text/plain',
       'text/csv',
     ]),
-    description: 'Lista de mimetypes permitidos para upload de archivos',
+    description: 'Formatos habilitados para upload de archivos. Destildá los que no querés aceptar.',
     type: 'json',
-    inputType: 'stringArray',
+    inputType: 'checkbox',
+    meta: {
+      options: [
+        { value: 'application/pdf', label: 'PDF' },
+        { value: 'application/msword', label: 'Word (.doc)' },
+        { value: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', label: 'Word (.docx)' },
+        { value: 'application/vnd.ms-excel', label: 'Excel (.xls)' },
+        { value: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', label: 'Excel (.xlsx)' },
+        { value: 'text/plain', label: 'Texto (.txt)' },
+        { value: 'text/csv', label: 'CSV' },
+      ],
+    },
     order: 1,
     isProtected: true,
   },
@@ -129,9 +141,17 @@ const SETTINGS: Array<{
     key: 'media.allowedMimetypes',
     label: 'Tipos de imagen permitidos',
     value: JSON.stringify(['image/jpeg', 'image/png', 'image/webp', 'image/gif']),
-    description: 'Lista de mimetypes permitidos para upload de imágenes',
+    description: 'Formatos habilitados para upload de imágenes. Destildá los que no querés aceptar.',
     type: 'json',
-    inputType: 'stringArray',
+    inputType: 'checkbox',
+    meta: {
+      options: [
+        { value: 'image/jpeg', label: 'JPEG' },
+        { value: 'image/png', label: 'PNG' },
+        { value: 'image/webp', label: 'WebP' },
+        { value: 'image/gif', label: 'GIF' },
+      ],
+    },
     order: 1,
     isProtected: true,
   },
@@ -197,6 +217,7 @@ export async function seedSettings(dataSource: DataSource): Promise<void> {
         description: def.description,
         type: def.type,
         inputType: def.inputType ?? 'text',
+        meta: def.meta ?? null,
         order: def.order,
         isProtected: def.isProtected ?? false,
       }),
