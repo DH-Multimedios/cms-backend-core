@@ -353,6 +353,11 @@ export class SettingsService implements OnModuleInit {
       }
     }
 
+    const effectiveInputType = dto.inputType ?? setting.inputType;
+    if (dto.value !== undefined) {
+      this.validateValue(dto.value, effectiveInputType);
+    }
+
     const isSensitive = setting.type === 'password' || dto.type === 'password';
     const before = { key: setting.key, value: isSensitive ? '***' : setting.value };
 
@@ -395,6 +400,37 @@ export class SettingsService implements OnModuleInit {
     await this.settingRepository.remove(setting);
 
     return { message: `Setting '${setting.key}' eliminado correctamente` };
+  }
+
+  // ─── Value validator ─────────────────────────────────────────────────────
+
+  /**
+   * Valida el valor según el inputType del setting.
+   * Solo aplica a tipos con formato estricto (url, email).
+   */
+  private validateValue(value: string, inputType: SettingInputType): void {
+    if (inputType === 'url' && value !== '') {
+      try {
+        new URL(value);
+      } catch {
+        throw new ApiException(
+          HttpStatus.BAD_REQUEST,
+          ErrorCode.VALIDATION_ERROR,
+          `El valor no es una URL válida`,
+        );
+      }
+    }
+
+    if (inputType === 'email' && value !== '') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(value)) {
+        throw new ApiException(
+          HttpStatus.BAD_REQUEST,
+          ErrorCode.VALIDATION_ERROR,
+          `El valor no es un email válido`,
+        );
+      }
+    }
   }
 
   // ─── Image meta resolver ──────────────────────────────────────────────────
