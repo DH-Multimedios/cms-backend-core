@@ -169,11 +169,30 @@ PATCH /settings/:id
 
 ---
 
-## Tipo `checkbox` con opciones predefinidas
+## Tipo `checkbox` — dos modos
 
-Los settings de tipo `checkbox` con `meta.options` permiten selección múltiple con labels legibles.
+`checkbox` tiene dos usos distintos según el `type` del setting:
 
-**Ejemplo: formatos de archivo permitidos**
+### Modo 1: Checkbox único (type: `boolean`)
+
+Sin opciones. Representa on/off, true/false.
+
+```json
+{
+  "key": "app.maintenanceMode",
+  "inputType": "checkbox",
+  "type": "boolean",
+  "value": "false"
+}
+```
+
+**En el frontend:** renderizar un checkbox único. El `value` es `"true"` o `"false"` (string).
+
+---
+
+### Modo 2: Checkbox múltiple (type: `json`)
+
+Con `meta.options`. Permite selección múltiple de una lista predefinida.
 
 ```json
 {
@@ -196,11 +215,17 @@ Los settings de tipo `checkbox` con `meta.options` permiten selección múltiple
 - El `value` es un JSON stringificado con el array de valores seleccionados
 - Parsear `value` para saber qué checkboxes marcar: `JSON.parse(value)`
 - Al guardar, stringify el array de valores: `JSON.stringify(selectedValues)`
-- Las opciones NO se pueden agregar/eliminar — son fijas (definidas en el seed)
+- **Valor inicial recomendado:** `"[]"` (array vacío), no `"false"`
 
-**Casos de uso:**
-- `files.allowedMimetypes` — formatos de archivo aceptados
-- `media.allowedMimetypes` — formatos de imagen aceptados
+**Al crear un nuevo setting con checkbox múltiple:**
+- Definir `type: "json"`
+- Definir `meta.options` en el POST (igual que en `select` o `radio`)
+- El editor de opciones debe aparecer automáticamente basado en el schema de `/settings/input-types`
+
+**Casos de uso del modo múltiple:**
+- `files.allowedMimetypes` — formatos de archivo aceptados (opciones fijas en seed)
+- `media.allowedMimetypes` — formatos de imagen aceptados (opciones fijas en seed)
+- Settings custom creados por el admin con lista de opciones
 
 
 ---

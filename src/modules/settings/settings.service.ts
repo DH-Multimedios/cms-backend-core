@@ -517,8 +517,15 @@ const INPUT_TYPE_SCHEMAS: InputTypeSchema[] = [
   {
     value: 'checkbox',
     label: 'Checkbox',
-    compatibleTypes: ['boolean'],
-    meta: null,
+    compatibleTypes: ['boolean', 'json'],
+    meta: {
+      options: {
+        type: 'array',
+        required: false,
+        description: 'Opciones disponibles (solo si type es json para selección múltiple)',
+        itemSchema: { value: 'string', label: 'string' },
+      },
+    },
   },
   {
     value: 'radio',
