@@ -6,7 +6,7 @@ import { SettingType, SettingInputType, SettingMeta } from '../../../database/en
 const SETTING_TYPES: SettingType[] = ['string', 'number', 'boolean', 'json', 'password'];
 const INPUT_TYPES: SettingInputType[] = [
   'text', 'textarea', 'number', 'password', 'toggle',
-  'checkbox', 'radio', 'select', 'color', 'url', 'email', 'date', 'image',
+  'checkbox', 'radio', 'select', 'color', 'url', 'email', 'date', 'image', 'stringArray',
 ];
 
 export class SettingMetaOptionDto {
