@@ -8,6 +8,7 @@ import { User } from '../../database/entities/user.entity';
 import { UsersModule } from '../users/users.module';
 import { AuditModule } from '../audit/audit.module';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { SettingsModule } from '../settings/settings.module';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { LocalStrategy } from './strategies/local.strategy';
@@ -26,6 +27,7 @@ export class AuthModule {
         UsersModule,
         AuditModule,
         NotificationsModule,
+        SettingsModule,
       ],
       controllers: [AuthController],
       providers: [
@@ -54,6 +56,7 @@ export class AuthModule {
         UsersModule,
         AuditModule,
         NotificationsModule,
+        SettingsModule,
       ],
       controllers: [AuthController],
       providers: [

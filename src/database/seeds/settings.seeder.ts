@@ -35,6 +35,14 @@ const CATEGORIES = [
     order: 3,
     isProtected: true,
   },
+  {
+    id: 5,
+    slug: 'auth',
+    label: 'Autenticación',
+    description: 'Configuración de sesiones y seguridad',
+    order: 4,
+    isProtected: true,
+  },
 ];
 
 const SETTINGS: Array<{
@@ -164,6 +172,18 @@ const SETTINGS: Array<{
     type: 'number',
     inputType: 'number',
     order: 2,
+    isProtected: true,
+  },
+  // ─── Auth ─────────────────────────────────────────────────────────────────
+  {
+    categoryKey: 'auth',
+    key: 'auth.sessionExpiration',
+    label: 'Duración de sesión (días)',
+    value: '365',
+    description: 'Cantidad de días que una sesión permanece activa. Default: 365 (1 año).',
+    type: 'number',
+    inputType: 'number',
+    order: 1,
     isProtected: true,
   },
 ];

@@ -1,6 +1,6 @@
 import { Injectable, Inject, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThan, IsNull } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 import { createHash, randomUUID } from 'crypto';
 import * as bcrypt from 'bcrypt';
 import { User } from '../../database/entities/user.entity';
@@ -10,6 +10,7 @@ import { AuthConfig } from '../../core/interfaces/core-config.interface';
 import { UsersService } from '../users/users.service';
 import { AuditService } from '../audit/audit.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { SettingsService } from '../settings/settings.service';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
 import { ApiException } from '../../common/exceptions/api.exception';
@@ -22,6 +23,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly auditService: AuditService,
     private readonly notificationsService: NotificationsService,
+    private readonly settingsService: SettingsService,
     @InjectRepository(Session)
     private readonly sessionRepository: Repository<Session>,
     @InjectRepository(PasswordResetToken)
@@ -41,7 +43,7 @@ export class AuthService {
 
     const rawSessionId = randomUUID();
     const tokenHash = this.hashToken(rawSessionId);
-    const expiresAt = this.buildExpiresAt();
+    const expiresAt = await this.buildExpiresAt();
 
     await this.sessionRepository.save(
       this.sessionRepository.create({
@@ -207,11 +209,10 @@ export class AuthService {
     return createHash('sha256').update(token).digest('hex');
   }
 
-  private buildExpiresAt(): Date {
+  private async buildExpiresAt(): Promise<Date> {
+    const raw = await this.settingsService.getValue('auth.sessionExpiration', '365');
+    const days = parseInt(raw ?? '365', 10) || 365;
     const expiresAt = new Date();
-    const days = this.authConfig.sessionExpiration
-      ? parseInt(this.authConfig.sessionExpiration)
-      : 365;
     expiresAt.setDate(expiresAt.getDate() + days);
     return expiresAt;
   }
