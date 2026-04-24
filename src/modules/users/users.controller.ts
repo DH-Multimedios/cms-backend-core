@@ -48,6 +48,13 @@ export class UsersController {
     return this.usersService.findAll(query);
   }
 
+  @Get('by-username/:username')
+  @RequirePermissions('users.read')
+  @ApiOperation({ summary: 'Obtener usuario por username' })
+  findByUsername(@Param('username') username: string) {
+    return this.usersService.findByUsername(username);
+  }
+
   @Get(':id')
   @RequirePermissions('users.read')
   @ApiOperation({ summary: 'Obtener usuario por ID' })

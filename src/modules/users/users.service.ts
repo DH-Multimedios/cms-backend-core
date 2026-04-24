@@ -89,6 +89,19 @@ export class UsersService {
     return UserResponseDto.from(user);
   }
 
+  async findByUsername(username: string): Promise<UserResponseDto> {
+    const user = await this.userRepository.findOne({
+      where: { username, isSystemUser: false },
+    });
+    if (!user)
+      throw new ApiException(
+        HttpStatus.NOT_FOUND,
+        ErrorCode.USER_NOT_FOUND,
+        `Usuario ${username} no encontrado`,
+      );
+    return UserResponseDto.from(user);
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { email } });
   }
