@@ -235,9 +235,13 @@ Establece la nueva contraseña usando el `resetToken` del paso anterior. Revoca 
 
 ## Configuración (proyecto consumidor)
 
+La duración de sesión se configura desde el panel de administración en
+**Settings → Autenticación → Duración de sesión (días)**. El default es `365`.
+
+Las únicas opciones de la config del proyecto son las de cookie:
+
 ```typescript
 auth: {
-  sessionExpiration: '365',   // días — default: 365 (1 año)
   cookiePath: '/',            // path de la cookie session_id
   // cookieSecure y cookieSameSite tienen defaults inteligentes:
   //   - dev: sameSite='none', secure=true  (cross-origin requiere sameSite=none)

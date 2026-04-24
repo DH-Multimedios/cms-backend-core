@@ -73,10 +73,10 @@ import { CoreModule } from '@dh/backend-core';
           database: config.get('DB_NAME'),
         },
         auth: {
-          jwtSecret: config.get('JWT_SECRET'),
-          jwtExpiresIn: config.get('JWT_EXPIRATION', '15m'),
-          jwtRefreshSecret: config.get('JWT_REFRESH_SECRET'),
-          jwtRefreshExpiresIn: config.get('JWT_REFRESH_EXPIRATION', '7d'),
+          cookiePath: '/',
+          // cookieSecure y cookieSameSite tienen defaults según NODE_ENV
+          //   - dev: sameSite='none', secure=true
+          //   - prod: sameSite='lax', secure=true
         },
       }),
     }),
@@ -128,12 +128,6 @@ DB_PORT=5432
 DB_USER=mi_usuario
 DB_PASS=mi_password
 DB_NAME=mi_base
-
-# JWT
-JWT_SECRET=secreto-jwt-muy-largo-y-seguro
-JWT_EXPIRATION=15m
-JWT_REFRESH_SECRET=secreto-refresh-muy-largo-y-seguro
-JWT_REFRESH_EXPIRATION=7d
 
 # Usuario del sistema (backdoor del desarrollador — NO compartir)
 SYSTEM_USER_EMAIL=system@internal.dev
@@ -201,7 +195,7 @@ Al registrar `CoreModule`, los siguientes módulos están disponibles para inyec
 | ---------------------- | ------------------------------------------------------------------------ |
 | `ConfigModule`         | `ConfigService`                                                          |
 | `EventEmitterModule`   | `EventEmitter2`                                                          |
-| `AuthModule`           | `AuthService`, `JwtAuthGuard`, `PermissionsGuard`                        |
+| `AuthModule`           | `AuthService`, `SessionAuthGuard`, `PermissionsGuard`                    |
 | `UsersModule`          | `UsersService`                                                           |
 | `RolesModule`          | `RolesService`                                                           |
 | `PermissionsModule`    | `PermissionsService`                                                     |
@@ -219,7 +213,7 @@ import {
   Public, // Marca endpoint como público
   CurrentUser, // Inyecta el usuario autenticado
   RequirePermissions, // Valida permisos
-  JwtAuthGuard,
+  SessionAuthGuard,
   PermissionsGuard,
 } from '@dh/backend-core';
 ```
@@ -228,7 +222,7 @@ import {
 
 ```typescript
 @Get()
-@UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseGuards(SessionAuthGuard, PermissionsGuard)
 @RequirePermissions('products.read')
 findAll() { ... }
 
@@ -237,7 +231,7 @@ findAll() { ... }
 publicEndpoint() { ... }
 
 @Get('me')
-@UseGuards(JwtAuthGuard)
+@UseGuards(SessionAuthGuard)
 getProfile(@CurrentUser() user: User) { ... }
 ```
 
@@ -251,7 +245,7 @@ import type {
   User,
   Role,
   Permission,
-  RefreshToken,
+  Session,
   AuditLog,
   Setting,
   SettingCategory,

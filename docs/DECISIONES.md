@@ -397,6 +397,7 @@ docs/
 ### Acoplamiento permitido dentro del core
 
 - `Auth → Users`
+- `Auth → Settings`
 - `Users → Roles`
 - `Audit → Users`
 
