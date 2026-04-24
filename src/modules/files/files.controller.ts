@@ -27,7 +27,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { FilesService } from './files.service';
 import { UploadFileDto, UpdateFileDto, ListFilesDto } from './dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { RequirePermissions } from '../auth/decorators/require-permissions.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -35,7 +35,7 @@ import { Public } from '../auth/decorators/public.decorator';
 import { User } from '../../database/entities/user.entity';
 
 @ApiTags('Files')
-@UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseGuards(SessionAuthGuard, PermissionsGuard)
 @Controller('files')
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}

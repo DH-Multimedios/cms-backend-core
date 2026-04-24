@@ -2,16 +2,22 @@
 
 ---
 
+## Modelo de autenticación
+
+El sistema usa **sesiones server-side** con identificador UUID opaco.
+
+- **Web / browser**: la sesión viaja automáticamente en cookie HttpOnly `session_id`. El frontend no toca el token.
+- **Flutter / mobile**: el `sessionId` viene en el body del login. Guardarlo en SecureStorage y enviarlo en el header `X-Session-Id` en cada request autenticado.
+
+No existe refresh token ni access token JWT. La sesión dura **1 año** (configurable). La revocación es inmediata.
+
+---
+
 ## Endpoints
 
 ### POST /auth/login
 
-Autentica un usuario y devuelve tokens JWT.
-
-Soporta dos flujos:
-
-- **Web / browser**: usar cookies HttpOnly
-- **Mobile / clientes no-browser**: usar `accessToken` y `refreshToken` del body
+Autentica un usuario y crea una nueva sesión.
 
 **Request:**
 
@@ -26,20 +32,13 @@ Soporta dos flujos:
 
 **Response `200`:**
 
-Además del body, el servidor setea automáticamente dos cookies HttpOnly:
-
-- `access_token` — expira en 15 minutos
-- `refresh_token` — expira en 7 días y usa `Path=/auth`
-
-> En web no hace falta guardar los tokens del body: el navegador enviará las cookies automáticamente.
-> Los tokens en el body existen para mobile e integraciones no-browser.
+El servidor setea automáticamente la cookie HttpOnly `session_id` (web). El body incluye el `sessionId` para Flutter.
 
 ```json
 {
   "statusCode": 200,
   "data": {
-    "accessToken": "eyJhbGci...",
-    "refreshToken": "eyJhbGci...",
+    "sessionId": "550e8400-e29b-41d4-a716-446655440000",
     "user": {
       "id": "uuid",
       "email": "admin@ejemplo.com",
@@ -59,6 +58,10 @@ Además del body, el servidor setea automáticamente dos cookies HttpOnly:
 }
 ```
 
+**Web:** ignorar el `sessionId` del body. La cookie se maneja sola.
+
+**Flutter:** guardar `data.sessionId` en SecureStorage y enviarlo como header `X-Session-Id` en todos los requests autenticados.
+
 **Errores:**
 
 | code                  | Cuándo                                           |
@@ -68,57 +71,11 @@ Además del body, el servidor setea automáticamente dos cookies HttpOnly:
 
 ---
 
-### POST /auth/refresh
-
-Renueva el access token usando el refresh token. Implementa **token rotation**: el refresh token usado se revoca y se genera uno nuevo.
-
-**Request (con body):**
-
-```json
-{ "refreshToken": "eyJhbGci..." }
-```
-
-**Request (con cookies):**
-
-```json
-{}
-```
-
-> Si usás cookies HttpOnly, no necesitás enviar el token en el body. El servidor lo lee de la cookie `refresh_token` automáticamente. Si no hay token ni en el body ni en la cookie, devuelve `401`.
-
-**Response `200`:** Nuevos tokens en body + renueva las cookies automáticamente.
-
-```json
-{
-  "statusCode": 200,
-  "data": {
-    "accessToken": "eyJhbGci...",
-    "refreshToken": "eyJhbGci..."
-  }
-}
-```
-
-**Errores:**
-
-| code                    | Cuándo                                             |
-| ----------------------- | -------------------------------------------------- |
-| `INVALID_REFRESH_TOKEN` | Token inválido, expirado o ya fue usado (rotación) |
-
-> ⚠️ Cada refresh token es de **un solo uso**. En mobile/integraciones guardá el nuevo token que devuelve la respuesta. En web, las cookies se renuevan automáticamente.
-
----
-
 ### POST /auth/logout
 
-Revoca el refresh token actual. Requiere JWT.
+Revoca la sesión actual. Requiere sesión activa.
 
-**Request (con body):**
-
-```json
-{ "refreshToken": "eyJhbGci..." }
-```
-
-**Request (con cookies):** body vacío — el servidor lee el token de la cookie automáticamente.
+**Request:** body vacío.
 
 **Response `200`:**
 
@@ -129,13 +86,16 @@ Revoca el refresh token actual. Requiere JWT.
 }
 ```
 
+Web: limpia la cookie automáticamente.
+Flutter: eliminar el `sessionId` del SecureStorage.
+
 ---
 
 ### POST /auth/logout-all
 
-Revoca **todos** los refresh tokens del usuario. Cierra todas las sesiones abiertas. Requiere JWT.
+Revoca **todas** las sesiones activas del usuario (todos los dispositivos). Requiere sesión activa.
 
-**Request:** (body vacío)
+**Request:** body vacío.
 
 **Response `200`:**
 
@@ -150,7 +110,7 @@ Revoca **todos** los refresh tokens del usuario. Cierra todas las sesiones abier
 
 ### GET /auth/me
 
-Devuelve el usuario autenticado con sus roles. Requiere JWT.
+Devuelve el usuario autenticado con sus roles. Requiere sesión activa.
 
 **Response `200`:**
 
@@ -175,13 +135,13 @@ Devuelve el usuario autenticado con sus roles. Requiere JWT.
 }
 ```
 
-> `roles` incluye `id`, `name` y `weight` pero **no** incluye permisos. `isSystemUser` indica si el usuario es el usuario del sistema. Para permisos, usar `GET /auth/me/permissions`.
+> `roles` incluye `id`, `name` y `weight` pero **no** incluye permisos. Para permisos, usar `GET /auth/me/permissions`.
 
 ---
 
 ### GET /auth/me/permissions
 
-Devuelve los permisos efectivos del usuario autenticado. Requiere JWT.
+Devuelve los permisos efectivos del usuario autenticado. Requiere sesión activa.
 
 **Response `200`:**
 
@@ -196,11 +156,9 @@ Devuelve los permisos efectivos del usuario autenticado. Requiere JWT.
 }
 ```
 
-- `permissions`: flat array deduplicado de nombres de permisos — listo para `permissions.includes('users.read')`.
-- `isSystemUser`: si es `true`, el usuario bypassa todos los permisos (no hace falta chequear el array).
-- `maxWeight`: el peso más alto entre los roles del usuario. Si `isSystemUser` es `true`, siempre es `100`. Útil para determinar qué nivel de UI mostrar (ej: acceso a panels restringidos).
-
-````
+- `permissions`: flat array deduplicado — listo para `permissions.includes('users.read')`.
+- `isSystemUser`: si es `true`, bypassa todos los permisos.
+- `maxWeight`: peso máximo entre los roles del usuario. Útil para determinar nivel de UI.
 
 ---
 
@@ -212,7 +170,7 @@ Solicita un código de recuperación de 6 dígitos por email. Siempre responde i
 
 ```json
 { "email": "user@example.com" }
-````
+```
 
 **Response `200`:**
 
@@ -273,96 +231,97 @@ Establece la nueva contraseña usando el `resetToken` del paso anterior. Revoca 
 { "statusCode": 200, "data": { "message": "Contraseña actualizada correctamente" } }
 ```
 
-**Errores:**
-
-| code               | Cuándo                              |
-| ------------------ | ----------------------------------- |
-| `VALIDATION_ERROR` | Token inválido, expirado o ya usado |
-
 ---
 
-## Configuración de cookies (para el proyecto consumidor)
-
-El backend setea cookies HttpOnly automáticamente, pero hay que configurarlas correctamente según el entorno. En el `AuthConfig` del proyecto consumidor:
+## Configuración (proyecto consumidor)
 
 ```typescript
 auth: {
-  jwtSecret: process.env.JWT_SECRET!,
-  jwtExpiration: '15m',
-  jwtRefreshExpiration: '7d',
-  cookiePath: '/api/auth',  // ⚠️ debe incluir el API prefix
+  sessionExpiration: '365',   // días — default: 365 (1 año)
+  cookiePath: '/',            // path de la cookie session_id
   // cookieSecure y cookieSameSite tienen defaults inteligentes:
   //   - dev: sameSite='none', secure=true  (cross-origin requiere sameSite=none)
-  //   - prod: sameSite='lax', secure=true   (mismo origin o behind proxy)
-  // Solo sobreescribí estos si tenés un caso particular
+  //   - prod: sameSite='lax', secure=true
 },
 ```
 
 **¿Por qué `sameSite: 'none'` en desarrollo?**
 
-Si el frontend (`localhost:3000`) y el backend (`localhost:5010`) están en puertos distintos, son **orígenes distintos**. Con `sameSite: 'lax'`, el browser NO envía cookies en requests cross-origin tipo POST/fetch. Necesitás `sameSite: 'none'`.
+Si el frontend (`localhost:3000`) y el backend (`localhost:5010`) están en puertos distintos, son orígenes distintos. Con `sameSite: 'lax'`, el browser NO envía cookies en requests cross-origin. Necesitás `sameSite: 'none'`.
 
-> ⚠️ `sameSite: 'none'` **requiere** `secure: true`. Chrome rechaza cookies con `SameSite=None` sin `Secure`. Pero Chrome trata `localhost` como contexto seguro, así que funciona sin HTTPS en desarrollo.
-
-**`cookiePath` es crucial:**
-
-Debe cubrir todos los endpoints de auth: `refresh`, `logout` y `logout-all`. Usá el path del módulo auth con el API prefix, por ejemplo `/api/auth`. Si usás solo `/api/auth/refresh`, la cookie no se envía a `/api/auth/logout` y el botón de cerrar sesión no funciona.
+> `sameSite: 'none'` **requiere** `secure: true`. Chrome trata `localhost` como contexto seguro, así que funciona sin HTTPS en desarrollo.
 
 ---
 
-## Flujo recomendado
+## Flujo recomendado — Web
 
-### Al iniciar la app (con cookies)
+### Al iniciar la app
 
-Las cookies se manejan automáticamente — el browser las envía en cada request sin intervención del frontend.
+Las cookies se manejan automáticamente — el browser las envía en cada request.
 
 1. Llamar `GET /auth/me` para verificar sesión activa
-2. Si falla con 401: llamar `POST /auth/refresh` (sin body — usa la cookie)
-3. Si también falla: redirigir a login
+2. Si falla con `401`: redirigir a login (no hay refresh, la sesión expiró o fue revocada)
 
-### Flujo de recuperación de contraseña
-
-```
-POST /auth/forgot-password  →  el usuario recibe email con código
-POST /auth/verify-reset-code  →  validar código, guardar resetToken
-POST /auth/reset-password  →  nueva contraseña con el resetToken
-→ redirigir a login (todas las sesiones fueron cerradas)
-```
-
-### ⚠️ Importante: `credentials: 'include'`
-
-Si usás cookies HttpOnly para auth, **todos** los requests al backend DEBEN incluir `credentials: 'include'` (fetch) o `withCredentials: true` (Axios). Sin esto, el browser no envía ni recibe cookies, y el refresh token será siempre `undefined`.
+### Interceptor recomendado
 
 ```typescript
-// fetch
-fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' });
-
-// axios
-axios.post('/api/auth/refresh', {}, { withCredentials: true });
-```
-
-### Interceptor recomendado (con cookies)
-
-```typescript
-// Si cualquier request devuelve 401, intentar refresh automáticamente
 async function request(config) {
-  try {
-    return await fetch(config, { credentials: 'include' }); // ← credentials requerido para cookies
-  } catch (err) {
-    if (err.status === 401 && !config._retried) {
-      const ok = await fetch('/auth/refresh', {
-        method: 'POST',
-        credentials: 'include', // ← el browser envía la cookie refresh_token automáticamente
-      });
-      if (ok) {
-        config._retried = true;
-        return fetch(config, { credentials: 'include' });
-      }
-      redirectToLogin();
-    }
-    throw err;
+  const res = await fetch(config, { credentials: 'include' });
+  if (res.status === 401) {
+    redirectToLogin();
+    return;
   }
+  return res;
 }
 ```
 
-> ⚠️ Siempre incluir `credentials: 'include'` en los requests para que el browser envíe las cookies HttpOnly.
+> Siempre incluir `credentials: 'include'` (fetch) o `withCredentials: true` (Axios) para que el browser envíe la cookie HttpOnly.
+
+---
+
+## Flujo recomendado — Flutter
+
+### Login
+
+```dart
+final res = await http.post('/auth/login', body: { 'login': email, 'password': password });
+final sessionId = res.body['data']['sessionId'];
+await secureStorage.write(key: 'session_id', value: sessionId);
+```
+
+### Cada request autenticado
+
+```dart
+final sessionId = await secureStorage.read(key: 'session_id');
+final res = await http.get(
+  '/auth/me',
+  headers: { 'X-Session-Id': sessionId },
+);
+```
+
+### Logout
+
+```dart
+await http.post('/auth/logout', headers: { 'X-Session-Id': sessionId });
+await secureStorage.delete(key: 'session_id');
+```
+
+### Manejo de sesión expirada
+
+```dart
+if (res.statusCode == 401) {
+  await secureStorage.delete(key: 'session_id');
+  navigateToLogin();
+}
+```
+
+---
+
+## Flujo de recuperación de contraseña
+
+```
+POST /auth/forgot-password  →  el usuario recibe email con código
+POST /auth/verify-reset-code  →  validar código, obtener resetToken
+POST /auth/reset-password  →  nueva contraseña con el resetToken
+→ redirigir a login (todas las sesiones fueron cerradas)
+```

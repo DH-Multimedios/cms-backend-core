@@ -1,9 +1,8 @@
 import { Module, DynamicModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthConfig } from '../../core/interfaces/core-config.interface';
-import { RefreshToken } from '../../database/entities/refresh-token.entity';
+import { Session } from '../../database/entities/session.entity';
 import { PasswordResetToken } from '../../database/entities/password-reset-token.entity';
 import { User } from '../../database/entities/user.entity';
 import { UsersModule } from '../users/users.module';
@@ -12,8 +11,8 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { LocalStrategy } from './strategies/local.strategy';
-import { JwtStrategy } from './strategies/jwt.strategy';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { SessionStrategy } from './strategies/session.strategy';
+import { SessionAuthGuard } from './guards/session-auth.guard';
 import { PermissionsGuard } from './guards/permissions.guard';
 
 @Module({})
@@ -23,11 +22,7 @@ export class AuthModule {
       module: AuthModule,
       imports: [
         PassportModule,
-        JwtModule.register({
-          secret: authConfig.jwtSecret,
-          signOptions: { expiresIn: (authConfig.jwtExpiration || '15m') as any },
-        }),
-        TypeOrmModule.forFeature([RefreshToken, PasswordResetToken, User]),
+        TypeOrmModule.forFeature([Session, PasswordResetToken, User]),
         UsersModule,
         AuditModule,
         NotificationsModule,
@@ -37,11 +32,11 @@ export class AuthModule {
         { provide: 'CORE_AUTH_CONFIG', useValue: authConfig },
         AuthService,
         LocalStrategy,
-        JwtStrategy,
-        JwtAuthGuard,
+        SessionStrategy,
+        SessionAuthGuard,
         PermissionsGuard,
       ],
-      exports: [AuthService, JwtAuthGuard, PermissionsGuard, JwtModule, 'CORE_AUTH_CONFIG'],
+      exports: [AuthService, SessionAuthGuard, PermissionsGuard, 'CORE_AUTH_CONFIG'],
     };
   }
 
@@ -55,18 +50,7 @@ export class AuthModule {
       imports: [
         ...(options.imports || []),
         PassportModule,
-        JwtModule.registerAsync({
-          imports: options.imports,
-          useFactory: async (...args: any[]) => {
-            const authConfig = await options.useFactory(...args);
-            return {
-              secret: authConfig.jwtSecret,
-              signOptions: { expiresIn: (authConfig.jwtExpiration || '15m') as any },
-            };
-          },
-          inject: options.inject || [],
-        }),
-        TypeOrmModule.forFeature([RefreshToken, PasswordResetToken, User]),
+        TypeOrmModule.forFeature([Session, PasswordResetToken, User]),
         UsersModule,
         AuditModule,
         NotificationsModule,
@@ -80,11 +64,11 @@ export class AuthModule {
         },
         AuthService,
         LocalStrategy,
-        JwtStrategy,
-        JwtAuthGuard,
+        SessionStrategy,
+        SessionAuthGuard,
         PermissionsGuard,
       ],
-      exports: [AuthService, JwtAuthGuard, PermissionsGuard, JwtModule, 'CORE_AUTH_CONFIG'],
+      exports: [AuthService, SessionAuthGuard, PermissionsGuard, 'CORE_AUTH_CONFIG'],
     };
   }
 }

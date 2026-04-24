@@ -62,6 +62,7 @@
     "nestjs-cls": "^6.2.0",
     "nodemailer": "^8.0.5",
     "passport": "^0.7.0",
+    "passport-custom": "^1.1.1",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "resend": "^6.10.0",

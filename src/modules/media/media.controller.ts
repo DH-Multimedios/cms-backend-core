@@ -25,14 +25,14 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MediaService } from './media.service';
 import { UploadMediaDto, UpdateMediaDto, ListMediaDto } from './dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { RequirePermissions } from '../auth/decorators/require-permissions.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../../database/entities/user.entity';
 
 @ApiTags('Media')
-@UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseGuards(SessionAuthGuard, PermissionsGuard)
 @Controller('media')
 export class MediaController {
   constructor(private readonly mediaService: MediaService) {}

@@ -23,10 +23,11 @@ export interface DatabaseConfig {
 }
 
 export interface AuthConfig {
-  jwtSecret: string;
-  jwtExpiration?: string;
-  jwtRefreshSecret?: string;
-  jwtRefreshExpiration?: string;
+  /**
+   * Duración de la sesión en días. Default: 365.
+   * Ejemplo: '365' → 1 año, '30' → 30 días.
+   */
+  sessionExpiration?: string;
   cookiePath?: string;
   cookieSecure?: boolean;
   cookieSameSite?: 'strict' | 'lax' | 'none';

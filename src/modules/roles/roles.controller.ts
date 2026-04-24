@@ -19,7 +19,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 import { AssignPermissionsDto } from './dto/assign-permissions.dto';
 import { UpdatePermissionsDto } from './dto/update-permissions.dto';
 import { RolesQueryDto } from './dto/roles-query.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { RequirePermissions, RequireAnyPermission } from '../auth/decorators/require-permissions.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -27,7 +27,7 @@ import { User } from '../../database/entities/user.entity';
 
 @ApiTags('Roles')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseGuards(SessionAuthGuard, PermissionsGuard)
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}

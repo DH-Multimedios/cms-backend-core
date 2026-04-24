@@ -1,19 +1,17 @@
 import { Injectable, Inject, HttpStatus } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan, IsNull } from 'typeorm';
 import { createHash, randomUUID } from 'crypto';
 import * as bcrypt from 'bcrypt';
 import { User } from '../../database/entities/user.entity';
-import { RefreshToken } from '../../database/entities/refresh-token.entity';
+import { Session } from '../../database/entities/session.entity';
 import { PasswordResetToken } from '../../database/entities/password-reset-token.entity';
 import { AuthConfig } from '../../core/interfaces/core-config.interface';
 import { UsersService } from '../users/users.service';
 import { AuditService } from '../audit/audit.service';
 import { NotificationsService } from '../notifications/notifications.service';
-import { AuthResponseDto, TokensDto } from './dto/auth-response.dto';
+import { AuthResponseDto } from './dto/auth-response.dto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
-import { JwtPayload } from './strategies/jwt.strategy';
 import { ApiException } from '../../common/exceptions/api.exception';
 import { ErrorCode } from '../../common/enums/error-codes.enum';
 
@@ -21,19 +19,39 @@ import { ErrorCode } from '../../common/enums/error-codes.enum';
 export class AuthService {
   constructor(
     @Inject('CORE_AUTH_CONFIG') private readonly authConfig: AuthConfig,
-    private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
     private readonly auditService: AuditService,
     private readonly notificationsService: NotificationsService,
-    @InjectRepository(RefreshToken)
-    private readonly refreshTokenRepository: Repository<RefreshToken>,
+    @InjectRepository(Session)
+    private readonly sessionRepository: Repository<Session>,
     @InjectRepository(PasswordResetToken)
     private readonly passwordResetTokenRepository: Repository<PasswordResetToken>,
   ) {}
 
-  async login(user: User, ip?: string, userAgent?: string): Promise<AuthResponseDto> {
+  /**
+   * Crea una nueva sesión y devuelve el sessionId en texto plano.
+   * El sessionId se almacena hasheado en DB; el plano viaja en cookie/header.
+   */
+  async login(
+    user: User,
+    ip?: string,
+    userAgent?: string,
+  ): Promise<AuthResponseDto> {
     await this.usersService.updateLastLogin(user.id);
-    const tokens = await this.generateTokens(user, ip, userAgent);
+
+    const rawSessionId = randomUUID();
+    const tokenHash = this.hashToken(rawSessionId);
+    const expiresAt = this.buildExpiresAt();
+
+    await this.sessionRepository.save(
+      this.sessionRepository.create({
+        token: tokenHash,
+        userId: user.id,
+        expiresAt,
+        ip,
+        userAgent,
+      }),
+    );
 
     await this.auditService.log({
       action: 'login',
@@ -42,45 +60,15 @@ export class AuthService {
       userId: user.id,
     });
 
-    return { ...tokens, user: UserResponseDto.from(user) };
+    return { sessionId: rawSessionId, user: UserResponseDto.from(user) };
   }
 
-  async refresh(rawToken: string, ip?: string, userAgent?: string): Promise<TokensDto> {
-    const tokenHash = this.hashToken(rawToken);
-
-    const stored = await this.refreshTokenRepository.findOne({
-      where: {
-        token: tokenHash,
-        revokedAt: IsNull(),
-        expiresAt: MoreThan(new Date()),
-      },
-      relations: ['user'],
-    });
-
-    if (!stored || !stored.user.isActive) {
-      await this.auditService.log({
-        action: 'refresh_failed',
-        entity: 'User',
-        userId: null,
-        metadata: { reason: 'invalid_or_expired_token' },
-      });
-      throw new ApiException(
-        HttpStatus.UNAUTHORIZED,
-        ErrorCode.INVALID_REFRESH_TOKEN,
-        'Refresh token inválido o expirado',
-      );
-    }
-
-    // Rotación: revocar el token usado
-    stored.revokedAt = new Date();
-    await this.refreshTokenRepository.save(stored);
-
-    return this.generateTokens(stored.user, ip, userAgent);
-  }
-
-  async logout(rawToken: string, userId: string): Promise<{ message: string }> {
-    const tokenHash = this.hashToken(rawToken);
-    await this.refreshTokenRepository.update(
+  /**
+   * Revoca la sesión asociada al sessionId provisto.
+   */
+  async logout(rawSessionId: string, userId: string): Promise<{ message: string }> {
+    const tokenHash = this.hashToken(rawSessionId);
+    await this.sessionRepository.update(
       { token: tokenHash, revokedAt: IsNull() },
       { revokedAt: new Date() },
     );
@@ -95,8 +83,11 @@ export class AuthService {
     return { message: 'Sesión cerrada correctamente' };
   }
 
+  /**
+   * Revoca todas las sesiones activas del usuario.
+   */
   async logoutAll(userId: string): Promise<{ message: string }> {
-    await this.refreshTokenRepository.update(
+    await this.sessionRepository.update(
       { userId, revokedAt: IsNull() },
       { revokedAt: new Date() },
     );
@@ -109,46 +100,6 @@ export class AuthService {
     });
 
     return { message: 'Todas las sesiones fueron cerradas' };
-  }
-
-  private async generateTokens(user: User, ip?: string, userAgent?: string): Promise<TokensDto> {
-    const maxWeight = user.isSystemUser
-      ? 100
-      : user.roles?.length
-        ? Math.max(...user.roles.map((r) => r.weight))
-        : 0;
-
-    const payload: JwtPayload = {
-      sub: user.id,
-      maxWeight,
-      isSystemUser: user.isSystemUser,
-    };
-
-    const accessToken = this.jwtService.sign(payload);
-
-    const rawRefreshToken = randomUUID();
-    const tokenHash = this.hashToken(rawRefreshToken);
-    const expiresAt = new Date();
-    const days = this.authConfig.jwtRefreshExpiration
-      ? parseInt(this.authConfig.jwtRefreshExpiration)
-      : 7;
-    expiresAt.setDate(expiresAt.getDate() + days);
-
-    await this.refreshTokenRepository.save(
-      this.refreshTokenRepository.create({
-        token: tokenHash,
-        userId: user.id,
-        expiresAt,
-        ip,
-        userAgent,
-      }),
-    );
-
-    return { accessToken, refreshToken: rawRefreshToken };
-  }
-
-  private hashToken(token: string): string {
-    return createHash('sha256').update(token).digest('hex');
   }
 
   async forgotPassword(email: string): Promise<{ message: string }> {
@@ -178,7 +129,6 @@ export class AuthService {
       }),
     );
 
-    // Enviar email vía sistema de templates
     await this.notificationsService.notifySystem('user.forgot-password-code', email, { code });
 
     return { message: 'Si el email existe, recibirás un código en breve' };
@@ -216,7 +166,7 @@ export class AuthService {
     const resetToken = randomUUID();
     const resetTokenHash = createHash('sha256').update(resetToken).digest('hex');
     token.resetTokenHash = resetTokenHash;
-    token.expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 min para completar el reset
+    token.expiresAt = new Date(Date.now() + 5 * 60 * 1000);
     await this.passwordResetTokenRepository.save(token);
 
     return { resetToken };
@@ -238,20 +188,31 @@ export class AuthService {
       );
     }
 
-    // Actualizar password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await this.usersService.updatePassword(token.userId, hashedPassword);
 
-    // Marcar token como usado
     token.usedAt = new Date();
     await this.passwordResetTokenRepository.save(token);
 
-    // Revocar todas las sesiones activas del usuario
-    await this.refreshTokenRepository.update(
+    // Revocar todas las sesiones activas del usuario por seguridad
+    await this.sessionRepository.update(
       { userId: token.userId, revokedAt: IsNull() },
       { revokedAt: new Date() },
     );
 
     return { message: 'Contraseña actualizada correctamente' };
+  }
+
+  private hashToken(token: string): string {
+    return createHash('sha256').update(token).digest('hex');
+  }
+
+  private buildExpiresAt(): Date {
+    const expiresAt = new Date();
+    const days = this.authConfig.sessionExpiration
+      ? parseInt(this.authConfig.sessionExpiration)
+      : 365;
+    expiresAt.setDate(expiresAt.getDate() + days);
+    return expiresAt;
   }
 }

@@ -10,12 +10,29 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ### Added
 
 - **`inputType: 'image'`**: nuevo tipo en settings — guarda UUID del media en `value`; el servicio resuelve `url` y `alt` desde el media y los inyecta en `meta` al leer (sin segundo request desde el cliente)
+- **`Session` entity**: nueva entidad `sessions` en DB — UUID opaco hasheado con SHA-256, TTL configurable, revocación inmediata
+- **`SessionStrategy`**: estrategia Passport custom que valida sesiones en DB (reemplaza `JwtStrategy`)
+- **`SessionAuthGuard`**: guard que reemplaza `JwtAuthGuard` en todos los controladores
+- **`AuthConfig.sessionExpiration`**: nuevo campo — duración de sesión en días (default: `365`)
+- **Migración `1733500000018`**: crea tabla `sessions`, elimina `refresh_tokens`
 
 ### Changed
 
 - **PermissionsGuard**: soporta lógica OR además de AND — si un endpoint usa `@RequireAnyPermission`, el usuario necesita al menos uno de los permisos especificados
 - **`@RequireAnyPermission(...)`**: nuevo decorator para proteger endpoints con lógica OR (complementa `@RequirePermissions` que sigue siendo AND)
 - **`GET /roles/list`**: ahora acepta `roles.read` OR `users.read` — permite que usuarios con gestión de usuarios pero sin acceso completo a roles puedan obtener el listado para asignación
+
+### Breaking Changes
+
+- **Sistema JWT eliminado**: `JwtAuthGuard`, `JwtStrategy`, `JwtModule` y `@nestjs/jwt` ya no forman parte del sistema de auth. Reemplazados por sesiones server-side con UUID opaco.
+- **`POST /auth/refresh` eliminado**: ya no existe. Las sesiones no requieren refresh.
+- **`AuthConfig`**: los campos `jwtSecret`, `jwtExpiration`, `jwtRefreshSecret`, `jwtRefreshExpiration` fueron eliminados. Usar `sessionExpiration` en su lugar.
+- **`AuthResponseDto`**: ya no contiene `accessToken` ni `refreshToken`. Contiene `sessionId` y `user`.
+- **`TokensDto` eliminado**.
+- **`RefreshToken` entity eliminada**: reemplazada por `Session`.
+- **Cookie `access_token` y `refresh_token` eliminadas**: reemplazadas por cookie única `session_id`.
+- **Export público `JwtAuthGuard`**: reemplazado por `SessionAuthGuard` en `src/index.ts`.
+- **`CORE_ENTITIES`**: `RefreshToken` reemplazada por `Session`.
 
 ## [0.1.0] - 2026-04-11
 

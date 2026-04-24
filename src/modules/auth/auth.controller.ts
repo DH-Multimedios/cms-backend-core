@@ -6,18 +6,16 @@ import {
   UseGuards,
   Req,
   Res,
-  HttpException,
   HttpStatus,
   Inject,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiSecurity } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { SessionAuthGuard } from './guards/session-auth.guard';
 import { Public } from './decorators/public.decorator';
 import { CurrentUser } from './decorators/current-user.decorator';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { VerifyResetCodeDto } from './dto/verify-reset-code.dto';
@@ -27,7 +25,7 @@ import { UserResponseDto } from '../users/dto/user-response.dto';
 import { AuthConfig } from '../../core/interfaces/core-config.interface';
 
 @ApiTags('Auth')
-@UseGuards(JwtAuthGuard)
+@UseGuards(SessionAuthGuard)
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -36,30 +34,31 @@ export class AuthController {
   ) {}
 
   private get cookiePath() {
-    // El path cubre todos los endpoints de auth (refresh, logout, logout-all)
-    // No restringimos a /auth/refresh porque logout necesita leer la cookie
     return this.authConfig.cookiePath ?? '/auth';
   }
 
   private get cookieSecure() {
-    // SameSite=None REQUIERE Secure=true — Chrome rechaza la cookie si no
-    // localhost es tratado como contexto seguro, así que Secure funciona sin HTTPS
     if (this.cookieSameSite === 'none') return true;
     return this.authConfig.cookieSecure ?? process.env.NODE_ENV === 'production';
   }
 
   private get cookieSameSite(): 'strict' | 'lax' | 'none' {
-    // En dev (cross-origin: localhost:3000 → localhost:5010) necesitamos 'none'
-    // En prod (mismo origin o behind proxy) usamos 'lax'
     return (
       this.authConfig.cookieSameSite ?? (process.env.NODE_ENV === 'production' ? 'lax' : 'none')
     );
   }
 
+  private get sessionMaxAge() {
+    const days = this.authConfig.sessionExpiration
+      ? parseInt(this.authConfig.sessionExpiration)
+      : 365;
+    return days * 24 * 60 * 60 * 1000;
+  }
+
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  @ApiOperation({ summary: 'Login con email y password' })
+  @ApiOperation({ summary: 'Login con email/username y password' })
   async login(
     @CurrentUser() user: User,
     @Req() req: any,
@@ -68,101 +67,55 @@ export class AuthController {
   ) {
     const result = await this.authService.login(user, req.ip, req.headers['user-agent']);
 
-    res.cookie('access_token', result.accessToken, {
+    // Web: cookie HttpOnly — el frontend no necesita leer el sessionId
+    res.cookie('session_id', result.sessionId, {
       httpOnly: true,
       secure: this.cookieSecure,
       sameSite: this.cookieSameSite,
-      maxAge: 15 * 60 * 1000, // 15 minutos
+      maxAge: this.sessionMaxAge,
+      path: '/',
     });
 
-    res.cookie('refresh_token', result.refreshToken, {
-      httpOnly: true,
-      secure: this.cookieSecure,
-      sameSite: this.cookieSameSite,
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
-      path: this.cookiePath,
-    });
-
-    return result; // igual devuelve el body para compatibilidad con Bearer
-  }
-
-  @Public()
-  @Post('refresh')
-  @ApiOperation({ summary: 'Obtener nuevo access token usando refresh token' })
-  async refresh(
-    @Body() dto: RefreshTokenDto,
-    @Req() req: any,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    // Leer de cookie si no viene en el body
-    const refreshToken = dto.refreshToken ?? req.cookies?.refresh_token;
-
-    if (!refreshToken) {
-      throw new HttpException('Refresh token requerido', HttpStatus.UNAUTHORIZED);
-    }
-
-    const result = await this.authService.refresh(refreshToken, req.ip, req.headers['user-agent']);
-
-    res.cookie('access_token', result.accessToken, {
-      httpOnly: true,
-      secure: this.cookieSecure,
-      sameSite: this.cookieSameSite,
-      maxAge: 15 * 60 * 1000,
-    });
-
-    res.cookie('refresh_token', result.refreshToken, {
-      httpOnly: true,
-      secure: this.cookieSecure,
-      sameSite: this.cookieSameSite,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: this.cookiePath,
-    });
-
+    // Devolver el body completo para compatibilidad con Flutter
+    // (Flutter lee el sessionId del body y lo guarda en SecureStorage)
     return result;
   }
 
   @Post('logout')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Cerrar sesión (revoca el refresh token)' })
+  @ApiSecurity('session')
+  @ApiOperation({ summary: 'Cerrar sesión actual' })
   async logout(
-    @Body() dto: RefreshTokenDto,
     @CurrentUser() user: User,
     @Req() req: any,
     @Res({ passthrough: true }) res: Response,
   ): Promise<{ message: string }> {
-    const refreshToken = dto.refreshToken ?? req.cookies?.refresh_token;
+    const rawSessionId = req.cookies?.session_id ?? req.headers['x-session-id'];
 
-    if (!refreshToken) {
-      throw new HttpException('Refresh token requerido', HttpStatus.UNAUTHORIZED);
-    }
+    res.clearCookie('session_id', { path: '/' });
 
-    res.clearCookie('access_token');
-    res.clearCookie('refresh_token', { path: this.cookiePath });
-
-    return this.authService.logout(refreshToken, user.id);
+    return this.authService.logout(rawSessionId, user.id);
   }
 
   @Post('logout-all')
-  @ApiBearerAuth()
+  @ApiSecurity('session')
   @ApiOperation({ summary: 'Cerrar todas las sesiones del usuario' })
   async logoutAll(
     @CurrentUser() user: User,
     @Res({ passthrough: true }) res: Response,
   ): Promise<{ message: string }> {
-    res.clearCookie('access_token');
-    res.clearCookie('refresh_token', { path: this.cookiePath });
+    res.clearCookie('session_id', { path: '/' });
     return this.authService.logoutAll(user.id);
   }
 
   @Get('me')
-  @ApiBearerAuth()
+  @ApiSecurity('session')
   @ApiOperation({ summary: 'Obtener usuario actual' })
   me(@CurrentUser() user: User): UserResponseDto {
     return UserResponseDto.from(user);
   }
 
   @Get('me/permissions')
-  @ApiBearerAuth()
+  @ApiSecurity('session')
   @ApiOperation({ summary: 'Obtener permisos del usuario actual' })
   myPermissions(@CurrentUser() user: User) {
     const permissionSet = new Set<string>();

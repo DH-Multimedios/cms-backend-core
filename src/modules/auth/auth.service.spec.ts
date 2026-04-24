@@ -1,30 +1,26 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { JwtService } from '@nestjs/jwt';
 import { ApiException } from '../../common/exceptions/api.exception';
 import { ErrorCode } from '../../common/enums/error-codes.enum';
 import { AuthService } from './auth.service';
-import { RefreshToken } from '../../database/entities/refresh-token.entity';
+import { Session } from '../../database/entities/session.entity';
 import { User } from '../../database/entities/user.entity';
 import { PasswordResetToken } from '../../database/entities/password-reset-token.entity';
 import { UsersService } from '../users/users.service';
 import { AuditService } from '../audit/audit.service';
 import { NotificationsService } from '../notifications/notifications.service';
 
-const mockRefreshTokenRepository = () => ({
+const mockSessionRepository = () => ({
   findOne: jest.fn(),
   save: jest.fn(),
   create: jest.fn((dto) => dto),
   update: jest.fn(),
 });
 
-const mockJwtService = () => ({
-  sign: jest.fn().mockReturnValue('mock-access-token'),
-});
-
 const mockUsersService = () => ({
   updateLastLogin: jest.fn(),
   findByEmail: jest.fn(),
+  updatePassword: jest.fn(),
 });
 
 const mockAuditService = () => ({
@@ -53,20 +49,9 @@ const makeUser = (overrides: Partial<User> = {}): User =>
     ...overrides,
   }) as User;
 
-const makeStoredToken = (overrides = {}) => ({
-  id: 'token-1',
-  token: 'hashed-token',
-  userId: 'user-1',
-  user: makeUser(),
-  expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  revokedAt: null,
-  ...overrides,
-});
-
 describe('AuthService', () => {
   let service: AuthService;
-  let refreshTokenRepo: ReturnType<typeof mockRefreshTokenRepository>;
-  let jwtService: ReturnType<typeof mockJwtService>;
+  let sessionRepo: ReturnType<typeof mockSessionRepository>;
   let usersService: ReturnType<typeof mockUsersService>;
 
   beforeEach(async () => {
@@ -75,14 +60,13 @@ describe('AuthService', () => {
         AuthService,
         {
           provide: 'CORE_AUTH_CONFIG',
-          useValue: { jwtSecret: 'test-secret', jwtExpiration: '15m', jwtRefreshExpiration: '7' },
+          useValue: { sessionExpiration: '365' },
         },
-        { provide: getRepositoryToken(RefreshToken), useFactory: mockRefreshTokenRepository },
+        { provide: getRepositoryToken(Session), useFactory: mockSessionRepository },
         {
           provide: getRepositoryToken(PasswordResetToken),
           useFactory: mockPasswordResetTokenRepository,
         },
-        { provide: JwtService, useFactory: mockJwtService },
         { provide: UsersService, useFactory: mockUsersService },
         { provide: AuditService, useFactory: mockAuditService },
         { provide: NotificationsService, useFactory: mockNotificationsService },
@@ -90,66 +74,33 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get(AuthService);
-    refreshTokenRepo = module.get(getRepositoryToken(RefreshToken));
-    jwtService = module.get(JwtService);
+    sessionRepo = module.get(getRepositoryToken(Session));
     usersService = module.get(UsersService);
   });
 
   describe('login', () => {
-    it('actualiza lastLogin y devuelve tokens + usuario', async () => {
+    it('actualiza lastLogin, crea sesión y devuelve sessionId + usuario', async () => {
       const user = makeUser();
-      refreshTokenRepo.save.mockResolvedValue({});
+      sessionRepo.save.mockResolvedValue({});
 
       const result = await service.login(user, '127.0.0.1', 'Mozilla');
 
       expect(usersService.updateLastLogin).toHaveBeenCalledWith(user.id);
-      expect(jwtService.sign).toHaveBeenCalled();
-      expect(result.accessToken).toBe('mock-access-token');
-      expect(result.refreshToken).toBeDefined();
+      expect(sessionRepo.save).toHaveBeenCalled();
+      expect(result.sessionId).toBeDefined();
+      expect(typeof result.sessionId).toBe('string');
       expect(result.user.id).toBe(user.id);
       expect(result.user).not.toHaveProperty('password');
     });
   });
 
-  describe('refresh', () => {
-    it('rota el refresh token y devuelve nuevos tokens', async () => {
-      const storedToken = makeStoredToken();
-      refreshTokenRepo.findOne.mockResolvedValue(storedToken);
-      refreshTokenRepo.save.mockResolvedValue({ ...storedToken, revokedAt: new Date() });
-
-      const result = await service.refresh('raw-token');
-
-      // Token viejo revocado
-      expect(refreshTokenRepo.save).toHaveBeenCalledWith(
-        expect.objectContaining({ revokedAt: expect.any(Date) }),
-      );
-      // Nuevos tokens generados
-      expect(result.accessToken).toBe('mock-access-token');
-      expect(result.refreshToken).toBeDefined();
-    });
-
-    it('lanza ApiException INVALID_REFRESH_TOKEN si el token no existe', async () => {
-      refreshTokenRepo.findOne.mockResolvedValue(null);
-      await expect(service.refresh('invalid-token')).rejects.toMatchObject({
-        code: ErrorCode.INVALID_REFRESH_TOKEN,
-      });
-    });
-
-    it('lanza ApiException INVALID_REFRESH_TOKEN si el usuario está inactivo', async () => {
-      refreshTokenRepo.findOne.mockResolvedValue(
-        makeStoredToken({ user: makeUser({ isActive: false }) }),
-      );
-      await expect(service.refresh('raw-token')).rejects.toThrow(ApiException);
-    });
-  });
-
   describe('logout', () => {
-    it('revoca el refresh token', async () => {
-      refreshTokenRepo.update.mockResolvedValue({ affected: 1 });
+    it('revoca la sesión del usuario', async () => {
+      sessionRepo.update.mockResolvedValue({ affected: 1 });
 
-      await service.logout('raw-token', 'user-1');
+      await service.logout('raw-session-id', 'user-1');
 
-      expect(refreshTokenRepo.update).toHaveBeenCalledWith(
+      expect(sessionRepo.update).toHaveBeenCalledWith(
         expect.objectContaining({ revokedAt: expect.anything() }),
         expect.objectContaining({ revokedAt: expect.any(Date) }),
       );
@@ -157,12 +108,12 @@ describe('AuthService', () => {
   });
 
   describe('logoutAll', () => {
-    it('revoca todos los tokens del usuario', async () => {
-      refreshTokenRepo.update.mockResolvedValue({ affected: 3 });
+    it('revoca todas las sesiones del usuario', async () => {
+      sessionRepo.update.mockResolvedValue({ affected: 3 });
 
       await service.logoutAll('user-1');
 
-      expect(refreshTokenRepo.update).toHaveBeenCalledWith(
+      expect(sessionRepo.update).toHaveBeenCalledWith(
         expect.objectContaining({ userId: 'user-1' }),
         expect.objectContaining({ revokedAt: expect.any(Date) }),
       );
@@ -185,7 +136,6 @@ describe('AuthService', () => {
 
       const result = await service.forgotPassword('noexiste@test.com');
 
-      expect(result.message).toBeDefined();
       expect(result.message).toBe('Si el email existe, recibirás un código en breve');
     });
   });

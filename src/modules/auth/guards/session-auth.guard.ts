@@ -5,7 +5,7 @@ import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { Observable, lastValueFrom } from 'rxjs';
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
+export class SessionAuthGuard extends AuthGuard('session') {
   constructor(private readonly reflector: Reflector) {
     super();
   }
@@ -17,7 +17,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     ]);
 
     if (isPublic) {
-      // Intentar extraer usuario del token si existe, pero no fallar si no hay token
+      // Intentar extraer usuario de la sesión si existe, pero no fallar si no hay sesión
       try {
         const result = super.canActivate(context);
         if (result instanceof Observable) {

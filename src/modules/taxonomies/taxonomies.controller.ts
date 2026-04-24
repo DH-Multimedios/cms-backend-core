@@ -20,13 +20,13 @@ import { UpdateTaxonomyDto } from './dto/update-taxonomy.dto';
 import { QueryTaxonomyDto } from './dto/query-taxonomy.dto';
 import { ReorderTaxonomiesDto } from './dto/reorder-taxonomies.dto';
 import { SyncEntityTaxonomiesDto } from './dto/sync-entity-taxonomies.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { RequirePermissions } from '../auth/decorators/require-permissions.decorator';
 import { Public } from '../auth/decorators/public.decorator';
 
 @ApiTags('Taxonomies')
-@UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseGuards(SessionAuthGuard, PermissionsGuard)
 @Controller('taxonomies')
 export class TaxonomiesController {
   constructor(private readonly taxonomiesService: TaxonomiesService) {}

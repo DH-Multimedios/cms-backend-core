@@ -15,13 +15,13 @@ import { EmailTemplatesService } from './email-templates.service';
 import { CreateEmailTemplateDto } from './dto/create-email-template.dto';
 import { UpdateEmailTemplateDto } from './dto/update-email-template.dto';
 import { ListEmailTemplatesDto } from './dto/list-email-templates.dto';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { SessionAuthGuard } from '../../auth/guards/session-auth.guard';
 import { PermissionsGuard } from '../../auth/guards/permissions.guard';
 import { RequirePermissions } from '../../auth/decorators/require-permissions.decorator';
 
 @ApiTags('Email Templates')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseGuards(SessionAuthGuard, PermissionsGuard)
 @Controller('email-templates')
 export class EmailTemplatesController {
   constructor(private readonly service: EmailTemplatesService) {}

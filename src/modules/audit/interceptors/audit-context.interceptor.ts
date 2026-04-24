@@ -6,7 +6,7 @@ import { Request } from 'express';
 /**
  * Populates the CLS context with ip, userAgent, and userId
  * for every incoming HTTP request.
- * Must run AFTER JwtAuthGuard has attached req.user.
+ * Must run AFTER SessionAuthGuard has attached req.user.
  */
 @Injectable()
 export class AuditContextInterceptor implements NestInterceptor {

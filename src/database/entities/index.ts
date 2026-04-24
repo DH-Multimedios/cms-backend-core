@@ -1,7 +1,7 @@
 export { User } from './user.entity';
 export { Role } from './role.entity';
 export { Permission } from './permission.entity';
-export { RefreshToken } from './refresh-token.entity';
+export { Session } from './session.entity';
 export { AuditLog } from './audit-log.entity';
 export { Taxonomy } from './taxonomy.entity';
 export { EntityTaxonomy } from './entity-taxonomy.entity';
@@ -40,7 +40,7 @@ export { PasswordResetToken } from './password-reset-token.entity';
 import { User } from './user.entity';
 import { Role } from './role.entity';
 import { Permission } from './permission.entity';
-import { RefreshToken } from './refresh-token.entity';
+import { Session } from './session.entity';
 import { AuditLog } from './audit-log.entity';
 import { Taxonomy } from './taxonomy.entity';
 import { EntityTaxonomy } from './entity-taxonomy.entity';
@@ -67,7 +67,7 @@ export const CORE_ENTITIES = [
   User,
   Role,
   Permission,
-  RefreshToken,
+  Session,
   AuditLog,
   Taxonomy,
   EntityTaxonomy,

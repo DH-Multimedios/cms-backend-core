@@ -28,7 +28,7 @@ export { runCoreSeeds } from './database/seeds/core-seeds';
 // Auth
 export { AuthModule } from './modules/auth/auth.module';
 export { AuthService } from './modules/auth/auth.service';
-export { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
+export { SessionAuthGuard } from './modules/auth/guards/session-auth.guard';
 export { PermissionsGuard } from './modules/auth/guards/permissions.guard';
 export { LocalAuthGuard } from './modules/auth/guards/local-auth.guard';
 export { CurrentUser } from './modules/auth/decorators/current-user.decorator';

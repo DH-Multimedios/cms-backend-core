@@ -13,13 +13,13 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { SettingsService } from './settings.service';
 import { CreateSettingDto } from './dto/create-setting.dto';
 import { UpdateSettingDto } from './dto/update-setting.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { RequirePermissions } from '../auth/decorators/require-permissions.decorator';
 import { Public } from '../auth/decorators/public.decorator';
 
 @ApiTags('Settings')
-@UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseGuards(SessionAuthGuard, PermissionsGuard)
 @Controller('settings')
 export class SettingsController {
   constructor(private readonly settingsService: SettingsService) {}

@@ -28,7 +28,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UsersQueryDto } from './dto/users-query.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { RequirePermissions } from '../auth/decorators/require-permissions.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -36,7 +36,7 @@ import { User } from '../../database/entities/user.entity';
 
 @ApiTags('Users')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseGuards(SessionAuthGuard, PermissionsGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

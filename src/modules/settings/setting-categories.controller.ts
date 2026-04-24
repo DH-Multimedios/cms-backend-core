@@ -17,13 +17,13 @@ import { SettingsService } from './settings.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { ReorderCategoriesDto } from './dto/reorder-categories.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { RequirePermissions } from '../auth/decorators/require-permissions.decorator';
 import { Public } from '../auth/decorators/public.decorator';
 
 @ApiTags('Setting Categories')
-@UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseGuards(SessionAuthGuard, PermissionsGuard)
 @Controller('setting-categories')
 export class SettingCategoriesController {
   constructor(private readonly settingsService: SettingsService) {}

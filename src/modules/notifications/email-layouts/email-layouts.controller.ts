@@ -3,14 +3,14 @@ import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger'
 import { EmailLayoutsService } from './email-layouts.service';
 import { CreateEmailLayoutDto } from './dto/create-email-layout.dto';
 import { UpdateEmailLayoutDto } from './dto/update-email-layout.dto';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { SessionAuthGuard } from '../../auth/guards/session-auth.guard';
 import { PermissionsGuard } from '../../auth/guards/permissions.guard';
 import { RequirePermissions } from '../../auth/decorators/require-permissions.decorator';
 import { EmailLayoutType } from '../../../database/entities/email-layout.entity';
 
 @ApiTags('Email Layouts')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseGuards(SessionAuthGuard, PermissionsGuard)
 @Controller('email-layouts')
 export class EmailLayoutsController {
   constructor(private readonly service: EmailLayoutsService) {}
