@@ -38,6 +38,7 @@ Lista paginada de usuarios. Excluye el usuario del sistema (`isSystemUser: true`
         "firstName": "Juan",
         "lastName": "Pérez",
         "isActive": true,
+        "isSystemUser": false,
         "isProtected": false,
         "avatarUrl": "/uploads/media/uuid/avatars/2026-04-14/avatar.jpg",
         "roles": [{ "id": "uuid", "name": "Admin", "weight": 90 }],
@@ -238,8 +239,9 @@ Elimina un usuario.
 
 | Campo            | Descripción                                                                                                                        |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `isActive`       | Si `false`, el usuario no puede autenticarse. Mostrar badge de estado.                                                             |
-| `isProtected`    | Si `true`, deshabilitar el botón de eliminar en UI.                                                                                |
+| `isActive`       | Si `false`, el usuario no puede autenticarse. Mostrar badge de estado.                                                              |
+| `isSystemUser`   | Si `true`, es el usuario del sistema y bypasea permisos. Útil para routing/UI especial.                                            |
+| `isProtected`    | Si `true`, deshabilitar el botón de eliminar en UI.                                                                                 |
 | `avatarUrl`      | URL del avatar del usuario. `null` si no tiene. Se gestiona via `/users/me/avatar` (subir/eliminar) o `/users/:id/avatar` (admin). |
-| `roles[].weight` | El peso del rol determina jerarquía. No permite asignar roles de mayor peso.                                                       |
-| `lastLoginAt`    | Null si el usuario nunca se logueó.                                                                                                |
+| `roles[].weight` | El peso del rol determina jerarquía. No permite asignar roles de mayor peso.                                                        |
+| `lastLoginAt`    | Null si el usuario nunca se logueó.                                                                                                 |

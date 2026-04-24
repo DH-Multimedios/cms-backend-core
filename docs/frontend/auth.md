@@ -47,6 +47,7 @@ Además del body, el servidor setea automáticamente dos cookies HttpOnly:
       "firstName": "Juan",
       "lastName": "Pérez",
       "isActive": true,
+      "isSystemUser": false,
       "isProtected": false,
       "avatarUrl": "/uploads/media/uuid/avatars/2026-04-14/avatar.jpg",
       "roles": [{ "id": "uuid", "name": "Admin", "weight": 90 }],
@@ -163,6 +164,7 @@ Devuelve el usuario autenticado con sus roles. Requiere JWT.
     "firstName": "Juan",
     "lastName": "Pérez",
     "isActive": true,
+    "isSystemUser": false,
     "isProtected": false,
     "avatarUrl": "/uploads/media/uuid/avatars/2026-04-14/avatar.jpg",
     "roles": [{ "id": "uuid", "name": "Admin", "weight": 90 }],
@@ -173,7 +175,7 @@ Devuelve el usuario autenticado con sus roles. Requiere JWT.
 }
 ```
 
-> `roles` incluye `id`, `name` y `weight` pero **no** incluye permisos. Para permisos, usar `GET /auth/me/permissions`.
+> `roles` incluye `id`, `name` y `weight` pero **no** incluye permisos. `isSystemUser` indica si el usuario es el usuario del sistema. Para permisos, usar `GET /auth/me/permissions`.
 
 ---
 

@@ -7,6 +7,7 @@ export class UserResponseDto {
   firstName: string;
   lastName: string;
   isActive: boolean;
+  isSystemUser: boolean;
   isProtected: boolean;
   avatarUrl: string | null;
   roles: { id: string; name: string; weight: number }[];
@@ -22,6 +23,7 @@ export class UserResponseDto {
     dto.firstName = user.firstName;
     dto.lastName = user.lastName;
     dto.isActive = user.isActive;
+    dto.isSystemUser = user.isSystemUser;
     dto.isProtected = user.isProtected;
     dto.avatarUrl = user.avatarUrl;
     dto.roles = (user.roles || []).map((r) => ({ id: r.id, name: r.name, weight: r.weight }));
