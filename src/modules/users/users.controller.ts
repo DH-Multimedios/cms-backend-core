@@ -11,8 +11,6 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
-  HttpStatus,
-  HttpCode,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -122,7 +120,6 @@ export class UsersController {
   }
 
   @Delete('me/avatar')
-  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Eliminar avatar propio' })
   removeMyAvatar(@CurrentUser() currentUser: User) {
     return this.usersService.removeAvatar(currentUser.id);
@@ -130,7 +127,6 @@ export class UsersController {
 
   @Delete(':id/avatar')
   @RequirePermissions('users.update')
-  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
   @ApiOperation({ summary: 'Eliminar avatar de un usuario (admin)' })
   removeUserAvatar(@Param('id', ParseUUIDPipe) id: string) {
