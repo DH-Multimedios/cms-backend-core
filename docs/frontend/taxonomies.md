@@ -261,10 +261,9 @@ Sincroniza (reemplaza) las taxonomías de una entidad. Envía la lista completa 
 // Al guardar el formulario del producto
 await fetch(`/taxonomies/entity/Product/${productId}`, {
   method: 'PUT',
-  headers: {
-    Authorization: `Bearer ${token}`,
-    'Content-Type': 'application/json',
-  },
+  credentials: 'include', // web: cookie session_id automática
+  // Flutter: headers: { 'X-Session-Id': sessionId, 'Content-Type': 'application/json' }
+  headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ taxonomyIds: selectedCategoryIds }),
 });
 

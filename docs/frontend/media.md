@@ -57,7 +57,8 @@ formData.append('usage', 'logos'); // opcional (default: 'general')
 
 await fetch('/media/upload', {
   method: 'POST',
-  headers: { Authorization: `Bearer ${token}` },
+  credentials: 'include', // web: cookie session_id automática
+  // Flutter: headers: { 'X-Session-Id': sessionId }
   body: formData,
 });
 ```
@@ -307,7 +308,8 @@ Opción 1: Descargar como blob y crear un objeto URL:
 
 ```typescript
 const response = await fetch(`/files/${id}/download`, {
-  headers: { Authorization: `Bearer ${token}` },
+  credentials: 'include', // web: cookie session_id automática
+  // Flutter: headers: { 'X-Session-Id': sessionId }
 });
 const blob = await response.blob();
 const imageUrl = URL.createObjectURL(blob);
@@ -377,7 +379,8 @@ function ImageUploader() {
 
     const response = await fetch('/media/upload', {
       method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
+      credentials: 'include', // web: cookie session_id automática
+      // Flutter: headers: { 'X-Session-Id': sessionId }
       body: formData,
     });
 

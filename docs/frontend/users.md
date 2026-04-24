@@ -1,6 +1,6 @@
 # Users — Guía para el frontend
 
-Todos los endpoints requieren JWT. Los que modifican datos requieren permisos específicos.
+Todos los endpoints requieren sesión activa. Los que modifican datos requieren permisos específicos.
 
 ---
 

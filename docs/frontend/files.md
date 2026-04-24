@@ -65,7 +65,8 @@ formData.append('isPublic', 'false'); // opcional (default: false)
 
 await fetch('/files/upload', {
   method: 'POST',
-  headers: { Authorization: `Bearer ${token}` },
+  credentials: 'include', // web: cookie session_id automática
+  // Flutter: headers: { 'X-Session-Id': sessionId }
   body: formData,
 });
 ```
@@ -205,7 +206,8 @@ window.open(`/api/files/${fileId}/download`);
 
 // Opción 2: Con fetch para control manual
 const response = await fetch(`/files/${fileId}/download`, {
-  headers: { Authorization: `Bearer ${token}` },
+  credentials: 'include', // web: cookie session_id automática
+  // Flutter: headers: { 'X-Session-Id': sessionId }
 });
 const blob = await response.blob();
 const url = window.URL.createObjectURL(blob);

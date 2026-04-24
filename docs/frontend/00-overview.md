@@ -24,16 +24,16 @@ Este backend soporta **dos modos de autenticación** según el cliente:
 
 ### Browser / web app
 
-- Login y refresh setean cookies HttpOnly automáticamente
+- Login setea la cookie HttpOnly `session_id` automáticamente
 - En `fetch`, enviar `credentials: 'include'`
 - No hace falta guardar tokens en storage
 
-### Mobile / clientes no-browser
+### Mobile / clientes no-browser (Flutter)
 
-- Usar el `accessToken` devuelto en el body:
+- Usar el `sessionId` devuelto en el body del login:
 
 ```
-Authorization: Bearer <accessToken>
+X-Session-Id: <sessionId>
 ```
 
 Los endpoints marcados como `@Public` no requieren autenticación.
@@ -115,16 +115,8 @@ async function apiFetch(url: string, options: RequestInit = {}) {
     },
   });
 
-  // Intentar refresh automático si expiró el token
-  if (res.status === 401 && !options._retried) {
-    const refreshed = await fetch('/auth/refresh', {
-      method: 'POST',
-      credentials: 'include',
-    });
-    if (refreshed.ok) {
-      return apiFetch(url, { ...options, _retried: true });
-    }
-    // Refresh falló → redirigir a login
+  // Si la sesión expiró o fue revocada → redirigir a login
+  if (res.status === 401) {
     window.location.href = '/login';
     return;
   }
@@ -203,7 +195,6 @@ const fieldErrors = err.message.split('; ').reduce((acc, msg) => {
 | code                      | HTTP | Descripción                                                |
 | ------------------------- | ---- | ---------------------------------------------------------- |
 | `INVALID_CREDENTIALS`     | 401  | Email/password incorrectos                                 |
-| `INVALID_REFRESH_TOKEN`   | 401  | Refresh token inválido, expirado o revocado                |
 | `USER_NOT_FOUND`          | 404  | Usuario no encontrado                                      |
 | `USER_EMAIL_TAKEN`        | 409  | El email ya está en uso                                    |
 | `USERNAME_TAKEN`          | 409  | El username ya está en uso                                 |

@@ -10,7 +10,7 @@ Preferencias por usuario. No requieren permisos especiales — cualquier usuario
 
 Obtiene las preferencias del usuario autenticado. Si no existen, las crea con valores por defecto automáticamente.
 
-**Auth:** JWT requerido
+**Auth:** Requiere sesión activa
 
 **Response `200`:**
 
@@ -33,7 +33,7 @@ Obtiene las preferencias del usuario autenticado. Si no existen, las crea con va
 
 Actualiza las preferencias del usuario autenticado. Todos los campos son opcionales.
 
-**Auth:** JWT requerido
+**Auth:** Requiere sesión activa
 
 **Request:**
 
