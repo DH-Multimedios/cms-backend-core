@@ -15,13 +15,28 @@ https://api.tudominio.com  (producción)
 
 ## Autenticación
 
-Todos los endpoints protegidos requieren el JWT en el header:
+Este backend soporta **dos modos de autenticación** según el cliente:
+
+```
+1. Browser / web app (recomendado): cookies HttpOnly
+2. Mobile / clientes no-browser: Bearer token
+```
+
+### Browser / web app
+
+- Login y refresh setean cookies HttpOnly automáticamente
+- En `fetch`, enviar `credentials: 'include'`
+- No hace falta guardar tokens en storage
+
+### Mobile / clientes no-browser
+
+- Usar el `accessToken` devuelto en el body:
 
 ```
 Authorization: Bearer <accessToken>
 ```
 
-Los endpoints marcados como `@Public` no requieren el header.
+Los endpoints marcados como `@Public` no requieren autenticación.
 
 ---
 
@@ -102,7 +117,7 @@ async function apiFetch(url: string, options: RequestInit = {}) {
 
   // Intentar refresh automático si expiró el token
   if (res.status === 401 && !options._retried) {
-    const refreshed = await fetch('/api/auth/refresh', {
+    const refreshed = await fetch('/auth/refresh', {
       method: 'POST',
       credentials: 'include',
     });

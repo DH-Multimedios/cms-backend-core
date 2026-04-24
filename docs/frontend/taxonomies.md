@@ -231,7 +231,11 @@ Sincroniza (reemplaza) las taxonomías de una entidad. Envía la lista completa 
 
 > Para desasociar todas, enviar `taxonomyIds: []`.
 
-**Response `200`:** Confirmación.
+**Response `200`:**
+
+```json
+{ "statusCode": 200, "data": null }
+```
 
 ---
 

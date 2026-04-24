@@ -159,11 +159,9 @@ PATCH /settings/:id
 
 → 400 Bad Request
 {
-  "success": false,
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "El valor no es una URL válida"
-  }
+  "statusCode": 400,
+  "code": "VALIDATION_ERROR",
+  "message": "El valor no es una URL válida"
 }
 ```
 

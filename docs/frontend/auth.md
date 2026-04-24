@@ -8,6 +8,11 @@
 
 Autentica un usuario y devuelve tokens JWT.
 
+Soporta dos flujos:
+
+- **Web / browser**: usar cookies HttpOnly
+- **Mobile / clientes no-browser**: usar `accessToken` y `refreshToken` del body
+
 **Request:**
 
 ```json
@@ -24,7 +29,10 @@ Autentica un usuario y devuelve tokens JWT.
 Además del body, el servidor setea automáticamente dos cookies HttpOnly:
 
 - `access_token` — expira en 15 minutos
-- `refresh_token` — expira en 7 días, solo se envía al endpoint `/auth/refresh`
+- `refresh_token` — expira en 7 días y usa `Path=/auth`
+
+> En web no hace falta guardar los tokens del body: el navegador enviará las cookies automáticamente.
+> Los tokens en el body existen para mobile e integraciones no-browser.
 
 ```json
 {
@@ -95,7 +103,7 @@ Renueva el access token usando el refresh token. Implementa **token rotation**: 
 | ----------------------- | -------------------------------------------------- |
 | `INVALID_REFRESH_TOKEN` | Token inválido, expirado o ya fue usado (rotación) |
 
-> ⚠️ Cada refresh token es de **un solo uso**. Guardá el nuevo token que devuelve la respuesta.
+> ⚠️ Cada refresh token es de **un solo uso**. En mobile/integraciones guardá el nuevo token que devuelve la respuesta. En web, las cookies se renuevan automáticamente.
 
 ---
 
@@ -133,7 +141,7 @@ Revoca **todos** los refresh tokens del usuario. Cierra todas las sesiones abier
 ```json
 {
   "statusCode": 200,
-  "data": { "message": "Todas las sesiones cerradas" }
+  "data": { "message": "Todas las sesiones fueron cerradas" }
 }
 ```
 

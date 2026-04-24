@@ -16,11 +16,14 @@ Obtiene las preferencias del usuario autenticado. Si no existen, las crea con va
 
 ```json
 {
-  "id": "uuid",
-  "userId": "uuid",
-  "theme": "system",
-  "createdAt": "2026-04-12T...",
-  "updatedAt": "2026-04-12T..."
+  "statusCode": 200,
+  "data": {
+    "id": "uuid",
+    "userId": "uuid",
+    "theme": "system",
+    "createdAt": "2026-04-12T...",
+    "updatedAt": "2026-04-12T..."
+  }
 }
 ```
 
@@ -44,7 +47,7 @@ Actualiza las preferencias del usuario autenticado. Todos los campos son opciona
 | ------- | ------ | ----------------------------------- | ---------------------------------------------------- |
 | `theme` | string | `"light"` \| `"dark"` \| `"system"` | Tema visual. `system` respeta la preferencia del SO. |
 
-**Response `200`:** Preferencias actualizadas (mismo shape que GET).
+**Response `200`:** Preferencias actualizadas (mismo shape que GET, envuelto en `{ statusCode, data }`).
 
 ---
 

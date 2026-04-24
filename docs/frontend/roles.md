@@ -59,11 +59,14 @@ Lista liviana de roles para selectores, checkboxes, etc. Sin paginación ni perm
 **Response `200`:**
 
 ```json
-[
-  { "id": "uuid", "name": "SuperAdmin", "weight": 100, "isProtected": true },
-  { "id": "uuid", "name": "Admin", "weight": 90, "isProtected": true },
-  { "id": "uuid", "name": "User", "weight": 50, "isProtected": false }
-]
+{
+  "statusCode": 200,
+  "data": [
+    { "id": "uuid", "name": "SuperAdmin", "weight": 100, "isProtected": true },
+    { "id": "uuid", "name": "Admin", "weight": 90, "isProtected": true },
+    { "id": "uuid", "name": "User", "weight": 50, "isProtected": false }
+  ]
+}
 ```
 
 > Ordenado por `weight` DESC. Usar `isProtected` para deshabilitar opciones protegidas en la UI.
@@ -126,7 +129,7 @@ Elimina un rol.
 
 **Permiso:** `roles.delete`
 
-**Response `200`:** `{ "message": "Rol eliminado correctamente" }`
+**Response `204`:** Sin contenido.
 
 **Errores:** `ROLE_NOT_FOUND`, `ROLE_PROTECTED`
 
