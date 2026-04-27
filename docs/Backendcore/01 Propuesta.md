@@ -20,7 +20,7 @@ Reducir duplicación de código, acelerar el desarrollo de nuevos proyectos y ma
 
 Un conjunto de módulos listos para usar:
 
-- **Autenticación** (login, JWT, guards)
+- **Autenticación** (login, sesiones server-side, guards)
     
 - **Usuarios** (gestión base de usuarios)
     

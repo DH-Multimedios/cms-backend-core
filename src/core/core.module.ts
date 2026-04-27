@@ -142,14 +142,6 @@ export class CoreModule implements NestModule {
           inject: options.inject || [],
         }),
         HealthModule,
-        AuthModule.registerAsync({
-          imports: options.imports,
-          useFactory: async (...args: any[]) => {
-            const config = await options.useFactory(...args);
-            return config.auth;
-          },
-          inject: options.inject || [],
-        }),
         UsersModule,
         RolesModule,
         PermissionsModule,

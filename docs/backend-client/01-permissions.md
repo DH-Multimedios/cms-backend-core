@@ -70,10 +70,10 @@ Ejemplos:
 
 ```typescript
 import { UseGuards } from '@nestjs/common';
-import { JwtAuthGuard, PermissionsGuard, RequirePermissions } from '@dh/backend-core';
+import { SessionAuthGuard, PermissionsGuard, RequirePermissions, CurrentUser } from '@dh/backend-core';
 
 @Controller('products')
-@UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseGuards(SessionAuthGuard, PermissionsGuard)
 export class ProductsController {
   @Get()
   @RequirePermissions('products.read')
@@ -101,7 +101,7 @@ Para rutas que solo requieren estar logueado (sin permiso):
 
 ```typescript
 @Get('me/orders')
-@UseGuards(JwtAuthGuard)
+@UseGuards(SessionAuthGuard)
 getMyOrders(@CurrentUser() user: User) { ... }
 ```
 

@@ -82,11 +82,11 @@ Proyecto arranca, se conecta a DB, corre migraciones.
 
 ### 2.3 Auth
 
-- [ ] Login (email + password → JWT)
-- [ ] Guards de autenticación (`JwtAuthGuard`)
+- [ ] Login (email + password → sesión server-side)
+- [ ] Guards de autenticación (`SessionAuthGuard`)
 - [ ] Guards de permisos (`PermissionsGuard`)
 - [ ] Decorators (`@CurrentUser()`, `@RequirePermissions()`)
-- [ ] Refresh token (recomendado)
+- [ ] Revocación e invalidación de sesiones
 - [ ] Protección del usuario del sistema (invisible, inmutable)
 - [ ] Tests de integración (login, guards, permisos)
 

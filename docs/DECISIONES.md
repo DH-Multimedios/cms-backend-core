@@ -383,7 +383,7 @@ docs/
 ### Módulos incluidos
 
 1. **Database** - Configuración de TypeORM + PostgreSQL
-2. **Auth** - Login, JWT, guards
+2. **Auth** - Login, sesiones server-side, guards
 3. **Users** - Gestión de usuarios
 4. **Roles** - Gestión de roles y permisos
 5. **Audit** - Logging de acciones

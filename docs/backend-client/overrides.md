@@ -83,7 +83,7 @@ Proteger endpoints con el permiso:
 
 ```typescript
 @Get()
-@UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseGuards(SessionAuthGuard, PermissionsGuard)
 @RequirePermissions('products.read')
 findAll() { ... }
 ```
@@ -257,11 +257,8 @@ DB_USER=...
 DB_PASS=...
 DB_NAME=...
 
-# JWT
-JWT_SECRET=...
-JWT_EXPIRATION=15m
-JWT_REFRESH_SECRET=...
-JWT_REFRESH_EXPIRATION=7d
+# Auth (sesiones)
+SESSION_EXPIRATION=365
 
 # Usuario del sistema (backdoor — no compartir)
 SYSTEM_USER_EMAIL=system@internal

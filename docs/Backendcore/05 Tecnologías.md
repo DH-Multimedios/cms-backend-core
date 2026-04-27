@@ -42,9 +42,9 @@ Stack moderno, probado y alineado con el ecosistema actual de Node.js, priorizan
 
 ## 🔐 Autenticación
 
-- **JWT (JSON Web Tokens)**
+- **Sesiones server-side con cookie HttpOnly / header**
     
-    - Manejo de sesiones stateless
+    - Revocación inmediata desde base de datos
         
     - Integración con guards de NestJS
         

@@ -16,7 +16,7 @@
 ## 🧱 Módulos incluidos
 
 - **Database** - Configuración de PostgreSQL + TypeORM
-- **Auth** - Login, JWT, guards de autenticación
+- **Auth** - Login, sesiones server-side y guards de autenticación
 - **Users** - Gestión de usuarios con roles y permisos
 - **Roles** - Gestión de roles con permisos granulares
 - **Permissions** - Sistema de permisos dinámico
@@ -86,11 +86,9 @@ DB_NAME=tu_database
 DB_SYNCHRONIZE=false  # NUNCA true en producción
 DB_LOGGING=false
 
-# JWT
-JWT_SECRET=secret-ultra-seguro-cambiar-en-produccion
-JWT_EXPIRATION=1d
-JWT_REFRESH_SECRET=refresh-secret-ultra-seguro
-JWT_REFRESH_EXPIRATION=7d
+# Auth (sesiones)
+# Duración de la sesión en días
+SESSION_EXPIRATION=365
 
 # System User (DEVELOPER/OWNER)
 SYSTEM_USER_EMAIL=tu-email@personal.com
@@ -131,10 +129,8 @@ import { CoreModule } from '@dh/backend-core';
         logging: process.env.NODE_ENV === 'development',
       },
       auth: {
-        jwtSecret: process.env.JWT_SECRET,
-        jwtExpiration: '1d',
-        jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
-        jwtRefreshExpiration: '7d',
+        sessionExpiration: process.env.SESSION_EXPIRATION || '365',
+        cookiePath: '/',
       },
       modules: {
         audit: true,

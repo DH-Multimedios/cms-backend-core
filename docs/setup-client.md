@@ -69,11 +69,8 @@ import { CoreModule } from '@dh/backend-core';
           logging: config.get('DB_LOGGING') === 'true',
         },
         auth: {
-          jwtSecret: config.getOrThrow<string>('JWT_SECRET'),
-          jwtExpiration: config.get('JWT_EXPIRATION') || '1d',
-          jwtRefreshSecret: config.getOrThrow<string>('JWT_REFRESH_SECRET'),
-          jwtRefreshExpiration: config.get('JWT_REFRESH_EXPIRATION') || '7d',
-          cookiePath: '/api/auth', // ⚠️ DEBE incluir el API prefix, cubre refresh + logout
+          sessionExpiration: config.get('SESSION_EXPIRATION') || '365',
+          cookiePath: '/',
         },
         modules: {
           audit: true,
@@ -134,7 +131,7 @@ async function bootstrap() {
     .setTitle('Mi Proyecto API')
     .setDescription('Descripción de la API')
     .setVersion('1.0.0')
-    .addBearerAuth()
+    .addCookieAuth('session_id')
     .build();
 
   SwaggerModule.setup('api/docs', app, SwaggerModule.createDocument(app, config));
@@ -168,11 +165,8 @@ DB_NAME=mi_proyecto_dev
 DB_SYNCHRONIZE=false
 DB_LOGGING=false
 
-# JWT
-JWT_SECRET=secret-seguro-cambiar-en-produccion
-JWT_EXPIRATION=1d
-JWT_REFRESH_SECRET=refresh-secret-seguro
-JWT_REFRESH_EXPIRATION=7d
+# Auth (sesiones)
+SESSION_EXPIRATION=365
 
 # Usuarios iniciales
 SYSTEM_USER_EMAIL=tu-email@personal.com
@@ -372,10 +366,10 @@ export class ProductsModule implements OnModuleInit {
 ```typescript
 // src/modules/products/products.controller.ts
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard, PermissionsGuard, RequirePermissions, CurrentUser } from '@dh/backend-core';
+import { SessionAuthGuard, PermissionsGuard, RequirePermissions, CurrentUser } from '@dh/backend-core';
 
 @Controller('products')
-@UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseGuards(SessionAuthGuard, PermissionsGuard)
 export class ProductsController {
   @Get()
   @RequirePermissions('products.read')
