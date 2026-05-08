@@ -5,17 +5,30 @@ import { seedUsers } from './users.seeder';
 import { seedSettings } from './settings.seeder';
 import { seedNotifications } from './notifications.seeder';
 
+export interface ExtraRole {
+  name: string;
+  description?: string;
+  weight?: number;
+  isProtected?: boolean;
+}
+
+export interface CoreSeedOptions {
+  /** Roles adicionales a crear después de los roles base del core */
+  extraRoles?: ExtraRole[];
+}
+
 /**
  * Ejecuta todos los seeds del core (roles, permisos, usuarios).
  * Usado por proyectos clientes para inicializar la base de datos.
  *
  * @param dataSource - DataSource ya inicializado
+ * @param options - Opciones opcionales para extender los seeds del core
  */
-export async function runCoreSeeds(dataSource: DataSource): Promise<void> {
+export async function runCoreSeeds(dataSource: DataSource, options?: CoreSeedOptions): Promise<void> {
   console.log('🌱 Iniciando seeds del core...\n');
 
   console.log('📝 Creando roles...');
-  await seedRoles(dataSource);
+  await seedRoles(dataSource, options?.extraRoles);
   console.log('');
 
   console.log('📝 Creando permisos...');
