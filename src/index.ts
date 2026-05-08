@@ -24,6 +24,7 @@ export { CORE_ENTITIES } from './database/entities';
 
 // Seeds
 export { runCoreSeeds } from './database/seeds/core-seeds';
+export type { ExtraRole, CoreSeedOptions } from './database/seeds/core-seeds';
 
 // Auth
 export { AuthModule } from './modules/auth/auth.module';
@@ -38,6 +39,7 @@ export { Public } from './modules/auth/decorators/public.decorator';
 // Users
 export { UsersModule } from './modules/users/users.module';
 export { UsersService } from './modules/users/users.service';
+export { UserCreatedEvent } from './modules/users/events/user-created.event';
 export { UserResponseDto } from './modules/users/dto/user-response.dto';
 export { CreateUserDto } from './modules/users/dto/create-user.dto';
 export { UpdateUserDto } from './modules/users/dto/update-user.dto';

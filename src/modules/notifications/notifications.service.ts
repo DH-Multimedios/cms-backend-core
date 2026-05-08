@@ -42,7 +42,6 @@ export class NotificationsService implements OnModuleInit {
   async handleUserCreated(event: UserCreatedEvent): Promise<void> {
     await this.dispatch('user.welcome', event.user.id, event.user.email, {
       firstName: event.user.firstName,
-      verificationToken: event.verificationToken,
     });
   }
 

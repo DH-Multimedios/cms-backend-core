@@ -2,6 +2,7 @@ import { Injectable, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { User } from '../../database/entities/user.entity';
 import { Role } from '../../database/entities/role.entity';
 import { AuditService } from '../audit/audit.service';
@@ -14,6 +15,7 @@ import { UserResponseDto } from './dto/user-response.dto';
 import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 import { ApiException } from '../../common/exceptions/api.exception';
 import { ErrorCode } from '../../common/enums/error-codes.enum';
+import { UserCreatedEvent } from './events/user-created.event';
 
 @Injectable()
 export class UsersService {
@@ -24,6 +26,7 @@ export class UsersService {
     private readonly roleRepository: Repository<Role>,
     private readonly auditService: AuditService,
     private readonly mediaService: MediaService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async findAll(query: UsersQueryDto): Promise<PaginatedResult<UserResponseDto>> {
@@ -161,6 +164,8 @@ export class UsersService {
         },
       },
     });
+
+    this.eventEmitter.emit('user.created', new UserCreatedEvent(saved));
 
     return UserResponseDto.from(saved);
   }
