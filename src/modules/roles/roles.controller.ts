@@ -42,8 +42,8 @@ export class RolesController {
   @Get('list')
   @RequireAnyPermission('roles.read', 'users.read')
   @ApiOperation({ summary: 'Listar roles (select/checkbox)' })
-  findList() {
-    return this.rolesService.findList();
+  findList(@CurrentUser() currentUser: User) {
+    return this.rolesService.findList(currentUser);
   }
 
   @Get(':id')

@@ -42,22 +42,22 @@ export class UsersController {
   @Get()
   @RequirePermissions('users.read')
   @ApiOperation({ summary: 'Listar usuarios' })
-  findAll(@Query() query: UsersQueryDto) {
-    return this.usersService.findAll(query);
+  findAll(@Query() query: UsersQueryDto, @CurrentUser() currentUser: User) {
+    return this.usersService.findAll(query, currentUser);
   }
 
   @Get('by-username/:username')
   @RequirePermissions('users.read')
   @ApiOperation({ summary: 'Obtener usuario por username' })
-  findByUsername(@Param('username') username: string) {
-    return this.usersService.findByUsername(username);
+  findByUsername(@Param('username') username: string, @CurrentUser() currentUser: User) {
+    return this.usersService.findByUsername(username, currentUser);
   }
 
   @Get(':id')
   @RequirePermissions('users.read')
   @ApiOperation({ summary: 'Obtener usuario por ID' })
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.usersService.findOne(id);
+  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() currentUser: User) {
+    return this.usersService.findOne(id, currentUser);
   }
 
   @Post()

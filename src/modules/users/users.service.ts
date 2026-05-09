@@ -29,7 +29,7 @@ export class UsersService {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  async findAll(query: UsersQueryDto): Promise<PaginatedResult<UserResponseDto>> {
+  async findAll(query: UsersQueryDto, currentUser: User): Promise<PaginatedResult<UserResponseDto>> {
     const {
       page = 1,
       limit = 20,
@@ -45,6 +45,18 @@ export class UsersService {
       .leftJoinAndSelect('user.roles', 'role')
       .leftJoinAndSelect('role.permissions', 'permission')
       .where('user.isSystemUser = false');
+
+    if (!currentUser.isSystemUser) {
+      const maxWeight = Math.max(...(currentUser.roles?.map((r) => r.weight) ?? [0]));
+      qb.andWhere(
+        `user.id NOT IN (
+          SELECT ur."userId" FROM user_roles ur
+          INNER JOIN roles r ON r.id = ur."roleId"
+          WHERE r.weight > :maxWeight
+        )`,
+        { maxWeight },
+      );
+    }
 
     if (search) {
       qb.andWhere(
@@ -79,9 +91,10 @@ export class UsersService {
     };
   }
 
-  async findOne(id: string): Promise<UserResponseDto> {
+  async findOne(id: string, currentUser: User): Promise<UserResponseDto> {
     const user = await this.userRepository.findOne({
       where: { id, isSystemUser: false },
+      relations: ['roles'],
     });
     if (!user)
       throw new ApiException(
@@ -89,12 +102,25 @@ export class UsersService {
         ErrorCode.USER_NOT_FOUND,
         `Usuario ${id} no encontrado`,
       );
+
+    if (!currentUser.isSystemUser) {
+      const currentMaxWeight = Math.max(...(currentUser.roles?.map((r) => r.weight) ?? [0]));
+      const targetMaxWeight = Math.max(...(user.roles?.map((r) => r.weight) ?? [0]));
+      if (targetMaxWeight > currentMaxWeight)
+        throw new ApiException(
+          HttpStatus.FORBIDDEN,
+          ErrorCode.ROLE_WEIGHT_EXCEEDED,
+          'No tenés permiso para ver este usuario',
+        );
+    }
+
     return UserResponseDto.from(user);
   }
 
-  async findByUsername(username: string): Promise<UserResponseDto> {
+  async findByUsername(username: string, currentUser: User): Promise<UserResponseDto> {
     const user = await this.userRepository.findOne({
       where: { username, isSystemUser: false },
+      relations: ['roles'],
     });
     if (!user)
       throw new ApiException(
@@ -102,6 +128,18 @@ export class UsersService {
         ErrorCode.USER_NOT_FOUND,
         `Usuario ${username} no encontrado`,
       );
+
+    if (!currentUser.isSystemUser) {
+      const currentMaxWeight = Math.max(...(currentUser.roles?.map((r) => r.weight) ?? [0]));
+      const targetMaxWeight = Math.max(...(user.roles?.map((r) => r.weight) ?? [0]));
+      if (targetMaxWeight > currentMaxWeight)
+        throw new ApiException(
+          HttpStatus.FORBIDDEN,
+          ErrorCode.ROLE_WEIGHT_EXCEEDED,
+          'No tenés permiso para ver este usuario',
+        );
+    }
+
     return UserResponseDto.from(user);
   }
 
@@ -191,6 +229,19 @@ export class UsersService {
     const auditAfter: Record<string, any> = {};
 
     if (dto.roleIds !== undefined) {
+      if (!currentUser.isSystemUser) {
+        const hasRolesUpdatePermission = currentUser.roles?.some((r) =>
+          r.permissions?.some((p) => p.name === 'roles.update'),
+        );
+        if (!hasRolesUpdatePermission) {
+          throw new ApiException(
+            HttpStatus.FORBIDDEN,
+            ErrorCode.FORBIDDEN,
+            'No tenés permiso para modificar roles de usuarios',
+          );
+        }
+      }
+
       const currentMaxWeight = Math.max(...(currentUser.roles?.map((r) => r.weight) ?? [0]));
       const newRoles = await this.roleRepository.findByIds(dto.roleIds);
 

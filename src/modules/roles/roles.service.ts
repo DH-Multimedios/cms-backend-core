@@ -21,12 +21,18 @@ export class RolesService {
     private readonly auditService: AuditService,
   ) {}
 
-  async findList() {
-    return this.roleRepository
+  async findList(currentUser: User) {
+    const qb = this.roleRepository
       .createQueryBuilder('role')
       .select(['role.id', 'role.name', 'role.weight', 'role.isProtected'])
-      .orderBy('role.weight', 'DESC')
-      .getMany();
+      .orderBy('role.weight', 'DESC');
+
+    if (!currentUser.isSystemUser) {
+      const maxWeight = Math.max(...(currentUser.roles?.map((r) => r.weight) ?? [0]));
+      qb.where('role.weight <= :maxWeight', { maxWeight });
+    }
+
+    return qb.getMany();
   }
 
   async findAll(query: RolesQueryDto): Promise<PaginatedResult<Role>> {
