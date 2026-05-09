@@ -7,6 +7,7 @@ import { seedNotifications } from './notifications.seeder';
 
 export interface ExtraRole {
   name: string;
+  label: string;
   description?: string;
   weight?: number;
   isProtected?: boolean;

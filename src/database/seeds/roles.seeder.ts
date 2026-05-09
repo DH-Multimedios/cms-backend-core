@@ -4,19 +4,22 @@ import { ExtraRole } from './core-seeds';
 
 const CORE_ROLES = [
   {
-    name: 'SuperAdmin',
+    name: 'super_admin',
+    label: 'Super Admin',
     description: 'Super administrador del sistema con todos los permisos',
     weight: 100,
     isProtected: true,
   },
   {
-    name: 'Admin',
+    name: 'admin',
+    label: 'Admin',
     description: 'Administrador con permisos limitados',
     weight: 90,
     isProtected: true,
   },
   {
-    name: 'User',
+    name: 'user',
+    label: 'Usuario',
     description: 'Usuario estándar con permisos básicos',
     weight: 50,
     isProtected: true,
@@ -36,7 +39,7 @@ export async function seedRoles(dataSource: DataSource, extraRoles?: ExtraRole[]
     if (!exists) {
       const role = roleRepository.create(roleData);
       await roleRepository.save(role);
-      console.log(`✅ Rol creado: ${roleData.name}`);
+      console.log(`✅ Rol creado: ${roleData.name} (${roleData.label})`);
     } else {
       console.log(`⏭️  Rol ya existe: ${roleData.name}`);
     }

@@ -51,7 +51,7 @@ export async function seedUsers(dataSource: DataSource): Promise<void> {
 
     if (!superAdmin) {
       const hashedPassword = await bcrypt.hash(superAdminPassword, 10);
-      const superAdminRole = await roleRepository.findOne({ where: { name: 'SuperAdmin' } });
+      const superAdminRole = await roleRepository.findOne({ where: { name: 'super_admin' } });
 
       superAdmin = userRepository.create({
         email: superAdminEmail,
@@ -82,7 +82,7 @@ export async function seedUsers(dataSource: DataSource): Promise<void> {
 
     if (!admin) {
       const hashedPassword = await bcrypt.hash(adminPassword, 10);
-      const adminRole = await roleRepository.findOne({ where: { name: 'Admin' } });
+      const adminRole = await roleRepository.findOne({ where: { name: 'admin' } });
 
       admin = userRepository.create({
         email: adminEmail,
@@ -113,7 +113,7 @@ export async function seedUsers(dataSource: DataSource): Promise<void> {
 
     if (!user) {
       const hashedPassword = await bcrypt.hash(userPassword, 10);
-      const userRole = await roleRepository.findOne({ where: { name: 'User' } });
+      const userRole = await roleRepository.findOne({ where: { name: 'user' } });
 
       user = userRepository.create({
         email: userEmail,

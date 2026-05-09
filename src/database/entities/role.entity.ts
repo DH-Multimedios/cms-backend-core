@@ -15,8 +15,18 @@ export class Role {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  /**
+   * Identificador interno en snake_case (ej: super_admin, admin, user)
+   * Usado como clave técnica en el sistema (guards, seeds, lookups)
+   */
   @Column({ unique: true })
   name: string;
+
+  /**
+   * Etiqueta visible para la UI (ej: "Super Admin", "Administrador", "Usuario")
+   */
+  @Column()
+  label: string;
 
   @Column({ nullable: true })
   description: string;

@@ -1,11 +1,17 @@
-import { IsString, IsOptional, IsInt, Min, Max } from 'class-validator';
+import { IsString, IsOptional, IsInt, Min, Max, Matches } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateRoleDto {
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ description: 'Identificador interno en snake_case' })
   @IsString()
+  @Matches(/^[a-z][a-z0-9_]*$/, { message: 'name debe ser snake_case (ej: editor, super_admin)' })
   @IsOptional()
   name?: string;
+
+  @ApiPropertyOptional({ description: 'Etiqueta visible en la UI' })
+  @IsString()
+  @IsOptional()
+  label?: string;
 
   @ApiPropertyOptional()
   @IsString()

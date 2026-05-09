@@ -28,7 +28,8 @@ const mockAuditService = () => ({
 const makeRole = (overrides: Partial<Role> = {}): Role =>
   ({
     id: 'role-1',
-    name: 'Editor',
+    name: 'editor',
+    label: 'Editor',
     description: '',
     weight: 10,
     isProtected: false,
@@ -85,16 +86,17 @@ describe('RolesService', () => {
   describe('create', () => {
     it('crea un rol correctamente', async () => {
       roleRepo.findOneBy.mockResolvedValue(null);
-      roleRepo.save.mockResolvedValue(makeRole({ name: 'Manager' }));
+      roleRepo.save.mockResolvedValue(makeRole({ name: 'manager', label: 'Manager' }));
       const currentUser = makeUser();
 
-      const result = await service.create({ name: 'Manager' }, currentUser);
-      expect(result.name).toBe('Manager');
+      const result = await service.create({ name: 'manager', label: 'Manager' }, currentUser);
+      expect(result.name).toBe('manager');
+      expect(result.label).toBe('Manager');
     });
 
     it('lanza ApiException ROLE_NAME_TAKEN si el nombre ya existe', async () => {
       roleRepo.findOneBy.mockResolvedValue(makeRole());
-      await expect(service.create({ name: 'Editor' }, makeUser())).rejects.toMatchObject({
+      await expect(service.create({ name: 'editor', label: 'Editor' }, makeUser())).rejects.toMatchObject({
         code: ErrorCode.ROLE_NAME_TAKEN,
       });
     });
@@ -102,17 +104,17 @@ describe('RolesService', () => {
     it('lanza ApiException ROLE_PROTECTED al crear rol protegido sin ser systemUser', async () => {
       roleRepo.findOneBy.mockResolvedValue(null);
       await expect(
-        service.create({ name: 'SuperAdmin', isProtected: true }, makeUser()),
+        service.create({ name: 'super_admin', label: 'Super Admin', isProtected: true }, makeUser()),
       ).rejects.toMatchObject({ code: ErrorCode.ROLE_PROTECTED });
     });
 
     it('permite crear rol protegido si sos systemUser', async () => {
       roleRepo.findOneBy.mockResolvedValue(null);
-      roleRepo.save.mockResolvedValue(makeRole({ name: 'SuperAdmin', isProtected: true }));
+      roleRepo.save.mockResolvedValue(makeRole({ name: 'super_admin', label: 'Super Admin', isProtected: true }));
       const systemUser = makeUser({ isSystemUser: true });
 
-      const result = await service.create({ name: 'SuperAdmin', isProtected: true }, systemUser);
-      expect(result.name).toBe('SuperAdmin');
+      const result = await service.create({ name: 'super_admin', label: 'Super Admin', isProtected: true }, systemUser);
+      expect(result.name).toBe('super_admin');
     });
   });
 

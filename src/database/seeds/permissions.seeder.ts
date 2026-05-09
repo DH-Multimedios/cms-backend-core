@@ -191,19 +191,19 @@ export async function seedPermissions(dataSource: DataSource): Promise<void> {
 
   // Asignar TODOS los permisos a SuperAdmin
   const superAdminRole = await roleRepository.findOne({
-    where: { name: 'SuperAdmin' },
+    where: { name: 'super_admin' },
     relations: ['permissions'],
   });
 
   if (superAdminRole) {
     superAdminRole.permissions = createdPermissions;
     await roleRepository.save(superAdminRole);
-    console.log(`✅ Permisos asignados a SuperAdmin: ${createdPermissions.length}`);
+    console.log(`✅ Permisos asignados a super_admin: ${createdPermissions.length}`);
   }
 
   // Asignar permisos limitados a Admin (solo read en la mayoría)
   const adminRole = await roleRepository.findOne({
-    where: { name: 'Admin' },
+    where: { name: 'admin' },
     relations: ['permissions'],
   });
 
@@ -221,12 +221,12 @@ export async function seedPermissions(dataSource: DataSource): Promise<void> {
     );
     adminRole.permissions = adminPermissions;
     await roleRepository.save(adminRole);
-    console.log(`✅ Permisos asignados a Admin: ${adminPermissions.length}`);
+    console.log(`✅ Permisos asignados a admin: ${adminPermissions.length}`);
   }
 
   // Asignar permisos básicos a User
   const userRole = await roleRepository.findOne({
-    where: { name: 'User' },
+    where: { name: 'user' },
     relations: ['permissions'],
   });
 
@@ -245,6 +245,6 @@ export async function seedPermissions(dataSource: DataSource): Promise<void> {
     );
     userRole.permissions = userPermissions;
     await roleRepository.save(userRole);
-    console.log(`✅ Permisos asignados a User: ${userPermissions.length}`);
+    console.log(`✅ Permisos asignados a user: ${userPermissions.length}`);
   }
 }

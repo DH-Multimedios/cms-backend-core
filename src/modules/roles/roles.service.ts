@@ -24,7 +24,7 @@ export class RolesService {
   async findList(currentUser: User) {
     const qb = this.roleRepository
       .createQueryBuilder('role')
-      .select(['role.id', 'role.name', 'role.weight', 'role.isProtected'])
+      .select(['role.id', 'role.name', 'role.label', 'role.weight', 'role.isProtected'])
       .orderBy('role.weight', 'DESC');
 
     if (!currentUser.isSystemUser) {
@@ -43,7 +43,7 @@ export class RolesService {
       .leftJoinAndSelect('role.permissions', 'permission');
 
     if (search) {
-      qb.where('role.name ILIKE :search', { search: `%${search}%` });
+      qb.where('role.name ILIKE :search OR role.label ILIKE :search', { search: `%${search}%` });
     }
 
     qb.orderBy(`role.${sortBy}`, sortOrder)
@@ -91,7 +91,7 @@ export class RolesService {
       entity: 'Role',
       entityId: saved.id,
       metadata: {
-        after: { name: saved.name, weight: saved.weight, isProtected: saved.isProtected },
+        after: { name: saved.name, label: saved.label, weight: saved.weight, isProtected: saved.isProtected },
       },
     });
 
@@ -122,6 +122,10 @@ export class RolesService {
         );
       auditBefore.name = role.name;
       auditAfter.name = dto.name;
+    }
+    if (dto.label !== undefined && dto.label !== role.label) {
+      auditBefore.label = role.label;
+      auditAfter.label = dto.label;
     }
     if (dto.description !== undefined && dto.description !== role.description) {
       auditBefore.description = role.description;
@@ -162,7 +166,7 @@ export class RolesService {
       entity: 'Role',
       entityId: id,
       metadata: {
-        before: { name: role.name, weight: role.weight },
+        before: { name: role.name, label: role.label, weight: role.weight },
       },
     });
 

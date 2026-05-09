@@ -16,7 +16,7 @@ Lista paginada de roles con sus permisos.
 | ----------- | ------ | ----------------- |
 | `page`      | number | Default: 1        |
 | `limit`     | number | Default: 20       |
-| `search`    | string | Busca en nombre   |
+| `search`    | string | Busca en `name` o `label` |
 | `sortBy`    | string | Default: `weight` |
 | `sortOrder` | string | `ASC` \| `DESC`   |
 
@@ -29,7 +29,8 @@ Lista paginada de roles con sus permisos.
     "items": [
       {
         "id": "uuid",
-        "name": "Admin",
+        "name": "admin",
+        "label": "Admin",
         "description": "Administrador del sistema",
         "weight": 90,
         "isProtected": true,
@@ -62,14 +63,14 @@ Lista liviana de roles para selectores, checkboxes, etc. Sin paginación ni perm
 {
   "statusCode": 200,
   "data": [
-    { "id": "uuid", "name": "SuperAdmin", "weight": 100, "isProtected": true },
-    { "id": "uuid", "name": "Admin", "weight": 90, "isProtected": true },
-    { "id": "uuid", "name": "User", "weight": 50, "isProtected": false }
+    { "id": "uuid", "name": "super_admin", "label": "Super Admin", "weight": 100, "isProtected": true },
+    { "id": "uuid", "name": "admin", "label": "Admin", "weight": 90, "isProtected": true },
+    { "id": "uuid", "name": "user", "label": "Usuario", "weight": 50, "isProtected": false }
   ]
 }
 ```
 
-> Ordenado por `weight` DESC. Usar `isProtected` para deshabilitar opciones protegidas en la UI.
+> Ordenado por `weight` DESC. Mostrar `label` en UI y usar `isProtected` para deshabilitar opciones protegidas.
 
 ---
 
@@ -91,7 +92,8 @@ Crea un nuevo rol.
 
 ```json
 {
-  "name": "Editor",
+  "name": "content_editor",
+  "label": "Editor de contenido",
   "description": "Puede editar contenido",
   "weight": 50
 }
@@ -99,7 +101,8 @@ Crea un nuevo rol.
 
 | Campo         | Requerido | Validación        |
 | ------------- | --------- | ----------------- |
-| `name`        | ✓         | Único             |
+| `name`        | ✓         | Único, `snake_case` |
+| `label`       | ✓         | Texto visible |
 | `description` | ✗         |                   |
 | `weight`      | ✗         | 0-100, default: 0 |
 
@@ -116,6 +119,8 @@ Actualiza un rol.
 **Permiso:** `roles.update`
 
 **Request:** (todos opcionales, mismos campos que POST)
+
+> `name` es la clave técnica. `label` es el texto visible. La UI debería mostrar `label`.
 
 **Errores:** `ROLE_NOT_FOUND`, `ROLE_PROTECTED`, `ROLE_NAME_TAKEN`
 

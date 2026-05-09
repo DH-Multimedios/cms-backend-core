@@ -55,6 +55,7 @@ export class BaselineSchema1733500000100 implements MigrationInterface {
       CREATE TABLE "roles" (
         "id"          uuid              NOT NULL DEFAULT uuid_generate_v4(),
         "name"        character varying NOT NULL,
+        "label"       character varying NOT NULL,
         "description" character varying,
         "weight"      integer           NOT NULL DEFAULT 0,
         "isProtected" boolean           NOT NULL DEFAULT false,
