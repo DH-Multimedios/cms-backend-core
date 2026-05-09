@@ -51,7 +51,8 @@ export class AuditService {
 
     const qb = this.auditLogRepository.createQueryBuilder('log')
       .leftJoin('log.user', 'user')
-      .addSelect(['user.id', 'user.firstName', 'user.lastName']);
+      .addSelect(['user.id', 'user.firstName', 'user.lastName'])
+      .where('user.isSystemUser = false OR log.userId IS NULL');
 
     if (userId) {
       qb.andWhere('log.userId = :userId', { userId });
