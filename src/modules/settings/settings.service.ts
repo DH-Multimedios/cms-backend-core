@@ -113,6 +113,8 @@ export class SettingsService implements OnModuleInit {
       take: limit,
     });
 
+    await Promise.all(settings.map((s) => this.injectImageMeta(s)));
+
     return Object.assign(category, {
       settings,
       settingsTotal,
