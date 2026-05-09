@@ -52,7 +52,7 @@ export class AuditService {
     const qb = this.auditLogRepository.createQueryBuilder('log')
       .leftJoin('log.user', 'user')
       .addSelect(['user.id', 'user.firstName', 'user.lastName'])
-      .where('user.isSystemUser = false OR log.userId IS NULL');
+      .where('(user.isSystemUser = false OR log.userId IS NULL)');
 
     if (userId) {
       qb.andWhere('log.userId = :userId', { userId });
@@ -73,9 +73,6 @@ export class AuditService {
     qb.orderBy(`log.${sortBy}`, sortOrder)
       .skip((page - 1) * limit)
       .take(limit);
-
-    console.log('AUDIT SQL:', qb.getSql());
-    console.log('AUDIT PARAMS:', qb.getParameters());
 
     const [logs, total] = await qb.getManyAndCount();
 
