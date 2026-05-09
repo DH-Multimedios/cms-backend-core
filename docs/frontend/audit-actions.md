@@ -14,18 +14,13 @@ Referencia de todas las acciones registradas en el sistema de auditoría (`GET /
 
 ## Acciones por entidad
 
-### Auth
-
-| `action`     | Descripción en español         |
-|--------------|-------------------------------|
-| `login`      | Inicio de sesión              |
-| `logout`     | Cierre de sesión              |
-| `logout_all` | Cierre de todas las sesiones  |
-
 ### User
 
 | `action`         | Descripción en español              |
 |------------------|-------------------------------------|
+| `login`          | Inicio de sesión                    |
+| `logout`         | Cierre de sesión                    |
+| `logout_all`     | Cierre de todas las sesiones        |
 | `create`         | Usuario creado                      |
 | `update`         | Usuario actualizado                 |
 | `delete`         | Usuario eliminado                   |
