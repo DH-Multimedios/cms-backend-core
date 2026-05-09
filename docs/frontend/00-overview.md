@@ -19,7 +19,7 @@ Este backend soporta **dos modos de autenticación** según el cliente:
 
 ```
 1. Browser / web app (recomendado): cookies HttpOnly
-2. Mobile / clientes no-browser: Bearer token
+2. Mobile / clientes no-browser: header X-Session-Id
 ```
 
 ### Browser / web app
