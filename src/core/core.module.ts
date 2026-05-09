@@ -23,6 +23,7 @@ import { UserPreferencesModule } from '../modules/user-preferences/user-preferen
 import { AuditContextInterceptor } from '../modules/audit/interceptors/audit-context.interceptor';
 import { HttpExceptionFilter } from '../common/filters/http-exception.filter';
 import { ResponseInterceptor } from '../common/interceptors/response.interceptor';
+import { DebugRequestInterceptor } from '../common/interceptors/debug-request.interceptor';
 import {
   CoreModuleConfig,
   CoreModuleAsyncOptions,
@@ -46,6 +47,9 @@ export class CoreModule implements NestModule {
 
   static register(config: CoreModuleConfig): DynamicModule {
     const mediaPath = this.getMediaPath(config.modules);
+    const debugProviders = process.env.DEBUG_REQUESTS === 'true'
+      ? [{ provide: APP_INTERCEPTOR, useClass: DebugRequestInterceptor }]
+      : [];
 
     return {
       module: CoreModule,
@@ -53,6 +57,7 @@ export class CoreModule implements NestModule {
         { provide: APP_FILTER, useClass: HttpExceptionFilter },
         { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },
         { provide: APP_INTERCEPTOR, useClass: AuditContextInterceptor },
+        ...debugProviders,
       ],
       imports: [
         ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
@@ -99,12 +104,17 @@ export class CoreModule implements NestModule {
   }
 
   static registerAsync(options: CoreModuleAsyncOptions): DynamicModule {
+    const debugProviders = process.env.DEBUG_REQUESTS === 'true'
+      ? [{ provide: APP_INTERCEPTOR, useClass: DebugRequestInterceptor }]
+      : [];
+
     return {
       module: CoreModule,
       providers: [
         { provide: APP_FILTER, useClass: HttpExceptionFilter },
         { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },
         { provide: APP_INTERCEPTOR, useClass: AuditContextInterceptor },
+        ...debugProviders,
       ],
       imports: [
         ...(options.imports || []),
