@@ -48,9 +48,9 @@ export class UsersController {
 
   @Get('list')
   @RequirePermissions('users.read')
-  @ApiOperation({ summary: 'Listado liviano de usuarios (para selects)' })
-  findList(@CurrentUser() currentUser: User) {
-    return this.usersService.findList(currentUser);
+  @ApiOperation({ summary: 'Autocomplete de usuarios (para selects, máx 10 resultados)' })
+  findList(@Query('search') search: string, @CurrentUser() currentUser: User) {
+    return this.usersService.findList(search, currentUser);
   }
 
   @Get('by-username/:username')

@@ -143,14 +143,23 @@ export class UsersService {
     return UserResponseDto.from(user);
   }
 
-  async findList(currentUser: User): Promise<{ id: string; username: string | null; firstName: string; lastName: string; avatarUrl: string | null }[]> {
+  async findList(
+    search: string,
+    currentUser: User,
+  ): Promise<{ id: string; label: string }[]> {
+    if (!search?.trim()) return [];
+
     const qb = this.userRepository
       .createQueryBuilder('user')
-      .leftJoin('user.roles', 'role')
-      .select(['user.id', 'user.username', 'user.firstName', 'user.lastName', 'user.avatarUrl'])
+      .select(['user.id', 'user.firstName', 'user.lastName'])
       .where('user.isSystemUser = false')
       .andWhere('user.isActive = true')
-      .orderBy('user.firstName', 'ASC');
+      .andWhere(
+        '(user.firstName ILIKE :search OR user.lastName ILIKE :search OR CONCAT(user.firstName, \' \', user.lastName) ILIKE :search)',
+        { search: `%${search.trim()}%` },
+      )
+      .orderBy('user.firstName', 'ASC')
+      .take(10);
 
     if (!currentUser.isSystemUser) {
       const maxWeight = Math.max(...(currentUser.roles?.map((r) => r.weight) ?? [0]));
@@ -164,7 +173,8 @@ export class UsersService {
       );
     }
 
-    return qb.getMany();
+    const users = await qb.getMany();
+    return users.map((u) => ({ id: u.id, label: `${u.firstName} ${u.lastName}`.trim() }));
   }
 
   async findByEmail(email: string): Promise<User | null> {
