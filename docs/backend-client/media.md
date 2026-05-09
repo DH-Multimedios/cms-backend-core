@@ -452,13 +452,21 @@ UPLOADS_PATH=uploads/media
 BASE_URL=https://api.example.com
 ```
 
-Asegúrate de servir `uploads/media/` como carpeta estática en NestJS:
+**No hace falta configurar nada adicional.** `CoreModule` ya sirve `uploads/media/` como carpeta estática via `ServeStaticModule`. La carpeta se sirve bajo el prefijo `/uploads/media/`.
+
+Si usás un path personalizado (distinto al default), configuralo en `CoreModule.registerAsync`:
 
 ```typescript
-// test-app/src/main.ts
-app.useStaticAssets(join(process.cwd(), 'uploads/media'), {
-  prefix: '/uploads/media/',
-});
+CoreModule.registerAsync({
+  // ...
+  useFactory: (config: ConfigService) => ({
+    database: { ... },
+    auth: { ... },
+    modules: {
+      media: { path: 'custom/media/path' }, // override del path físico
+    },
+  }),
+})
 ```
 
 ### Opción 2: S3 / Cloud Storage (futura extensión)

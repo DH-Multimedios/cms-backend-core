@@ -49,6 +49,8 @@ export class MiServicio {
 | `user.password-reset-requested` | `UserPasswordResetRequestedEvent(user, resetToken)` | Al solicitar reset de contraseña |
 | `user.email-verification-requested` | `UserEmailVerificationRequestedEvent(user, verificationToken)` | Al solicitar reenvío de verificación |
 
+> ⚠️ Solo `UserCreatedEvent` está exportado desde el package (`@dh/backend-core`). Los otros dos eventos se emiten internamente por el core — no necesitás emitirlos desde tu módulo.
+
 ---
 
 ## Registrar un tipo de notificación propio
@@ -106,21 +108,27 @@ this.eventEmitter.emit('order.created', new OrderCreatedEvent(order, customer));
 
 ### 3. Escuchá el evento en tu propio listener
 
-Extendé el sistema creando un listener en tu módulo. El core no sabe de `order.created` — vos manejás el dispatch:
+Extendé el sistema creando un listener en tu módulo. El core no sabe de `order.created` — vos manejás el dispatch.
+
+> ⚠️ `NotificationPreferencesService`, `EmailTemplatesService` y `TemplateRendererService` **no se exportan** desde `@dh/backend-core`. Para usarlos en tu listener tenés que importar el módulo de notificaciones o acceder vía inyección dentro del mismo módulo. La alternativa más simple es inyectar `NotificationsService` y delegar ahí el envío cuando sea posible.
+>
+> Los servicios accesibles desde `@dh/backend-core` son: `NotificationsService`, `EmailSenderService`, `NotificationTypesService`.
 
 ```typescript
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { NotificationTypesService, NotificationPreferencesService, EmailTemplatesService, TemplateRendererService, EmailSenderService } from '@dh/backend-core';
+import { NotificationTypesService, EmailSenderService } from '@dh/backend-core';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { EmailTemplate } from '@dh/backend-core';
 
 @Injectable()
 export class OrderNotificationsListener {
   constructor(
     private readonly notifTypesService: NotificationTypesService,
-    private readonly preferencesService: NotificationPreferencesService,
-    private readonly templatesService: EmailTemplatesService,
-    private readonly renderer: TemplateRendererService,
     private readonly sender: EmailSenderService,
+    @InjectRepository(EmailTemplate)
+    private readonly templateRepo: Repository<EmailTemplate>,
   ) {}
 
   @OnEvent('order.created', { async: true })
@@ -128,23 +136,22 @@ export class OrderNotificationsListener {
     const notifType = await this.notifTypesService.findByKey('order.created');
     if (!notifType?.isEnabled) return;
 
-    const enabled = await this.preferencesService.isEnabled(event.customer.id, 'order.created');
-    if (!enabled) return;
-
-    const template = await this.templatesService.findByType('order', 'created');
+    const template = await this.templateRepo.findOneBy({
+      entityType: 'order',
+      notificationType: 'created',
+    });
     if (!template?.compiledHtml) return;
 
-    const html = this.renderer.render(template.compiledHtml, {
-      firstName: event.customer.firstName,
-      orderNumber: event.order.number,
-      orderUrl: `${process.env.APP_URL}/orders/${event.order.id}`,
-    });
+    // Reemplazar variables manualmente con Handlebars u otra librería
+    const html = template.compiledHtml
+      .replace(/\{\{firstName\}\}/g, event.customer.firstName)
+      .replace(/\{\{orderNumber\}\}/g, event.order.number);
 
-    const subject = this.renderer.render(template.subject, {
-      orderNumber: event.order.number,
+    await this.sender.send({
+      to: event.customer.email,
+      subject: `Tu pedido #${event.order.number} fue recibido`,
+      html,
     });
-
-    await this.sender.send({ to: event.customer.email, subject, html });
   }
 }
 ```

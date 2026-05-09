@@ -396,13 +396,13 @@ export class InvoicesService {
 Los archivos se guardan en:
 
 ```
-{UPLOADS_PATH}/files/{fileOwnerUserId}/{usage}/{YYYY-MM-DD}/{uuid}.ext
+{UPLOADS_PATH}/{fileOwnerUserId}/{usage}/{YYYY-MM-DD}/{uuid}.ext
 ```
 
 **Variable de entorno:**
 
 ```env
-UPLOADS_PATH=uploads  # Default: 'uploads/files'
+UPLOADS_PATH=uploads/files  # Default: 'uploads/files'
 ```
 
 Si `fileOwnerUserId` es `null`:

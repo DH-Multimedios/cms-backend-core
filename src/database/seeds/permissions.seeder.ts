@@ -139,7 +139,7 @@ export async function seedPermissions(dataSource: DataSource): Promise<void> {
     },
     {
       name: 'media.edit',
-      description: 'Editar imágenes (alt text)',
+      description: 'Editar imágenes (texto alternativo)',
       module: 'media',
       moduleName: 'Multimedia',
     },
@@ -179,10 +179,16 @@ export async function seedPermissions(dataSource: DataSource): Promise<void> {
       permission = permissionRepository.create(permData);
       await permissionRepository.save(permission);
       console.log(`✅ Permiso creado: ${permData.name}`);
-    } else if (permission.moduleName !== permData.moduleName) {
+    } else if (
+      permission.description !== permData.description ||
+      permission.module !== permData.module ||
+      permission.moduleName !== permData.moduleName
+    ) {
+      permission.description = permData.description;
+      permission.module = permData.module;
       permission.moduleName = permData.moduleName;
       await permissionRepository.save(permission);
-      console.log(`🔄 moduleName actualizado: ${permData.name} → ${permData.moduleName}`);
+      console.log(`🔄 Permiso actualizado: ${permData.name}`);
     } else {
       console.log(`⏭️  Permiso ya existe: ${permData.name}`);
     }

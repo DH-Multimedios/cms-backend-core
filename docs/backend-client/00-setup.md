@@ -24,17 +24,14 @@ Agregar en `package.json` para permitir el build:
 
 ## main.ts
 
-El core usa cookies HttpOnly para auth. Hay que habilitar `cookie-parser` antes de arrancar la app:
+El core usa cookies HttpOnly para auth. `cookie-parser` ya está aplicado globalmente por `CoreModule` — no hace falta agregarlo en `main.ts`.
 
 ```typescript
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  app.use(cookieParser()); // ← requerido para auth con cookies
 
   // CORS — requerido si el frontend está en otro dominio
   app.enableCors({
@@ -47,7 +44,7 @@ async function bootstrap() {
 bootstrap();
 ```
 
-> ⚠️ Sin `credentials: true` en CORS el browser no envía las cookies HttpOnly. Sin `cookieParser()` el backend no las lee.
+> ⚠️ Sin `credentials: true` en CORS el browser no envía las cookies HttpOnly.
 
 ---
 
@@ -73,10 +70,10 @@ import { CoreModule } from '@dh/backend-core';
           database: config.get('DB_NAME'),
         },
         auth: {
-          cookiePath: '/',
-          // cookieSecure y cookieSameSite tienen defaults según NODE_ENV
-          //   - dev: sameSite='none', secure=true
-          //   - prod: sameSite='lax', secure=true
+          cookiePath: '/auth', // default: '/auth'
+          // cookieSecure y cookieSameSite tienen defaults según NODE_ENV:
+          //   - dev:  sameSite='none', secure=true (para localhost cross-origin)
+          //   - prod: sameSite='lax',  secure=true
         },
       }),
     }),
@@ -195,18 +192,22 @@ migrations: [
 
 Al registrar `CoreModule`, los siguientes módulos están disponibles para inyectar en toda la app (son `@Global`):
 
-| Módulo                 | Servicios exportados                                                     |
-| ---------------------- | ------------------------------------------------------------------------ |
-| `ConfigModule`         | `ConfigService`                                                          |
-| `EventEmitterModule`   | `EventEmitter2`                                                          |
-| `AuthModule`           | `AuthService`, `SessionAuthGuard`, `PermissionsGuard`                    |
-| `UsersModule`          | `UsersService`                                                           |
-| `RolesModule`          | `RolesService`                                                           |
-| `PermissionsModule`    | `PermissionsService`                                                     |
-| `AuditModule`          | `AuditService`                                                           |
-| `SettingsModule`       | `SettingsService`                                                        |
-| `EmailProvidersModule` | `EmailProvidersService`                                                  |
+| Módulo                 | Servicios exportados                                      |
+| ---------------------- | --------------------------------------------------------- |
+| `ConfigModule`         | `ConfigService`                                           |
+| `EventEmitterModule`   | `EventEmitter2`                                           |
+| `AuthModule`           | `AuthService`, `SessionAuthGuard`, `PermissionsGuard`     |
+| `UsersModule`          | `UsersService`                                            |
+| `RolesModule`          | `RolesService`                                            |
+| `PermissionsModule`    | `PermissionsService`                                      |
+| `AuditModule`          | `AuditService`                                            |
+| `SettingsModule`       | `SettingsService`                                         |
+| `TaxonomiesModule`     | `TaxonomiesService`                                       |
+| `FilesModule`          | `FilesService`                                            |
+| `MediaModule`          | `MediaService`                                            |
+| `EmailProvidersModule` | `EmailProvidersService`                                   |
 | `NotificationsModule`  | `NotificationsService`, `EmailSenderService`, `NotificationTypesService` |
+| `UserPreferencesModule`| `UserPreferencesService`, `BaseUserPreferencesService`    |
 
 ---
 
@@ -253,9 +254,6 @@ import type {
   AuditLog,
   Setting,
   SettingCategory,
-  SettingType,
-  SettingInputType,
-  SettingMeta,
   EmailProvider,
   EmailProviderType,
   EmailProviderConfigUnion,
@@ -264,7 +262,9 @@ import type {
   EmailTemplate,
   NotificationType,
   UserNotificationPreference,
-  // Bloques
+  ThemePreference,
+  UserPreference,
+  // Bloques de email
   Section,
   Column,
   Block,
@@ -274,9 +274,19 @@ import type {
   ImageBlock,
   DividerBlock,
   SpacerBlock,
-  // Entidades del cliente
+  // Interfaces
+  PaginatedResult,
+  ApiResponse,
+  CoreSeedOptions,
+  ExtraRole,
+} from '@dh/backend-core';
+
+// Valores y funciones (no types)
+import {
   CORE_ENTITIES,
-  // Seeds
   runCoreSeeds,
+  generateSlug,
+  ApiException,
+  ErrorCode,
 } from '@dh/backend-core';
 ```

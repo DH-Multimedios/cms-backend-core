@@ -126,3 +126,10 @@ orders.maxItems   → cliente
 | `app.url` | URL del frontend | — |
 | `app.logoUrl` | URL del logo (para emails) | — |
 | `email.from` | Remitente de emails | — |
+| `auth.sessionExpiration` | Duración de sesión en días | `365` |
+| `files.allowedMimetypes` | Tipos de archivo permitidos (JSON array) | — |
+| `files.maxFileSize` | Tamaño máximo de archivo en bytes | — |
+| `media.allowedMimetypes` | Tipos de imagen permitidos (JSON array) | — |
+| `media.maxFileSize` | Tamaño máximo de imagen en bytes | — |
+
+> ⚠️ El seed inicial crea la key como `app.logo`. `NotificationsService` lee `app.logoUrl`. Hay una inconsistencia en el core — hasta que se corrija, el logo no se inyecta automáticamente en los templates.
