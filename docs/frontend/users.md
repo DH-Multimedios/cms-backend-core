@@ -41,7 +41,7 @@ Lista paginada de usuarios. Excluye el usuario del sistema (`isSystemUser: true`
         "isSystemUser": false,
         "isProtected": false,
         "avatarUrl": "/uploads/media/uuid/avatars/2026-04-14/avatar.jpg",
-        "roles": [{ "id": "uuid", "name": "Admin", "weight": 90 }],
+        "roles": [{ "id": "uuid", "name": "admin", "label": "Admin", "weight": 90 }],
         "lastLoginAt": "2026-04-11T...",
         "createdAt": "2026-01-01T...",
         "updatedAt": "2026-04-11T..."
@@ -243,5 +243,6 @@ Elimina un usuario.
 | `isSystemUser`   | Si `true`, es el usuario del sistema y bypasea permisos. Útil para routing/UI especial.                                            |
 | `isProtected`    | Si `true`, deshabilitar el botón de eliminar en UI.                                                                                 |
 | `avatarUrl`      | URL del avatar del usuario. `null` si no tiene. Se gestiona via `/users/me/avatar` (subir/eliminar) o `/users/:id/avatar` (admin). |
+| `roles[].label`  | Texto visible del rol para mostrar en UI.                                                                                           |
 | `roles[].weight` | El peso del rol determina jerarquía. No permite asignar roles de mayor peso.                                                        |
 | `lastLoginAt`    | Null si el usuario nunca se logueó.                                                                                                 |

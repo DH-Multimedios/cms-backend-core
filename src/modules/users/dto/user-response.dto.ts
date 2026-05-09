@@ -10,7 +10,7 @@ export class UserResponseDto {
   isSystemUser: boolean;
   isProtected: boolean;
   avatarUrl: string | null;
-  roles: { id: string; name: string; weight: number }[];
+  roles: { id: string; name: string; label: string; weight: number }[];
   lastLoginAt: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -26,7 +26,7 @@ export class UserResponseDto {
     dto.isSystemUser = user.isSystemUser;
     dto.isProtected = user.isProtected;
     dto.avatarUrl = user.avatarUrl;
-    dto.roles = (user.roles || []).map((r) => ({ id: r.id, name: r.name, weight: r.weight }));
+    dto.roles = (user.roles || []).map((r) => ({ id: r.id, name: r.name, label: r.label, weight: r.weight }));
     dto.lastLoginAt = user.lastLoginAt;
     dto.createdAt = user.createdAt;
     dto.updatedAt = user.updatedAt;

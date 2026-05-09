@@ -49,7 +49,7 @@ El servidor setea automáticamente la cookie HttpOnly `session_id` (web). El bod
       "isSystemUser": false,
       "isProtected": false,
       "avatarUrl": "/uploads/media/uuid/avatars/2026-04-14/avatar.jpg",
-      "roles": [{ "id": "uuid", "name": "Admin", "weight": 90 }],
+      "roles": [{ "id": "uuid", "name": "admin", "label": "Admin", "weight": 90 }],
       "lastLoginAt": "2026-04-11T...",
       "createdAt": "2026-01-01T...",
       "updatedAt": "2026-04-11T..."
@@ -127,7 +127,7 @@ Devuelve el usuario autenticado con sus roles. Requiere sesión activa.
     "isSystemUser": false,
     "isProtected": false,
     "avatarUrl": "/uploads/media/uuid/avatars/2026-04-14/avatar.jpg",
-    "roles": [{ "id": "uuid", "name": "Admin", "weight": 90 }],
+    "roles": [{ "id": "uuid", "name": "admin", "label": "Admin", "weight": 90 }],
     "lastLoginAt": "2026-04-11T...",
     "createdAt": "2026-01-01T...",
     "updatedAt": "2026-04-11T..."
@@ -135,7 +135,7 @@ Devuelve el usuario autenticado con sus roles. Requiere sesión activa.
 }
 ```
 
-> `roles` incluye `id`, `name` y `weight` pero **no** incluye permisos. Para permisos, usar `GET /auth/me/permissions`.
+> `roles` incluye `id`, `name`, `label` y `weight` pero **no** incluye permisos. Mostrar `label` en UI. Para permisos, usar `GET /auth/me/permissions`.
 
 ---
 
