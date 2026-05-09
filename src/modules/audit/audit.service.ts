@@ -47,7 +47,7 @@ export class AuditService {
   }
 
   async findAll(query: AuditQueryDto): Promise<PaginatedResult<AuditLogListItemDto>> {
-    const { page = 1, limit = 20, sortOrder = 'DESC', sortBy = 'createdAt', userId, entity, action, dateFrom, dateTo } = query;
+    const { page = 1, limit = 20, sortOrder = 'DESC', sortBy = 'createdAt', userId, entity, action, from, to } = query;
 
     const qb = this.auditLogRepository.createQueryBuilder('log')
       .leftJoin('log.user', 'user')
@@ -63,11 +63,11 @@ export class AuditService {
     if (action) {
       qb.andWhere('log.action = :action', { action });
     }
-    if (dateFrom) {
-      qb.andWhere('log.createdAt >= :dateFrom', { dateFrom: new Date(dateFrom) });
+    if (from) {
+      qb.andWhere('log.createdAt >= :from', { from: new Date(from) });
     }
-    if (dateTo) {
-      qb.andWhere('log.createdAt <= :dateTo', { dateTo: new Date(dateTo) });
+    if (to) {
+      qb.andWhere('log.createdAt <= :to', { to: new Date(to) });
     }
 
     qb.orderBy(`log.${sortBy}`, sortOrder)

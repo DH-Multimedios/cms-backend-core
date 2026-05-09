@@ -21,12 +21,12 @@ export class AuditQueryDto extends PaginationDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsDateString()
-  dateFrom?: string;
+  from?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsDateString()
-  dateTo?: string;
+  to?: string;
 
   @ApiPropertyOptional({ enum: ['createdAt'], default: 'createdAt' })
   @IsOptional()
