@@ -198,7 +198,7 @@ El módulo Media usa **Settings** para validar uploads. Configurar desde seeds o
   categoryId: 4, // Imágenes
   key: 'media.allowedMimetypes',
   value: '["image/jpeg","image/png","image/webp","image/gif"]',
-  type: 'array',
+  type: 'json',
 },
 {
   categoryId: 4,
@@ -518,13 +518,13 @@ if (!isImage) {
 
 ### Las imágenes no cargan (404)
 
-El servidor no está sirviendo `uploads/media/` como carpeta estática. Verificar en `main.ts`:
+`CoreModule` ya registra `ServeStaticModule` internamente y sirve `uploads/media/` bajo `/uploads/media/`. Si las imágenes no cargan, verificá:
 
-```typescript
-app.useStaticAssets(join(process.cwd(), 'uploads/media'), {
-  prefix: '/uploads/media/',
-});
-```
+1. Que el directorio físico exista y tenga los archivos (`uploads/media/` por defecto)
+2. Que `BASE_URL` apunte al servidor correcto
+3. Si usás un path personalizado, que esté configurado en `CoreModule.registerAsync` bajo `modules.media.path`
+
+Si estás usando un path distinto al default sin configurarlo, el `ServeStaticModule` seguirá sirviendo `uploads/media/` y las imágenes subidas al path alternativo no serán accesibles.
 
 ### Las dimensiones (width/height) son 0
 

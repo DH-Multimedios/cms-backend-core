@@ -6,15 +6,17 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  * - `name` pasa a ser clave técnica interna en snake_case (ej: super_admin, admin, user)
  * - `label` es el texto visible para la UI (ej: "Super Admin", "Admin", "Usuario")
  *
- * Nota: Esta migración asume DB nueva (post-baseline). No hay datos de producción que migrar.
+ * Debe ser compatible con dos escenarios:
+ * - DB vieja sin `label` y con roles core en PascalCase
+ * - DB nueva creada desde el baseline, donde `label` ya existe
  */
 export class AddRoleLabelAndSnakeCaseName1733500000101 implements MigrationInterface {
   name = 'AddRoleLabelAndSnakeCaseName1733500000101';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // 1. Agregar columna label (temporalmente nullable para poder popularse)
+    // 1. Agregar columna label solo si todavía no existe
     await queryRunner.query(`
-      ALTER TABLE "roles" ADD COLUMN "label" character varying
+      ALTER TABLE "roles" ADD COLUMN IF NOT EXISTS "label" character varying
     `);
 
     // 2. Poblar label con el nombre actual antes de cambiar a snake_case
@@ -35,7 +37,7 @@ export class AddRoleLabelAndSnakeCaseName1733500000101 implements MigrationInter
     await queryRunner.query(`UPDATE "roles" SET "name" = 'Admin'      WHERE "name" = 'admin'`);
     await queryRunner.query(`UPDATE "roles" SET "name" = 'User'       WHERE "name" = 'user'`);
 
-    // Eliminar columna label
-    await queryRunner.query(`ALTER TABLE "roles" DROP COLUMN "label"`);
+    // Eliminar columna label si existe
+    await queryRunner.query(`ALTER TABLE "roles" DROP COLUMN IF EXISTS "label"`);
   }
 }

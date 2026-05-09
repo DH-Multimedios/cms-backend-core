@@ -206,8 +206,13 @@ Al registrar `CoreModule`, los siguientes módulos están disponibles para inyec
 | `FilesModule`          | `FilesService`                                            |
 | `MediaModule`          | `MediaService`                                            |
 | `EmailProvidersModule` | `EmailProvidersService`                                   |
-| `NotificationsModule`  | `NotificationsService`, `EmailSenderService`, `NotificationTypesService` |
+| `NotificationsModule`  | `NotificationsService` ¹, `EmailSenderService` ², `NotificationTypesService` ² |
 | `UserPreferencesModule`| `UserPreferencesService`, `BaseUserPreferencesService`    |
+
+---
+
+> ¹ Re-exportado en el barrel `@dh/backend-core` — importable directamente.
+> ² Inyectable vía DI (el módulo lo exporta), pero **no re-exportado** en el barrel. Para tiparlo, importá `NotificationsModule` en tu módulo propio. Ver [notifications.md](./notifications.md).
 
 ---
 

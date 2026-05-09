@@ -144,7 +144,7 @@ export class NotificationsService implements OnModuleInit {
     const [appName, appUrl, appLogoUrl] = await Promise.all([
       this.settingsService.getValue('app.name', ''),
       this.settingsService.getValue('app.url', ''),
-      this.settingsService.getValue('app.logoUrl', ''),
+      this.settingsService.getValue('app.logo', ''),
     ]);
 
     return {

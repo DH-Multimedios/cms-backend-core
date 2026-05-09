@@ -110,17 +110,23 @@ this.eventEmitter.emit('order.created', new OrderCreatedEvent(order, customer));
 
 Extendé el sistema creando un listener en tu módulo. El core no sabe de `order.created` — vos manejás el dispatch.
 
-> ⚠️ `NotificationPreferencesService`, `EmailTemplatesService` y `TemplateRendererService` **no se exportan** desde `@dh/backend-core`. Para usarlos en tu listener tenés que importar el módulo de notificaciones o acceder vía inyección dentro del mismo módulo. La alternativa más simple es inyectar `NotificationsService` y delegar ahí el envío cuando sea posible.
+> ⚠️ Solo `NotificationsService` está re-exportado en el barrel de `@dh/backend-core` y puede importarse directamente. `EmailSenderService`, `NotificationTypesService`, `EmailTemplatesService` y `TemplateRendererService` **no están en el barrel** — no se puede hacer `import { EmailSenderService } from '@dh/backend-core'`.
 >
-> Los servicios accesibles desde `@dh/backend-core` son: `NotificationsService`, `EmailSenderService`, `NotificationTypesService`.
+> `EmailSenderService` y `NotificationTypesService` sí son inyectables vía DI (el módulo los exporta), pero para tiparlos correctamente necesitás importar `NotificationsModule` en tu módulo propio. La alternativa más simple es inyectar solo `NotificationsService` y delegar el envío ahí cuando sea posible.
 
 ```typescript
-import { Injectable } from '@nestjs/common';
+// Para usar EmailSenderService y NotificationTypesService en tu listener,
+// importá NotificationsModule en tu módulo (no están en el barrel de @dh/backend-core).
+// Alternativamente, tipá con `any` si solo necesitás el comportamiento runtime.
+import { Injectable, Inject } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { NotificationTypesService, EmailSenderService } from '@dh/backend-core';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EmailTemplate } from '@dh/backend-core';
+
+// Importar los servicios desde sus paths internos (solo si importás NotificationsModule)
+import { EmailSenderService } from '@dh/backend-core/dist/modules/notifications/email-sender.service';
+import { NotificationTypesService } from '@dh/backend-core/dist/modules/notifications/notification-types/notification-types.service';
 
 @Injectable()
 export class OrderNotificationsListener {
@@ -156,10 +162,13 @@ export class OrderNotificationsListener {
 }
 ```
 
-Registrá el listener en tu módulo:
+Registrá el listener en tu módulo e importá `NotificationsModule` para que la DI funcione:
 
 ```typescript
+import { NotificationsModule } from '@dh/backend-core';
+
 @Module({
+  imports: [NotificationsModule],
   providers: [OrderNotificationsListener],
 })
 export class OrdersModule {}

@@ -286,9 +286,9 @@ async uploadContract(file: Express.Multer.File, userId: string) {
 
 Los archivos se validan contra settings dinámicos:
 
-| Key                      | Tipo           | Descripción                 | Default                                          |
+| Key                      | Tipo en DB     | Descripción                 | Default                                          |
 | ------------------------ | -------------- | --------------------------- | ------------------------------------------------ |
-| `files.allowedMimetypes` | `json` (array) | Tipos de archivo permitidos | `['application/pdf', 'application/msword', ...]` |
+| `files.allowedMimetypes` | `json`         | Tipos de archivo permitidos | `['application/pdf', 'application/msword', ...]` |
 | `files.maxFileSize`      | `number`       | Tamaño máximo en bytes      | `10485760` (10MB)                                |
 
 Para ajustar desde el dashboard:

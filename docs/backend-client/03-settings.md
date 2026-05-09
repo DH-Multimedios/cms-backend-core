@@ -120,16 +120,16 @@ orders.maxItems   → cliente
 
 ## Keys del core disponibles
 
-| Key | Descripción | Default |
-|-----|-------------|---------|
-| `app.name` | Nombre de la aplicación | — |
-| `app.url` | URL del frontend | — |
-| `app.logoUrl` | URL del logo (para emails) | — |
-| `email.from` | Remitente de emails | — |
-| `auth.sessionExpiration` | Duración de sesión en días | `365` |
-| `files.allowedMimetypes` | Tipos de archivo permitidos (JSON array) | — |
-| `files.maxFileSize` | Tamaño máximo de archivo en bytes | — |
-| `media.allowedMimetypes` | Tipos de imagen permitidos (JSON array) | — |
-| `media.maxFileSize` | Tamaño máximo de imagen en bytes | — |
+| Key | Descripción | Tipo en DB | Default |
+|-----|-------------|------------|---------|
+| `app.name` | Nombre de la aplicación | `string` | — |
+| `app.url` | URL del frontend | `string` | — |
+| `app.logo` | URL del logo (para emails y dashboard) | `string` | — |
+| `email.from` | Remitente de emails | `string` | — |
+| `auth.sessionExpiration` | Duración de sesión en días | `number` | `365` |
+| `files.allowedMimetypes` | Tipos de archivo permitidos (JSON array) | `json` | `['application/pdf', ...]` |
+| `files.maxFileSize` | Tamaño máximo de archivo en bytes | `number` | `10485760` (10MB) |
+| `media.allowedMimetypes` | Tipos de imagen permitidos (JSON array) | `json` | `['image/jpeg', ...]` |
+| `media.maxFileSize` | Tamaño máximo de imagen en bytes | `number` | `5242880` (5MB) |
 
-> ⚠️ El seed inicial crea la key como `app.logo`. `NotificationsService` lee `app.logoUrl`. Hay una inconsistencia en el core — hasta que se corrija, el logo no se inyecta automáticamente en los templates.
+> ⚠️ El seed crea la key de logo como `app.logo`, pero `NotificationsService` la lee como `app.logoUrl`. Hay una inconsistencia en el core — hasta que se corrija, `{{appLogoUrl}}` no se inyecta en los templates. Si necesitás el logo en emails, guardalo en `app.logo` y reemplazalo manualmente en tu listener.

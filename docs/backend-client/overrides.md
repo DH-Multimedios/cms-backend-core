@@ -274,4 +274,4 @@ USER_EMAIL=user@cliente.com
 USER_PASSWORD=...
 ```
 
-> La duración de sesión se configura desde Settings (`auth.sessionExpiration`), no como variable de entorno.
+> La duración de sesión se configura primariamente desde Settings (`auth.sessionExpiration`, en días, default `365`). También podés fijar un valor inicial via `AuthConfig.sessionExpiration` en `CoreModule.registerAsync` — ese valor se usa como fallback si el setting no existe, no como override en tiempo de ejecución.
