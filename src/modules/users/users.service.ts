@@ -143,6 +143,30 @@ export class UsersService {
     return UserResponseDto.from(user);
   }
 
+  async findList(currentUser: User): Promise<{ id: string; username: string | null; firstName: string; lastName: string; avatarUrl: string | null }[]> {
+    const qb = this.userRepository
+      .createQueryBuilder('user')
+      .leftJoin('user.roles', 'role')
+      .select(['user.id', 'user.username', 'user.firstName', 'user.lastName', 'user.avatarUrl'])
+      .where('user.isSystemUser = false')
+      .andWhere('user.isActive = true')
+      .orderBy('user.firstName', 'ASC');
+
+    if (!currentUser.isSystemUser) {
+      const maxWeight = Math.max(...(currentUser.roles?.map((r) => r.weight) ?? [0]));
+      qb.andWhere(
+        `user.id NOT IN (
+          SELECT ur."userId" FROM user_roles ur
+          INNER JOIN roles r ON r.id = ur."roleId"
+          WHERE r.weight > :maxWeight
+        )`,
+        { maxWeight },
+      );
+    }
+
+    return qb.getMany();
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { email } });
   }

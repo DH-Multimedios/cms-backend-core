@@ -46,6 +46,13 @@ export class UsersController {
     return this.usersService.findAll(query, currentUser);
   }
 
+  @Get('list')
+  @RequirePermissions('users.read')
+  @ApiOperation({ summary: 'Listado liviano de usuarios (para selects)' })
+  findList(@CurrentUser() currentUser: User) {
+    return this.usersService.findList(currentUser);
+  }
+
   @Get('by-username/:username')
   @RequirePermissions('users.read')
   @ApiOperation({ summary: 'Obtener usuario por username' })
