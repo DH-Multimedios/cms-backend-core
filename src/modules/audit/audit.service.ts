@@ -74,6 +74,9 @@ export class AuditService {
       .skip((page - 1) * limit)
       .take(limit);
 
+    console.log('AUDIT SQL:', qb.getSql());
+    console.log('AUDIT PARAMS:', qb.getParameters());
+
     const [logs, total] = await qb.getManyAndCount();
 
     return {
