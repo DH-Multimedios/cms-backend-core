@@ -144,6 +144,10 @@ ADMIN_PASSWORD=password-seguro
 # Usuario normal del cliente (opcional)
 USER_EMAIL=user@cliente.com
 USER_PASSWORD=password-seguro
+
+# Debug de requests (opcional — solo para desarrollo)
+# Loguea method, path, query y body de cada request en la consola
+# DEBUG_REQUESTS=true
 ```
 
 ---
