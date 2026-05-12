@@ -8,7 +8,7 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist/**/*",
-    "docs/**/*",
+    "docs/backend-client/**/*",
     "README.md",
     "CHANGELOG.md",
     ".env.example"
