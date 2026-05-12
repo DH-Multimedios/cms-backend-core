@@ -10,15 +10,22 @@ Cómo integrar `@dh/backend-core` en un proyecto NestJS cliente.
 pnpm add git+ssh://git@github.com:DH-Multimedios/cms-backend-core.git
 ```
 
-Agregar en `package.json` para permitir el build:
+### pnpm 11 — aprobar build scripts
 
-```json
-{
-  "pnpm": {
-    "onlyBuiltDependencies": ["@dh/backend-core"]
-  }
-}
+pnpm 11 bloquea por seguridad los scripts de build de dependencias transitivas. El core trae paquetes como `@nestjs/core`, `bcrypt` y `sharp` que necesitan correr scripts al instalarse.
+
+Ejecutá una vez después de instalar:
+
+```bash
+pnpm approve-builds
 ```
+
+Seleccioná todos los paquetes de la lista. pnpm guarda la aprobación en `pnpm-workspace.yaml` y no vuelve a preguntar.
+
+> Si usás pnpm < 11, en su lugar agregá esto en `package.json`:
+> ```json
+> { "pnpm": { "onlyBuiltDependencies": ["@dh/backend-core"] } }
+> ```
 
 ---
 
