@@ -1,0 +1,1 @@
+{"version":3,"file":"upload-file.dto.d.ts","sourceRoot":"","sources":["../../../../src/modules/files/dto/upload-file.dto.ts"],"names":[],"mappings":"AAGA,qBAAa,aAAa;IAMxB,eAAe,CAAC,EAAE,MAAM,CAAC;IAIzB,KAAK,EAAE,MAAM,CAAC;IAQd,IAAI,CAAC,EAAE,MAAM,CAAC;IAKd,WAAW,CAAC,EAAE,MAAM,CAAC;IAQrB,QAAQ,CAAC,EAAE,OAAO,CAAC;CACpB"}

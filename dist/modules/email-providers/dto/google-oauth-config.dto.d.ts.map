@@ -1,0 +1,1 @@
+{"version":3,"file":"google-oauth-config.dto.d.ts","sourceRoot":"","sources":["../../../../src/modules/email-providers/dto/google-oauth-config.dto.ts"],"names":[],"mappings":"AAGA,qBAAa,oBAAoB;IAG/B,QAAQ,EAAE,MAAM,CAAC;IAIjB,YAAY,EAAE,MAAM,CAAC;IAIrB,YAAY,EAAE,MAAM,CAAC;IAIrB,IAAI,EAAE,MAAM,CAAC;CACd"}

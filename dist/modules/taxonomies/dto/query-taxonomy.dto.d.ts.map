@@ -1,0 +1,1 @@
+{"version":3,"file":"query-taxonomy.dto.d.ts","sourceRoot":"","sources":["../../../../src/modules/taxonomies/dto/query-taxonomy.dto.ts"],"names":[],"mappings":"AAIA,qBAAa,gBAAgB;IAI3B,IAAI,CAAC,EAAE,MAAM,CAAC;IAKd,QAAQ,CAAC,EAAE,MAAM,CAAC;IAKlB,IAAI,CAAC,EAAE,MAAM,CAAC;IAKd,MAAM,CAAC,EAAE,MAAM,CAAC;IAOhB,IAAI,CAAC,EAAE,MAAM,CAAC;IAOd,KAAK,CAAC,EAAE,MAAM,CAAC;CAChB"}

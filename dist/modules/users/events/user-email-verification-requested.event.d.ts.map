@@ -1,0 +1,1 @@
+{"version":3,"file":"user-email-verification-requested.event.d.ts","sourceRoot":"","sources":["../../../../src/modules/users/events/user-email-verification-requested.event.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,IAAI,EAAE,MAAM,wCAAwC,CAAC;AAE9D,qBAAa,mCAAmC;aAE5B,IAAI,EAAE,IAAI;aACV,iBAAiB,EAAE,MAAM;gBADzB,IAAI,EAAE,IAAI,EACV,iBAAiB,EAAE,MAAM;CAE5C"}

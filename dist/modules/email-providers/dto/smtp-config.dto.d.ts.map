@@ -1,0 +1,1 @@
+{"version":3,"file":"smtp-config.dto.d.ts","sourceRoot":"","sources":["../../../../src/modules/email-providers/dto/smtp-config.dto.ts"],"names":[],"mappings":"AAGA,qBAAa,aAAa;IAGxB,IAAI,EAAE,MAAM,CAAC;IAMb,IAAI,EAAE,MAAM,CAAC;IAIb,IAAI,EAAE,MAAM,CAAC;IAIb,IAAI,EAAE,MAAM,CAAC;IAIb,MAAM,EAAE,OAAO,CAAC;CACjB"}

@@ -1,0 +1,1 @@
+{"version":3,"file":"permissions.controller.d.ts","sourceRoot":"","sources":["../../../src/modules/permissions/permissions.controller.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,kBAAkB,EAAE,MAAM,uBAAuB,CAAC;AAC3D,OAAO,EAAE,mBAAmB,EAAE,MAAM,6BAA6B,CAAC;AAKlE,qBAIa,qBAAqB;IACpB,OAAO,CAAC,QAAQ,CAAC,kBAAkB;gBAAlB,kBAAkB,EAAE,kBAAkB;IAKnE,QAAQ;IAOR,OAAO,CAAU,KAAK,EAAE,mBAAmB;CAG5C"}

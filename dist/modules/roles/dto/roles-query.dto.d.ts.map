@@ -1,0 +1,1 @@
+{"version":3,"file":"roles-query.dto.d.ts","sourceRoot":"","sources":["../../../../src/modules/roles/dto/roles-query.dto.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,aAAa,EAAE,MAAM,oCAAoC,CAAC;AAEnE,qBAAa,aAAc,SAAQ,aAAa;IAI9C,MAAM,CAAC,EAAE,MAAM,CAAC;IAKhB,MAAM,CAAC,EAAE,MAAM,CAAY;CAC5B"}

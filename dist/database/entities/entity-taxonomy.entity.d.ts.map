@@ -1,0 +1,1 @@
+{"version":3,"file":"entity-taxonomy.entity.d.ts","sourceRoot":"","sources":["../../../src/database/entities/entity-taxonomy.entity.ts"],"names":[],"mappings":"AASA,OAAO,EAAE,QAAQ,EAAE,MAAM,mBAAmB,CAAC;AAE7C,qBAEa,cAAc;IAEzB,EAAE,EAAE,MAAM,CAAC;IAOX,UAAU,EAAE,MAAM,CAAC;IAGnB,QAAQ,EAAE,MAAM,CAAC;IAGjB,UAAU,EAAE,MAAM,CAAC;IAInB,QAAQ,EAAE,QAAQ,CAAC;IAGnB,SAAS,EAAE,IAAI,CAAC;CACjB"}

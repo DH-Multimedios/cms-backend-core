@@ -1,0 +1,1 @@
+{"version":3,"file":"list-files.dto.d.ts","sourceRoot":"","sources":["../../../../src/modules/files/dto/list-files.dto.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,aAAa,EAAE,MAAM,oCAAoC,CAAC;AAEnE,qBAAa,YAAa,SAAQ,aAAa;IAI7C,KAAK,CAAC,EAAE,MAAM,CAAC;IAKf,eAAe,CAAC,EAAE,MAAM,CAAC;IAKzB,QAAQ,CAAC,EAAE,OAAO,CAAC;IAKnB,MAAM,CAAC,EAAE,MAAM,CAAC;IAKhB,MAAM,CAAC,EAAE,MAAM,CAAe;CAC/B"}

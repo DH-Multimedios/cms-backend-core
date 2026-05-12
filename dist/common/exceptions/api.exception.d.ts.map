@@ -1,0 +1,1 @@
+{"version":3,"file":"api.exception.d.ts","sourceRoot":"","sources":["../../../src/common/exceptions/api.exception.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,aAAa,EAAE,UAAU,EAAE,MAAM,gBAAgB,CAAC;AAC3D,OAAO,EAAE,SAAS,EAAE,MAAM,2BAA2B,CAAC;AAEtD,qBAAa,YAAa,SAAQ,aAAa;aAG3B,IAAI,EAAE,SAAS,GAAG,MAAM;gBADxC,MAAM,EAAE,UAAU,EACF,IAAI,EAAE,SAAS,GAAG,MAAM,EACxC,OAAO,EAAE,MAAM;CAIlB"}

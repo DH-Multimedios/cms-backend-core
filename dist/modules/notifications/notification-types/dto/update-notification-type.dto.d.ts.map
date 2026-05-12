@@ -1,0 +1,1 @@
+{"version":3,"file":"update-notification-type.dto.d.ts","sourceRoot":"","sources":["../../../../../src/modules/notifications/notification-types/dto/update-notification-type.dto.ts"],"names":[],"mappings":"AAGA,OAAO,EAAE,yBAAyB,EAAE,MAAM,gCAAgC,CAAC;;AAE3E,qBAAa,yBAA0B,SAAQ,8BAAsC;IAInF,SAAS,CAAC,EAAE,OAAO,CAAC;CACrB"}
