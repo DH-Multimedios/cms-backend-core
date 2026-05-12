@@ -1,13 +1,40 @@
-# Setup del proyecto cliente — Guía para backend
+# Setup del proyecto cliente
 
-Cómo integrar `@dh/backend-core` en un proyecto NestJS cliente.
+Guía paso a paso para crear un proyecto NestJS nuevo usando `@dh/backend-core`.
 
 ---
 
-## Instalación
+## Requisitos previos
+
+- Node.js >= 20
+- pnpm
+- Podman + podman-compose
+- NestJS CLI (`pnpm add -g @nestjs/cli`)
+
+---
+
+## Paso 1 — Crear el proyecto NestJS
 
 ```bash
+nest new mi-proyecto
+cd mi-proyecto
+```
+
+Cuando pregunte el package manager, elegí **pnpm**.
+
+---
+
+## Paso 2 — Instalar el core y dependencias
+
+```bash
+# Core
 pnpm add git+ssh://git@github.com:DH-Multimedios/cms-backend-core.git
+
+# Dependencias adicionales
+pnpm add @nestjs/config @nestjs/swagger dotenv
+
+# TypeORM
+pnpm add @nestjs/typeorm typeorm pg
 ```
 
 ### pnpm 11 — aprobar build scripts
@@ -22,40 +49,9 @@ pnpm approve-builds
 
 Seleccioná todos los paquetes de la lista. pnpm guarda la aprobación en `pnpm-workspace.yaml` y no vuelve a preguntar.
 
-> Si usás pnpm < 11, en su lugar agregá esto en `package.json`:
-> ```json
-> { "pnpm": { "onlyBuiltDependencies": ["@dh/backend-core"] } }
-> ```
-
 ---
 
-## main.ts
-
-El core usa cookies HttpOnly para auth. `cookie-parser` ya está aplicado globalmente por `CoreModule` — no hace falta agregarlo en `main.ts`.
-
-```typescript
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-
-  // CORS — requerido si el frontend está en otro dominio
-  app.enableCors({
-    origin: process.env.FRONTEND_URL, // ej: http://localhost:3001
-    credentials: true, // ← requerido para que el browser envíe cookies
-  });
-
-  await app.listen(process.env.PORT ?? 3000);
-}
-bootstrap();
-```
-
-> ⚠️ Sin `credentials: true` en CORS el browser no envía las cookies HttpOnly.
-
----
-
-## AppModule
+## Paso 3 — AppModule
 
 ```typescript
 import { Module } from '@nestjs/common';
@@ -70,156 +66,316 @@ import { CoreModule } from '@dh/backend-core';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         database: {
-          host: config.get('DB_HOST'),
-          port: config.get<number>('DB_PORT'),
-          username: config.get('DB_USER'),
-          password: config.get('DB_PASS'),
-          database: config.get('DB_NAME'),
+          host: config.getOrThrow<string>('DB_HOST'),
+          port: config.getOrThrow<number>('DB_PORT'),
+          username: config.getOrThrow<string>('DB_USERNAME'),
+          password: config.getOrThrow<string>('DB_PASSWORD'),
+          database: config.getOrThrow<string>('DB_NAME'),
+          synchronize: false,
+          logging: config.get('DB_LOGGING') === 'true',
         },
         auth: {
-          cookiePath: '/auth', // default: '/auth'
-          // cookieSecure y cookieSameSite tienen defaults según NODE_ENV:
-          //   - dev:  sameSite='none', secure=true (para localhost cross-origin)
-          //   - prod: sameSite='lax',  secure=true
+          sessionExpiration: config.get('SESSION_EXPIRATION') || '365',
+          cookiePath: '/',
+        },
+        modules: {
+          audit: true,
+          health: true,
+          taxonomies: true,
+          settings: true,
+          files: {
+            storage: 'local',
+            path: './uploads/files',
+          },
+          media: {
+            storage: 'local',
+            path: './uploads/media',
+          },
         },
       }),
     }),
+
+    // Tus módulos de negocio acá
+    // ProductsModule,
   ],
 })
 export class AppModule {}
 ```
 
+> `getOrThrow()` lanza un error claro si falta la variable de entorno — mejor que un `undefined` silencioso en runtime.
+
 ---
 
-## data-source.ts
+## Paso 4 — main.ts
+
+El core aplica `cookie-parser` globalmente — no hace falta agregarlo acá.
+
+```typescript
+import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  app.setGlobalPrefix(process.env.API_PREFIX || 'api');
+
+  app.enableCors({
+    origin: process.env.CORS_ORIGINS?.split(','),
+    credentials: true, // requerido para que el browser envíe cookies HttpOnly
+  });
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
+  const config = new DocumentBuilder()
+    .setTitle('Mi Proyecto API')
+    .setDescription('Descripción de la API')
+    .setVersion('1.0.0')
+    .addCookieAuth('session_id')
+    .build();
+
+  SwaggerModule.setup('api/docs', app, SwaggerModule.createDocument(app, config));
+
+  await app.listen(process.env.PORT || 3000);
+  console.log(`🚀 http://localhost:${process.env.PORT || 3000}`);
+  console.log(`📚 http://localhost:${process.env.PORT || 3000}/api/docs`);
+}
+
+bootstrap();
+```
+
+> ⚠️ Sin `credentials: true` en CORS el browser no envía las cookies HttpOnly.
+
+---
+
+## Paso 5 — Variables de entorno
+
+```env
+# Application
+NODE_ENV=development
+PORT=3000
+API_PREFIX=api
+
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=mi_proyecto
+DB_PASSWORD=mi_password
+DB_NAME=mi_proyecto_dev
+DB_LOGGING=false
+
+# Auth
+SESSION_EXPIRATION=365
+
+# CORS
+CORS_ORIGINS=http://localhost:4200
+
+# Usuario del sistema (backdoor del desarrollador — NO compartir)
+SYSTEM_USER_EMAIL=tu-email@personal.com
+SYSTEM_USER_PASSWORD=password-ultra-segura
+
+# SuperAdmin del cliente
+SUPERADMIN_EMAIL=admin@miproyecto.com
+SUPERADMIN_PASSWORD=password-segura
+
+# Admin del cliente
+ADMIN_EMAIL=support@miproyecto.com
+ADMIN_PASSWORD=password-segura
+```
+
+---
+
+## Paso 6 — Podman
+
+```yaml
+services:
+  postgres:
+    image: docker.io/library/postgres:18
+    container_name: mi-proyecto-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+
+    ports:
+      - '${DB_PORT:-5432}:5432'
+
+    volumes:
+      - mi_proyecto_data:/var/lib/postgresql:Z
+
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USERNAME}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mi_proyecto_data:
+```
+
+> Usá un nombre de container único por proyecto para evitar conflictos cuando corrés varios proyectos a la vez.
+
+---
+
+## Paso 7 — data-source.ts
 
 ```typescript
 import { DataSource } from 'typeorm';
-import { ConfigService } from '@nestjs/config';
-import * as dotenv from 'dotenv';
+import 'dotenv/config'; // necesario: este archivo corre via CLI, fuera del contexto de NestJS
+
 import { CORE_ENTITIES } from '@dh/backend-core';
-import { Product } from './src/entities/product.entity';
-
-dotenv.config();
-
-const config = new ConfigService();
+// import { Product } from './entities/product.entity';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  host: config.get('DB_HOST'),
-  port: config.get<number>('DB_PORT'),
-  username: config.get('DB_USER'),
-  password: config.get('DB_PASS'),
-  database: config.get('DB_NAME'),
+  host: process.env.DB_HOST!,
+  port: parseInt(process.env.DB_PORT!, 10),
+  username: process.env.DB_USERNAME!,
+  password: process.env.DB_PASSWORD!,
+  database: process.env.DB_NAME!,
   entities: [
     ...CORE_ENTITIES,
-    // Tus entidades
-    Product,
+    // Product,
   ],
-  migrations: ['src/database/migrations/*.ts'],
+  migrations: [
+    'node_modules/@dh/backend-core/dist/database/migrations/*.js', // migraciones del core
+    'src/database/migrations/*.ts', // tus migraciones
+  ],
   synchronize: false,
+  logging: false,
 });
 ```
 
----
+Scripts en `package.json`:
 
-## Variables de entorno requeridas
-
-```env
-# Base de datos
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=mi_usuario
-DB_PASS=mi_password
-DB_NAME=mi_base
-
-# Usuario del sistema (backdoor del desarrollador — NO compartir)
-SYSTEM_USER_EMAIL=system@internal.dev
-SYSTEM_USER_PASSWORD=password-muy-seguro
-
-# SuperAdmin del cliente
-SUPERADMIN_EMAIL=superadmin@cliente.com
-SUPERADMIN_PASSWORD=password-seguro
-
-# Admin del cliente
-ADMIN_EMAIL=support@cliente.com
-ADMIN_PASSWORD=password-seguro
-
-# Usuario normal del cliente (opcional)
-USER_EMAIL=user@cliente.com
-USER_PASSWORD=password-seguro
-
-# Debug de requests (opcional — solo para desarrollo)
-# Loguea method, path, query y body de cada request en la consola
-# DEBUG_REQUESTS=true
+```json
+{
+  "scripts": {
+    "typeorm": "typeorm-ts-node-commonjs",
+    "migration:generate": "pnpm typeorm migration:generate -d src/database/data-source.ts",
+    "migration:run": "pnpm typeorm migration:run -d src/database/data-source.ts",
+    "migration:revert": "pnpm typeorm migration:revert -d src/database/data-source.ts",
+    "seed": "ts-node src/database/seeds/run-seed.ts"
+  }
+}
 ```
 
 ---
 
-## Seeds
-
-El core provee `runCoreSeeds` que crea roles, permisos, usuarios y settings base. Llamarlo antes de tus seeds propios:
+## Paso 8 — Seeds
 
 ```typescript
 // src/database/seeds/run-seed.ts
 import { AppDataSource } from '../data-source';
 import { runCoreSeeds } from '@dh/backend-core';
-import { seedProducts } from './products.seeder';
 
 async function runSeed() {
   await AppDataSource.initialize();
 
-  await runCoreSeeds(AppDataSource); // Siempre primero
+  await runCoreSeeds(AppDataSource); // siempre primero
 
-  await seedProducts(AppDataSource); // Tus seeds después
+  // await seedProducts(AppDataSource); // tus seeds después
+
+  await AppDataSource.destroy();
 }
 
-runSeed();
+void runSeed();
 ```
 
 ---
 
-## Migraciones
-
-Las migraciones del core NO se incluyen automáticamente. Correrlas una vez al configurar el proyecto:
+## Paso 9 — Primera ejecución
 
 ```bash
-# En el proyecto cliente, las migraciones del core deben estar presentes en tu data-source
-# Incluí las migraciones del core + las tuyas en la misma carpeta, o usá un path glob
+# 1. Levantar la base de datos
+podman-compose up -d
 
-migrations: [
-  'node_modules/@dh/backend-core/src/database/migrations/*.ts',
-  'src/database/migrations/*.ts',
-],
+# 2. Correr migraciones
+pnpm migration:run
+
+# 3. Correr seeds
+pnpm seed
+
+# 4. Iniciar la app
+pnpm start:dev
+```
+
+Verificar:
+
+```bash
+curl http://localhost:3000/api/health
+# http://localhost:3000/api/docs
 ```
 
 ---
 
-## Módulos importados automáticamente
+## Usuarios disponibles tras el seed
 
-Al registrar `CoreModule`, los siguientes módulos están disponibles para inyectar en toda la app (son `@Global`):
+| Usuario    | Variable en .env       | Rol        |
+|------------|------------------------|------------|
+| Sistema    | `SYSTEM_USER_EMAIL`    | —          |
+| SuperAdmin | `SUPERADMIN_EMAIL`     | SuperAdmin |
+| Admin      | `ADMIN_EMAIL`          | Admin      |
 
-| Módulo                 | Servicios exportados                                      |
-| ---------------------- | --------------------------------------------------------- |
-| `ConfigModule`         | `ConfigService`                                           |
-| `EventEmitterModule`   | `EventEmitter2`                                           |
-| `AuthModule`           | `AuthService`, `SessionAuthGuard`, `PermissionsGuard`     |
-| `UsersModule`          | `UsersService`                                            |
-| `RolesModule`          | `RolesService`                                            |
-| `PermissionsModule`    | `PermissionsService`                                      |
-| `AuditModule`          | `AuditService`                                            |
-| `SettingsModule`       | `SettingsService`                                         |
-| `TaxonomiesModule`     | `TaxonomiesService`                                       |
-| `FilesModule`          | `FilesService`                                            |
-| `MediaModule`          | `MediaService`                                            |
-| `EmailProvidersModule` | `EmailProvidersService`                                   |
-| `NotificationsModule`  | `NotificationsService` ¹, `EmailSenderService` ², `NotificationTypesService` ² |
-| `UserPreferencesModule`| `UserPreferencesService`, `BaseUserPreferencesService`    |
+> El usuario Sistema es invisible para todos — es el backdoor del desarrollador.
 
 ---
 
-> ¹ Re-exportado en el barrel `@dh/backend-core` — importable directamente.
-> ² Inyectable vía DI (el módulo lo exporta), pero **no re-exportado** en el barrel. Para tiparlo, importá `NotificationsModule` en tu módulo propio. Ver [notifications.md](./notifications.md).
+## Estructura recomendada
+
+```
+mi-proyecto/
+├── src/
+│   ├── modules/
+│   │   └── products/
+│   │       ├── entities/
+│   │       ├── dto/
+│   │       ├── products.controller.ts
+│   │       ├── products.service.ts
+│   │       └── products.module.ts
+│   ├── database/
+│   │   ├── migrations/
+│   │   ├── seeds/
+│   │   └── data-source.ts
+│   ├── app.module.ts
+│   └── main.ts
+├── podman-compose.yml
+├── .env
+├── .env.example
+└── package.json
+```
+
+---
+
+## Módulos disponibles via DI
+
+Al registrar `CoreModule` todos estos servicios son inyectables en tu app:
+
+| Módulo                  | Servicios exportados                                                            |
+|-------------------------|---------------------------------------------------------------------------------|
+| `AuthModule`            | `AuthService`, `SessionAuthGuard`, `PermissionsGuard`                           |
+| `UsersModule`           | `UsersService`                                                                  |
+| `RolesModule`           | `RolesService`                                                                  |
+| `PermissionsModule`     | `PermissionsService`                                                            |
+| `AuditModule`           | `AuditService`                                                                  |
+| `SettingsModule`        | `SettingsService`                                                               |
+| `TaxonomiesModule`      | `TaxonomiesService`                                                             |
+| `FilesModule`           | `FilesService`                                                                  |
+| `MediaModule`           | `MediaService`                                                                  |
+| `EmailProvidersModule`  | `EmailProvidersService`                                                         |
+| `NotificationsModule`   | `NotificationsService`, `EmailSenderService`¹, `NotificationTypesService`¹      |
+| `UserPreferencesModule` | `UserPreferencesService`, `BaseUserPreferencesService`                          |
+
+> ¹ Inyectable vía DI pero no re-exportado en el barrel. Ver [notifications.md](./notifications.md).
 
 ---
 
@@ -227,15 +383,13 @@ Al registrar `CoreModule`, los siguientes módulos están disponibles para inyec
 
 ```typescript
 import {
-  Public, // Marca endpoint como público
-  CurrentUser, // Inyecta el usuario autenticado
-  RequirePermissions, // Valida permisos
+  Public,              // endpoint público (sin auth)
+  CurrentUser,         // inyecta el usuario autenticado
+  RequirePermissions,  // valida permisos
   SessionAuthGuard,
   PermissionsGuard,
 } from '@dh/backend-core';
 ```
-
-### Ejemplo de endpoint protegido
 
 ```typescript
 @Get()
@@ -243,7 +397,7 @@ import {
 @RequirePermissions('products.read')
 findAll() { ... }
 
-@Post()
+@Post('public')
 @Public()
 publicEndpoint() { ... }
 
@@ -254,51 +408,18 @@ getProfile(@CurrentUser() user: User) { ... }
 
 ---
 
-## Tipos exportados
+## Actualizar el core
 
-```typescript
-import type {
-  // Entidades
-  User,
-  Role,
-  Permission,
-  Session,
-  AuditLog,
-  Setting,
-  SettingCategory,
-  EmailProvider,
-  EmailProviderType,
-  EmailProviderConfigUnion,
-  EmailLayout,
-  EmailLayoutType,
-  EmailTemplate,
-  NotificationType,
-  UserNotificationPreference,
-  ThemePreference,
-  UserPreference,
-  // Bloques de email
-  Section,
-  Column,
-  Block,
-  TextBlock,
-  HeadingBlock,
-  ButtonBlock,
-  ImageBlock,
-  DividerBlock,
-  SpacerBlock,
-  // Interfaces
-  PaginatedResult,
-  ApiResponse,
-  CoreSeedOptions,
-  ExtraRole,
-} from '@dh/backend-core';
+```bash
+pnpm update @dh/backend-core
+pnpm migration:run
+pnpm start:dev
+```
 
-// Valores y funciones (no types)
-import {
-  CORE_ENTITIES,
-  runCoreSeeds,
-  generateSlug,
-  ApiException,
-  ErrorCode,
-} from '@dh/backend-core';
+Si `pnpm update` no refleja los cambios:
+
+```bash
+pnpm remove @dh/backend-core
+pnpm add git+ssh://git@github.com:DH-Multimedios/cms-backend-core.git
+pnpm migration:run
 ```
