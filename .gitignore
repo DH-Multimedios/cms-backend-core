@@ -49,3 +49,6 @@ lerna-debug.log*
 /test-app/dist
 /test-app/node_modules
 /test-app/.env
+
+# Internal docs (not for clients)
+docs/Backendcore/
