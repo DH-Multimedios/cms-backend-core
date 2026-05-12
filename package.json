@@ -9,6 +9,7 @@
   "files": [
     "dist/**/*",
     "docs/backend-client/**/*",
+    "docs/frontend/**/*",
     "README.md",
     "CHANGELOG.md",
     ".env.example"
