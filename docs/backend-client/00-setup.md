@@ -408,6 +408,41 @@ getProfile(@CurrentUser() user: User) { ... }
 
 ---
 
+## Skill para agentes de IA
+
+El core incluye un skill oficial que le enseña a cualquier agente (OpenCode, Claude, Cursor, etc.) los contratos, extension points y restricciones de `@dh/backend-core`. Sin él, el agente desconoce las reglas y puede generar código que las viola.
+
+### Instalación inicial (una vez por proyecto)
+
+```bash
+mkdir -p skills/backend-core
+cp node_modules/@dh/backend-core/skills/backend-core/SKILL.md skills/backend-core/SKILL.md
+```
+
+Registralo en `opencode.json` de tu proyecto:
+
+```json
+{
+  "skills": [
+    "skills/backend-core/SKILL.md"
+  ]
+}
+```
+
+> Commiteá `skills/backend-core/SKILL.md` en tu repo. Es parte de la configuración del proyecto, igual que `.eslintrc` o `tsconfig.json`.
+
+### Mantenerlo actualizado
+
+Cuando actualizás el core, comparé tu copia local contra la nueva versión:
+
+```bash
+diff skills/backend-core/SKILL.md node_modules/@dh/backend-core/skills/backend-core/SKILL.md
+```
+
+Mergeá los cambios relevantes a mano. Si el proyecto tiene convenciones propias encima del core, agregálas al final de tu copia local — el skill base actúa como capa base, tu overlay como capa propia.
+
+---
+
 ## Actualizar el core
 
 ```bash

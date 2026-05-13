@@ -10,6 +10,7 @@
     "dist/**/*",
     "docs/backend-client/**/*",
     "docs/frontend/**/*",
+    "skills/**/*",
     "README.md",
     "CHANGELOG.md",
     ".env.example"
