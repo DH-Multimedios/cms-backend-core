@@ -38,5 +38,5 @@ import { NotificationType } from './notification-type.entity';
 import { UserNotificationPreference } from './user-notification-preference.entity';
 import { UserPreference } from './user-preference.entity';
 import { PasswordResetToken } from './password-reset-token.entity';
-export declare const CORE_ENTITIES: (typeof Role | typeof User | typeof Permission | typeof Session | typeof AuditLog | typeof Taxonomy | typeof EntityTaxonomy | typeof File | typeof Media | typeof Setting | typeof SettingCategory | typeof EmailProvider | typeof EmailLayout | typeof EmailTemplate | typeof NotificationType | typeof UserNotificationPreference | typeof UserPreference | typeof PasswordResetToken)[];
+export declare const CORE_ENTITIES: (typeof User | typeof Role | typeof Permission | typeof Session | typeof AuditLog | typeof Taxonomy | typeof EntityTaxonomy | typeof File | typeof Media | typeof Setting | typeof SettingCategory | typeof EmailProvider | typeof EmailLayout | typeof EmailTemplate | typeof NotificationType | typeof UserNotificationPreference | typeof UserPreference | typeof PasswordResetToken)[];
 //# sourceMappingURL=index.d.ts.map

@@ -14,5 +14,6 @@ export declare class User {
     updatedAt: Date;
     avatarUrl: string | null;
     lastLoginAt: Date;
+    deletedAt: Date | null;
 }
 //# sourceMappingURL=user.entity.d.ts.map

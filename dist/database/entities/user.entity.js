@@ -27,6 +27,7 @@ let User = class User {
     updatedAt;
     avatarUrl;
     lastLoginAt;
+    deletedAt;
 };
 exports.User = User;
 __decorate([
@@ -90,6 +91,10 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", Date)
 ], User.prototype, "lastLoginAt", void 0);
+__decorate([
+    (0, typeorm_1.DeleteDateColumn)({ nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "deletedAt", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)('users')
 ], User);
