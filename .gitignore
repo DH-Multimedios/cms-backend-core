@@ -51,3 +51,7 @@ lerna-debug.log*
 
 # Internal docs (not for clients)
 docs/Backendcore/
+# Local Pi runtime state
+.atl/
+.pi/
+.pi-lens/

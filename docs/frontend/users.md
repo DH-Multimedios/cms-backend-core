@@ -238,15 +238,15 @@ Elimina un usuario.
 
 ## Campos a tener en cuenta
 
-| Campo            | Descripción                                                                                                                        |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `isActive`       | Si `false`, el usuario no puede autenticarse. Mostrar badge de estado.                                                              |
-| `isSystemUser`   | Si `true`, es el usuario del sistema y bypasea permisos. Útil para routing/UI especial.                                            |
-| `isProtected`    | Si `true`, deshabilitar el botón de eliminar en UI.                                                                                 |
-| `avatarUrl`      | URL del avatar del usuario. `null` si no tiene. Se gestiona via `/users/me/avatar` (subir/eliminar) o `/users/:id/avatar` (admin). |
-| `roles[].label`  | Texto visible del rol para mostrar en UI.                                                                                           |
-| `roles[].weight` | El peso del rol determina jerarquía. No permite asignar roles de mayor peso.                                                        |
-| `lastLoginAt`    | Null si el usuario nunca se logueó.                                                                                                 |
+| Campo            | Descripción                                                                                                                                                                                                                         |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `isActive`       | Si `false`, el usuario no puede autenticarse. Mostrar badge de estado.                                                                                                                                                              |
+| `isSystemUser`   | Si `true`, es el usuario del sistema y bypasea permisos. Útil para routing/UI especial.                                                                                                                                             |
+| `isProtected`    | Si `true`, deshabilitar el botón de eliminar en UI.                                                                                                                                                                                 |
+| `avatarUrl`      | URL del avatar del usuario. `null` si no tiene. Se gestiona via `/users/me/avatar` (subir/eliminar) o `/users/:id/avatar` (admin).                                                                                                  |
+| `roles[].label`  | Texto visible del rol para mostrar en UI.                                                                                                                                                                                           |
+| `roles[].weight` | El peso del rol determina jerarquía. No permite asignar roles de mayor peso.                                                                                                                                                        |
+| `lastLoginAt`    | Null si el usuario nunca se logueó.                                                                                                                                                                                                 |
 | `deletedAt`      | Timestamp de cuándo fue dado de baja formalmente (`softDelete`). `null` si no fue dado de baja. Complementa `isActive`: un usuario puede estar inactivo (`isActive: false`) sin estar formalmente dado de baja (`deletedAt: null`). |
 
 ---
@@ -255,10 +255,10 @@ Elimina un usuario.
 
 Ambos campos coexisten con semánticas distintas:
 
-| Estado                                   | `isActive` | `deletedAt`   |
-| ---------------------------------------- | ---------- | ------------- |
-| Activo                                   | `true`     | `null`        |
-| Inactivo temporalmente                   | `false`    | `null`        |
-| Dado de baja formalmente (soft delete)   | `false`    | timestamp     |
+| Estado                                 | `isActive` | `deletedAt` |
+| -------------------------------------- | ---------- | ----------- |
+| Activo                                 | `true`     | `null`      |
+| Inactivo temporalmente                 | `false`    | `null`      |
+| Dado de baja formalmente (soft delete) | `false`    | timestamp   |
 
 El backend usa `@DeleteDateColumn()` de TypeORM, que filtra automáticamente usuarios con `deletedAt IS NOT NULL` en todos los queries estándar. Para consultas que incluyan dados de baja, se usa `withDeleted()` internamente.
