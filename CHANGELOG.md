@@ -9,6 +9,8 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Added
 
+- **`deletedAt` en `User`**: nuevo campo `@DeleteDateColumn()` en la entidad `User` — registra timestamp de baja formal. Habilita `softDelete()`, `restore()` y `withDeleted()` de TypeORM. Complementa `isActive`: ambos campos coexisten con semántica diferente (`isActive: false` + `deletedAt: null` = inactivo temporal; `deletedAt: timestamp` = dado de baja formalmente)
+- **Migración `1733500000102`**: agrega columna `deletedAt TIMESTAMP NULL` a `users` con índice parcial `IDX_users_deletedAt` (`WHERE deletedAt IS NOT NULL`)
 - **`inputType: 'image'`**: nuevo tipo en settings — guarda UUID del media en `value`; el servicio resuelve `url` y `alt` desde el media y los inyecta en `meta` al leer (sin segundo request desde el cliente)
 - **`Session` entity**: nueva entidad `sessions` en DB — UUID opaco hasheado con SHA-256, TTL configurable, revocación inmediata
 - **`SessionStrategy`**: estrategia Passport custom que valida sesiones en DB (reemplaza `JwtStrategy`)

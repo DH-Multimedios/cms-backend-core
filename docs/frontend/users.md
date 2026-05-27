@@ -44,7 +44,8 @@ Lista paginada de usuarios. Excluye el usuario del sistema (`isSystemUser: true`
         "roles": [{ "id": "uuid", "name": "admin", "label": "Admin", "weight": 90 }],
         "lastLoginAt": "2026-04-11T...",
         "createdAt": "2026-01-01T...",
-        "updatedAt": "2026-04-11T..."
+        "updatedAt": "2026-04-11T...",
+        "deletedAt": null
       }
     ],
     "total": 50,
@@ -246,3 +247,18 @@ Elimina un usuario.
 | `roles[].label`  | Texto visible del rol para mostrar en UI.                                                                                           |
 | `roles[].weight` | El peso del rol determina jerarquía. No permite asignar roles de mayor peso.                                                        |
 | `lastLoginAt`    | Null si el usuario nunca se logueó.                                                                                                 |
+| `deletedAt`      | Timestamp de cuándo fue dado de baja formalmente (`softDelete`). `null` si no fue dado de baja. Complementa `isActive`: un usuario puede estar inactivo (`isActive: false`) sin estar formalmente dado de baja (`deletedAt: null`). |
+
+---
+
+## Soft delete vs. isActive
+
+Ambos campos coexisten con semánticas distintas:
+
+| Estado                                   | `isActive` | `deletedAt`   |
+| ---------------------------------------- | ---------- | ------------- |
+| Activo                                   | `true`     | `null`        |
+| Inactivo temporalmente                   | `false`    | `null`        |
+| Dado de baja formalmente (soft delete)   | `false`    | timestamp     |
+
+El backend usa `@DeleteDateColumn()` de TypeORM, que filtra automáticamente usuarios con `deletedAt IS NOT NULL` en todos los queries estándar. Para consultas que incluyan dados de baja, se usa `withDeleted()` internamente.

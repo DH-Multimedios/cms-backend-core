@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
   ManyToMany,
   JoinTable,
 } from 'typeorm';
@@ -70,4 +71,7 @@ export class User {
 
   @Column({ nullable: true })
   lastLoginAt: Date;
+
+  @DeleteDateColumn({ nullable: true })
+  deletedAt: Date | null;
 }
