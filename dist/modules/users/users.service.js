@@ -300,7 +300,7 @@ let UsersService = class UsersService {
                 },
             },
         });
-        await this.userRepository.remove(user);
+        await this.userRepository.softDelete(id);
         return { message: 'Usuario eliminado correctamente' };
     }
     async updateProfile(currentUser, dto) {
