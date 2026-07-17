@@ -34,7 +34,10 @@ let AuthController = class AuthController {
         this.authConfig = authConfig;
     }
     get cookiePath() {
-        return this.authConfig.cookiePath ?? '/auth';
+        return this.authConfig.cookiePath ?? '/';
+    }
+    get cookieDomain() {
+        return this.authConfig.cookieDomain;
     }
     get cookieSecure() {
         if (this.cookieSameSite === 'none')
@@ -57,17 +60,24 @@ let AuthController = class AuthController {
             secure: this.cookieSecure,
             sameSite: this.cookieSameSite,
             maxAge: this.sessionMaxAge,
-            path: '/',
+            path: this.cookiePath,
+            domain: this.cookieDomain,
         });
         return result;
     }
     async logout(user, req, res) {
         const rawSessionId = req.cookies?.session_id ?? req.headers['x-session-id'];
-        res.clearCookie('session_id', { path: '/' });
+        res.clearCookie('session_id', {
+            path: this.cookiePath,
+            domain: this.cookieDomain,
+        });
         return this.authService.logout(rawSessionId, user.id);
     }
     async logoutAll(user, res) {
-        res.clearCookie('session_id', { path: '/' });
+        res.clearCookie('session_id', {
+            path: this.cookiePath,
+            domain: this.cookieDomain,
+        });
         return this.authService.logoutAll(user.id);
     }
     me(user) {

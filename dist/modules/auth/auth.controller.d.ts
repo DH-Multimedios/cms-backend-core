@@ -12,6 +12,7 @@ export declare class AuthController {
     private readonly authConfig;
     constructor(authService: AuthService, authConfig: AuthConfig);
     private get cookiePath();
+    private get cookieDomain();
     private get cookieSecure();
     private get cookieSameSite();
     private get sessionMaxAge();

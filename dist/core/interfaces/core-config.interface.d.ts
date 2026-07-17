@@ -22,6 +22,7 @@ export interface DatabaseConfig {
 export interface AuthConfig {
     sessionExpiration?: string;
     cookiePath?: string;
+    cookieDomain?: string;
     cookieSecure?: boolean;
     cookieSameSite?: 'strict' | 'lax' | 'none';
 }
