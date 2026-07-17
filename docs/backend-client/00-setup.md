@@ -77,6 +77,9 @@ import { CoreModule } from '@dh/backend-core';
         auth: {
           sessionExpiration: config.get('SESSION_EXPIRATION') || '365',
           cookiePath: '/',
+          cookieDomain: config.get<string>('AUTH_COOKIE_DOMAIN'),
+          cookieSecure: config.get('AUTH_COOKIE_SECURE') === 'true',
+          cookieSameSite: config.get<'strict' | 'lax' | 'none'>('AUTH_COOKIE_SAME_SITE') ?? 'lax',
         },
         modules: {
           audit: true,
@@ -173,6 +176,10 @@ DB_LOGGING=false
 
 # Auth
 SESSION_EXPIRATION=365
+AUTH_COOKIE_SECURE=false
+AUTH_COOKIE_SAME_SITE=lax
+# Para compartir la cookie entre subdominios en producción:
+# AUTH_COOKIE_DOMAIN=.morcseguridad.cloud
 
 # CORS
 CORS_ORIGINS=http://localhost:4200
@@ -223,6 +230,19 @@ volumes:
 ```
 
 > Usá un nombre de container único por proyecto para evitar conflictos cuando corrés varios proyectos a la vez.
+
+---
+
+## Cookies entre subdominios
+
+Para que el browser comparta `session_id` entre subdominios, configurá el dominio de cookie con punto inicial:
+
+```env
+AUTH_COOKIE_DOMAIN=.morcseguridad.cloud
+AUTH_COOKIE_SECURE=true
+```
+
+En ese escenario mantené `cookieSameSite: 'lax'`. En producción, `AUTH_COOKIE_SECURE=true` es obligatorio para que la cookie viaje sólo por HTTPS.
 
 ---
 

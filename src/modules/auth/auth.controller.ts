@@ -34,7 +34,11 @@ export class AuthController {
   ) {}
 
   private get cookiePath() {
-    return this.authConfig.cookiePath ?? '/auth';
+    return this.authConfig.cookiePath ?? '/';
+  }
+
+  private get cookieDomain() {
+    return this.authConfig.cookieDomain;
   }
 
   private get cookieSecure() {
@@ -73,7 +77,8 @@ export class AuthController {
       secure: this.cookieSecure,
       sameSite: this.cookieSameSite,
       maxAge: this.sessionMaxAge,
-      path: '/',
+      path: this.cookiePath,
+      domain: this.cookieDomain,
     });
 
     // Devolver el body completo para compatibilidad con Flutter
@@ -91,7 +96,10 @@ export class AuthController {
   ): Promise<{ message: string }> {
     const rawSessionId = req.cookies?.session_id ?? req.headers['x-session-id'];
 
-    res.clearCookie('session_id', { path: '/' });
+    res.clearCookie('session_id', {
+      path: this.cookiePath,
+      domain: this.cookieDomain,
+    });
 
     return this.authService.logout(rawSessionId, user.id);
   }
@@ -103,7 +111,10 @@ export class AuthController {
     @CurrentUser() user: User,
     @Res({ passthrough: true }) res: Response,
   ): Promise<{ message: string }> {
-    res.clearCookie('session_id', { path: '/' });
+    res.clearCookie('session_id', {
+      path: this.cookiePath,
+      domain: this.cookieDomain,
+    });
     return this.authService.logoutAll(user.id);
   }
 
