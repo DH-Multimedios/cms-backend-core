@@ -7,6 +7,8 @@ import { User } from '../../database/entities/user.entity';
 import { Role } from '../../database/entities/role.entity';
 import { UsersQueryDto } from './dto/users-query.dto';
 import { AuditService } from '../audit/audit.service';
+import { MediaService } from '../media/media.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 const mockQb = (users: User[] = [], total = 0) => ({
   leftJoinAndSelect: jest.fn().mockReturnThis(),
@@ -25,11 +27,13 @@ const mockUserRepository = () => ({
   save: jest.fn(),
   create: jest.fn((dto) => dto),
   remove: jest.fn(),
+  softDelete: jest.fn(),
   update: jest.fn(),
 });
 
 const mockRoleRepository = () => ({
-  findByIds: jest.fn(),
+  findBy: jest.fn(),
+  find: jest.fn().mockResolvedValue([]),
 });
 
 const mockAuditService = () => ({
@@ -68,6 +72,8 @@ describe('UsersService', () => {
         { provide: getRepositoryToken(User), useFactory: mockUserRepository },
         { provide: getRepositoryToken(Role), useFactory: mockRoleRepository },
         { provide: AuditService, useFactory: mockAuditService },
+        { provide: MediaService, useValue: {} },
+        { provide: EventEmitter2, useValue: { emit: jest.fn() } },
       ],
     }).compile();
 
@@ -82,7 +88,7 @@ describe('UsersService', () => {
       const qb = mockQb(users, 1);
       userRepo.createQueryBuilder.mockReturnValue(qb);
 
-      const result = await service.findAll(new UsersQueryDto());
+      const result = await service.findAll(new UsersQueryDto(), makeSystemUser());
 
       expect(result.items).toHaveLength(1);
       expect(result.total).toBe(1);
@@ -93,13 +99,13 @@ describe('UsersService', () => {
   describe('findOne', () => {
     it('devuelve el usuario si existe', async () => {
       userRepo.findOne.mockResolvedValue(makeUser());
-      const result = await service.findOne('user-1');
+      const result = await service.findOne('user-1', makeSystemUser());
       expect(result.id).toBe('user-1');
     });
 
     it('lanza ApiException USER_NOT_FOUND si no existe', async () => {
       userRepo.findOne.mockResolvedValue(null);
-      await expect(service.findOne('non-existent')).rejects.toMatchObject({
+      await expect(service.findOne('non-existent', makeSystemUser())).rejects.toMatchObject({
         code: ErrorCode.USER_NOT_FOUND,
       });
     });
@@ -108,7 +114,7 @@ describe('UsersService', () => {
   describe('create', () => {
     it('crea un usuario correctamente', async () => {
       userRepo.findOneBy.mockResolvedValue(null);
-      roleRepo.findByIds.mockResolvedValue([]);
+      roleRepo.findBy.mockResolvedValue([]);
       const savedUser = makeUser({ email: 'new@test.com' });
       userRepo.save.mockResolvedValue(savedUser);
 
@@ -145,7 +151,9 @@ describe('UsersService', () => {
       userRepo.findOne.mockResolvedValue(makeUser({ isProtected: true }));
       const currentUser = makeUser({ id: 'admin-1' });
 
-      await expect(service.update('user-1', { firstName: 'Jane' }, currentUser)).rejects.toMatchObject({
+      await expect(
+        service.update('user-1', { firstName: 'Jane' }, currentUser),
+      ).rejects.toMatchObject({
         code: ErrorCode.USER_PROTECTED,
       });
     });
@@ -164,8 +172,15 @@ describe('UsersService', () => {
     it('no permite asignar un rol de mayor peso al propio', async () => {
       const user = makeUser();
       userRepo.findOne.mockResolvedValue(user);
-      const currentUser = makeUser({ roles: [{ weight: 50 } as Role] });
-      roleRepo.findByIds.mockResolvedValue([{ weight: 90 } as Role]);
+      const currentUser = makeUser({
+        roles: [
+          {
+            weight: 50,
+            permissions: [{ name: 'roles.update' }],
+          } as Role,
+        ],
+      });
+      roleRepo.findBy.mockResolvedValue([{ weight: 90 } as Role]);
 
       await expect(
         service.update('user-1', { roleIds: ['role-admin'] }, currentUser),

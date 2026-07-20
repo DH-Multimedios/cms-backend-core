@@ -91,7 +91,12 @@ export class RolesService {
       entity: 'Role',
       entityId: saved.id,
       metadata: {
-        after: { name: saved.name, label: saved.label, weight: saved.weight, isProtected: saved.isProtected },
+        after: {
+          name: saved.name,
+          label: saved.label,
+          weight: saved.weight,
+          isProtected: saved.isProtected,
+        },
       },
     });
 
@@ -219,7 +224,7 @@ export class RolesService {
     // Need relations loaded
     const roleWithPerms = await this.roleRepository.findOne({
       where: { id },
-      relations: ['permissions'],
+      relations: { permissions: true },
     });
     if (!roleWithPerms) {
       throw new ApiException(

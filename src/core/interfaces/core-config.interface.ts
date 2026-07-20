@@ -24,8 +24,9 @@ export interface DatabaseConfig {
 
 export interface AuthConfig {
   /**
-   * Duración de la sesión en días. Default: 365.
-   * Ejemplo: '365' → 1 año, '30' → 30 días.
+   * Duración de fallback y de la cookie en días. Default: 365.
+   * La setting `auth.sessionExpiration` en base de datos controla la expiración
+   * efectiva de las sesiones una vez que los seeds la crearon.
    */
   sessionExpiration?: string;
   cookiePath?: string;

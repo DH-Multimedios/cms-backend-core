@@ -75,7 +75,12 @@ let RolesService = class RolesService {
             entity: 'Role',
             entityId: saved.id,
             metadata: {
-                after: { name: saved.name, label: saved.label, weight: saved.weight, isProtected: saved.isProtected },
+                after: {
+                    name: saved.name,
+                    label: saved.label,
+                    weight: saved.weight,
+                    isProtected: saved.isProtected,
+                },
             },
         });
         return saved;
@@ -158,7 +163,7 @@ let RolesService = class RolesService {
         const role = await this.findOne(id);
         const roleWithPerms = await this.roleRepository.findOne({
             where: { id },
-            relations: ['permissions'],
+            relations: { permissions: true },
         });
         if (!roleWithPerms) {
             throw new api_exception_1.ApiException(common_1.HttpStatus.NOT_FOUND, error_codes_enum_1.ErrorCode.ROLE_NOT_FOUND, `Rol ${id} no encontrado`);

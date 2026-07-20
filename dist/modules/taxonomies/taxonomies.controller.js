@@ -70,10 +70,12 @@ __decorate([
 ], TaxonomiesController.prototype, "findForEntity", null);
 __decorate([
     (0, common_1.Put)('entity/:entityType/:entityId'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, require_permissions_decorator_1.RequirePermissions)('taxonomies.update'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    (0, swagger_1.ApiOperation)({ summary: 'Sincronizar taxonomías de una entidad — reemplaza todas las existentes' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Sincronizar taxonomías de una entidad — reemplaza todas las existentes',
+    }),
     (0, swagger_1.ApiParam)({ name: 'entityType', example: 'Product' }),
     (0, swagger_1.ApiParam)({ name: 'entityId', example: 'uuid' }),
     __param(0, (0, common_1.Param)('entityType')),
@@ -85,7 +87,7 @@ __decorate([
 ], TaxonomiesController.prototype, "syncEntity", null);
 __decorate([
     (0, common_1.Patch)('reorder'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, require_permissions_decorator_1.RequirePermissions)('taxonomies.update'),
     (0, swagger_1.ApiOperation)({ summary: 'Reordenar taxonomías — enviar IDs en el orden deseado' }),
     __param(0, (0, common_1.Body)()),
@@ -119,7 +121,7 @@ __decorate([
 ], TaxonomiesController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Post)(),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, require_permissions_decorator_1.RequirePermissions)('taxonomies.create'),
     (0, swagger_1.ApiOperation)({ summary: 'Crear taxonomía (slug auto-generado si no se envía)' }),
     __param(0, (0, common_1.Body)()),
@@ -129,9 +131,11 @@ __decorate([
 ], TaxonomiesController.prototype, "create", null);
 __decorate([
     (0, common_1.Patch)(':id'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, require_permissions_decorator_1.RequirePermissions)('taxonomies.update'),
-    (0, swagger_1.ApiOperation)({ summary: 'Actualizar taxonomía — slug se regenera si cambia el name y no se envía slug' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Actualizar taxonomía — slug se regenera si cambia el name y no se envía slug',
+    }),
     __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -140,7 +144,7 @@ __decorate([
 ], TaxonomiesController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, require_permissions_decorator_1.RequirePermissions)('taxonomies.delete'),
     (0, swagger_1.ApiOperation)({ summary: 'Eliminar taxonomía — falla si tiene hijos' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),

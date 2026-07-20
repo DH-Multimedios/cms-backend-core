@@ -114,7 +114,7 @@ __decorate([
 ], EmailProvidersController.prototype, "remove", null);
 exports.EmailProvidersController = EmailProvidersController = __decorate([
     (0, swagger_1.ApiTags)('Email Providers'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, common_1.UseGuards)(session_auth_guard_1.SessionAuthGuard, permissions_guard_1.PermissionsGuard),
     (0, common_1.Controller)('email-providers'),
     __metadata("design:paramtypes", [email_providers_service_1.EmailProvidersService])

@@ -54,7 +54,7 @@ let MediaController = class MediaController {
 exports.MediaController = MediaController;
 __decorate([
     (0, common_1.Post)('upload'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, require_permissions_decorator_1.RequirePermissions)('media.upload'),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
@@ -80,7 +80,7 @@ __decorate([
 ], MediaController.prototype, "upload", null);
 __decorate([
     (0, common_1.Get)(),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, swagger_1.ApiOperation)({
         summary: 'Listar imágenes — con permiso media.list ve todas, sin permiso solo las suyas',
     }),
@@ -92,7 +92,7 @@ __decorate([
 ], MediaController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, swagger_1.ApiOperation)({ summary: 'Obtener detalles de una imagen' }),
     (0, swagger_1.ApiParam)({ name: 'id', type: 'string', format: 'uuid' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
@@ -103,7 +103,7 @@ __decorate([
 ], MediaController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(':id'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, require_permissions_decorator_1.RequirePermissions)('media.edit'),
     (0, swagger_1.ApiOperation)({ summary: 'Editar el texto alternativo (alt) de una imagen' }),
     (0, swagger_1.ApiParam)({ name: 'id', type: 'string', format: 'uuid' }),
@@ -117,7 +117,7 @@ __decorate([
 ], MediaController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, require_permissions_decorator_1.RequirePermissions)('media.delete'),
     (0, common_1.HttpCode)(common_1.HttpStatus.NO_CONTENT),
     (0, swagger_1.ApiOperation)({ summary: 'Eliminar imagen — borra el archivo físico y el registro' }),

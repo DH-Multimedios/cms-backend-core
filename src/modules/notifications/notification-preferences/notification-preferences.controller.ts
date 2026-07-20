@@ -1,5 +1,5 @@
 import { Controller, Get, Put, Body, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiCookieAuth } from '@nestjs/swagger';
 import { NotificationPreferencesService } from './notification-preferences.service';
 import { UpsertNotificationPreferenceDto } from './dto/upsert-notification-preference.dto';
 import { SessionAuthGuard } from '../../auth/guards/session-auth.guard';
@@ -8,7 +8,7 @@ import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { User } from '../../../database/entities/user.entity';
 
 @ApiTags('Notification Preferences')
-@ApiBearerAuth()
+@ApiCookieAuth('session')
 @UseGuards(SessionAuthGuard, PermissionsGuard)
 @Controller('notification-preferences')
 export class NotificationPreferencesController {

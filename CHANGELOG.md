@@ -20,12 +20,18 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- **TypeORM 1.1**: el core y su contrato de cliente ahora requieren TypeORM `^1.1.0`,
+  `@nestjs/typeorm` `^11.0.1`, Node.js `^20.19.0 || ^22.13.0 || >=24.11.0` y target ES2023.
+- **Instalación limpia verificable**: `pnpm verify:fresh-install` ejecuta las migraciones
+  empaquetadas y los seeds idempotentes contra una base PostgreSQL descartable.
 - **PermissionsGuard**: soporta lógica OR además de AND — si un endpoint usa `@RequireAnyPermission`, el usuario necesita al menos uno de los permisos especificados
 - **`@RequireAnyPermission(...)`**: nuevo decorator para proteger endpoints con lógica OR (complementa `@RequirePermissions` que sigue siendo AND)
 - **`GET /roles/list`**: ahora acepta `roles.read` OR `users.read` — permite que usuarios con gestión de usuarios pero sin acceso completo a roles puedan obtener el listado para asignación
 
 ### Breaking Changes
 
+- **TypeORM 0.3 ya no es compatible**: los clientes nuevos deben instalar TypeORM 1.1 y usar
+  find options con relaciones en sintaxis objeto.
 - **Sistema JWT eliminado**: `JwtAuthGuard`, `JwtStrategy`, `JwtModule` y `@nestjs/jwt` ya no forman parte del sistema de auth. Reemplazados por sesiones server-side con UUID opaco.
 - **`POST /auth/refresh` eliminado**: ya no existe. Las sesiones no requieren refresh.
 - **`AuthConfig`**: los campos `jwtSecret`, `jwtExpiration`, `jwtRefreshSecret`, `jwtRefreshExpiration` fueron eliminados. Usar `sessionExpiration` en su lugar.

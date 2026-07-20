@@ -7,7 +7,7 @@ export async function seedUsers(dataSource: DataSource): Promise<void> {
   const userRepository = dataSource.getRepository(User);
   const roleRepository = dataSource.getRepository(Role);
 
-  // 1. Usuario del sistema (ÚNICO, desarrollador/propietario)
+  // 1. Cuenta operacional altamente privilegiada (opcional y única)
   const systemUserEmail = process.env.SYSTEM_USER_EMAIL;
   const systemUserPassword = process.env.SYSTEM_USER_PASSWORD;
 
@@ -46,7 +46,7 @@ export async function seedUsers(dataSource: DataSource): Promise<void> {
   } else {
     let superAdmin = await userRepository.findOne({
       where: { email: superAdminEmail },
-      relations: ['roles'],
+      relations: { roles: true },
     });
 
     if (!superAdmin) {
@@ -77,7 +77,7 @@ export async function seedUsers(dataSource: DataSource): Promise<void> {
   if (adminEmail && adminPassword) {
     let admin = await userRepository.findOne({
       where: { email: adminEmail },
-      relations: ['roles'],
+      relations: { roles: true },
     });
 
     if (!admin) {
@@ -108,7 +108,7 @@ export async function seedUsers(dataSource: DataSource): Promise<void> {
   if (userEmail && userPassword) {
     let user = await userRepository.findOne({
       where: { email: userEmail },
-      relations: ['roles'],
+      relations: { roles: true },
     });
 
     if (!user) {

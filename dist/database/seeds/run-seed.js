@@ -10,11 +10,13 @@ async function runSeed() {
     }
     catch (error) {
         console.error('❌ Error ejecutando seeds:', error);
-        process.exit(1);
+        process.exitCode = 1;
     }
     finally {
-        await data_source_1.AppDataSource.destroy();
+        if (data_source_1.AppDataSource.isInitialized) {
+            await data_source_1.AppDataSource.destroy();
+        }
     }
 }
-runSeed();
+void runSeed();
 //# sourceMappingURL=run-seed.js.map

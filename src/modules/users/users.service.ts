@@ -1,6 +1,6 @@
 import { Injectable, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { User } from '../../database/entities/user.entity';
@@ -29,7 +29,10 @@ export class UsersService {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  async findAll(query: UsersQueryDto, currentUser: User): Promise<PaginatedResult<UserResponseDto>> {
+  async findAll(
+    query: UsersQueryDto,
+    currentUser: User,
+  ): Promise<PaginatedResult<UserResponseDto>> {
     const {
       page = 1,
       limit = 20,
@@ -94,7 +97,7 @@ export class UsersService {
   async findOne(id: string, currentUser: User): Promise<UserResponseDto> {
     const user = await this.userRepository.findOne({
       where: { id, isSystemUser: false },
-      relations: ['roles'],
+      relations: { roles: true },
     });
     if (!user)
       throw new ApiException(
@@ -120,7 +123,7 @@ export class UsersService {
   async findByUsername(username: string, currentUser: User): Promise<UserResponseDto> {
     const user = await this.userRepository.findOne({
       where: { username, isSystemUser: false },
-      relations: ['roles'],
+      relations: { roles: true },
     });
     if (!user)
       throw new ApiException(
@@ -143,10 +146,7 @@ export class UsersService {
     return UserResponseDto.from(user);
   }
 
-  async findList(
-    search: string,
-    currentUser: User,
-  ): Promise<{ id: string; label: string }[]> {
+  async findList(search: string, currentUser: User): Promise<{ id: string; label: string }[]> {
     if (!search?.trim()) return [];
 
     const qb = this.userRepository
@@ -155,7 +155,7 @@ export class UsersService {
       .where('user.isSystemUser = false')
       .andWhere('user.isActive = true')
       .andWhere(
-        '(user.firstName ILIKE :search OR user.lastName ILIKE :search OR CONCAT(user.firstName, \' \', user.lastName) ILIKE :search)',
+        "(user.firstName ILIKE :search OR user.lastName ILIKE :search OR CONCAT(user.firstName, ' ', user.lastName) ILIKE :search)",
         { search: `%${search.trim()}%` },
       )
       .orderBy('user.firstName', 'ASC')
@@ -207,7 +207,7 @@ export class UsersService {
     }
 
     const roles = dto.roleIds?.length
-      ? await this.roleRepository.findByIds(dto.roleIds)
+      ? await this.roleRepository.findBy({ id: In(dto.roleIds) })
       : await this.roleRepository.find({ order: { weight: 'ASC' }, take: 1 });
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
@@ -277,7 +277,9 @@ export class UsersService {
       }
 
       const currentMaxWeight = Math.max(...(currentUser.roles?.map((r) => r.weight) ?? [0]));
-      const newRoles = await this.roleRepository.findByIds(dto.roleIds);
+      const newRoles = dto.roleIds.length
+        ? await this.roleRepository.findBy({ id: In(dto.roleIds) })
+        : [];
 
       if (!currentUser.isSystemUser) {
         const hasHigherRole = newRoles.some((r) => r.weight > currentMaxWeight);

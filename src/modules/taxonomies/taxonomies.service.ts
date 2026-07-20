@@ -57,7 +57,11 @@ export class TaxonomiesService implements OnModuleInit {
 
     const qb = this.taxonomyRepo
       .createQueryBuilder('t')
-      .loadRelationCountAndMap('t.childrenCount', 't.children')
+      .addSelect(
+        (subquery) =>
+          subquery.select('COUNT(*)').from(Taxonomy, 'child').where('child.parentId = t.id'),
+        't_childrenCount',
+      )
       .orderBy('t.order', 'ASC')
       .addOrderBy('t.name', 'ASC')
       .skip((page - 1) * limit)
@@ -79,10 +83,16 @@ export class TaxonomiesService implements OnModuleInit {
       });
     }
 
-    const [items, total] = await qb.getManyAndCount();
+    const [{ entities, raw }, total] = await Promise.all([
+      qb.getRawAndEntities(),
+      qb.clone().getCount(),
+    ]);
+    const items = entities.map((taxonomy, index) =>
+      Object.assign(taxonomy, { childrenCount: Number(raw[index].t_childrenCount) }),
+    );
 
     return {
-      items: items as (Taxonomy & { childrenCount: number })[],
+      items,
       total,
       page,
       limit,
@@ -93,10 +103,17 @@ export class TaxonomiesService implements OnModuleInit {
   async findOne(id: string): Promise<Taxonomy & { childrenCount: number }> {
     const qb = this.taxonomyRepo
       .createQueryBuilder('t')
-      .loadRelationCountAndMap('t.childrenCount', 't.children')
+      .addSelect(
+        (subquery) =>
+          subquery.select('COUNT(*)').from(Taxonomy, 'child').where('child.parentId = t.id'),
+        't_childrenCount',
+      )
       .where('t.id = :id', { id });
 
-    const taxonomy = await qb.getOne();
+    const { entities, raw } = await qb.getRawAndEntities();
+    const taxonomy = entities[0]
+      ? Object.assign(entities[0], { childrenCount: Number(raw[0].t_childrenCount) })
+      : null;
     if (!taxonomy) {
       throw new ApiException(
         HttpStatus.NOT_FOUND,
@@ -104,7 +121,7 @@ export class TaxonomiesService implements OnModuleInit {
         'Taxonomía no encontrada',
       );
     }
-    return taxonomy as Taxonomy & { childrenCount: number };
+    return taxonomy;
   }
 
   async create(dto: CreateTaxonomyDto): Promise<Taxonomy> {
@@ -245,7 +262,7 @@ export class TaxonomiesService implements OnModuleInit {
   async findForEntity(entityType: string, entityId: string): Promise<Taxonomy[]> {
     const pivots = await this.entityTaxonomyRepo.find({
       where: { entityType, entityId },
-      relations: ['taxonomy'],
+      relations: { taxonomy: true },
       order: { taxonomy: { order: 'ASC', name: 'ASC' } },
     });
     return pivots.map((p) => p.taxonomy);

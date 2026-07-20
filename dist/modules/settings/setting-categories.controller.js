@@ -75,7 +75,7 @@ __decorate([
 ], SettingCategoriesController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Post)(),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, require_permissions_decorator_1.RequirePermissions)('settings.create'),
     (0, swagger_1.ApiOperation)({ summary: 'Crear categoría (slug auto-generado si no se envía)' }),
     __param(0, (0, common_1.Body)()),
@@ -85,7 +85,7 @@ __decorate([
 ], SettingCategoriesController.prototype, "create", null);
 __decorate([
     (0, common_1.Patch)('reorder'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, require_permissions_decorator_1.RequirePermissions)('settings.update'),
     (0, swagger_1.ApiOperation)({ summary: 'Reordenar categorías — enviar IDs en el orden deseado' }),
     __param(0, (0, common_1.Body)()),
@@ -95,7 +95,7 @@ __decorate([
 ], SettingCategoriesController.prototype, "reorder", null);
 __decorate([
     (0, common_1.Patch)(':id'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, require_permissions_decorator_1.RequirePermissions)('settings.update'),
     (0, swagger_1.ApiOperation)({ summary: 'Actualizar categoría' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
@@ -106,7 +106,7 @@ __decorate([
 ], SettingCategoriesController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, require_permissions_decorator_1.RequirePermissions)('settings.delete'),
     (0, swagger_1.ApiOperation)({ summary: 'Eliminar categoría (solo si no tiene settings)' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),

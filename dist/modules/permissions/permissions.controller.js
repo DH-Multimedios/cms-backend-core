@@ -52,7 +52,7 @@ __decorate([
 ], PermissionsController.prototype, "findAll", null);
 exports.PermissionsController = PermissionsController = __decorate([
     (0, swagger_1.ApiTags)('Permissions'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, common_1.UseGuards)(session_auth_guard_1.SessionAuthGuard, permissions_guard_1.PermissionsGuard),
     (0, common_1.Controller)('permissions'),
     __metadata("design:paramtypes", [permissions_service_1.PermissionsService])

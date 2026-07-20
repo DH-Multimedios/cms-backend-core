@@ -1,48 +1,35 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CoreModule } from '../../src'; // Dev: importa source directamente
+
+function parseDatabasePort(value: string): number {
+  const port = Number(value);
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error('DB_PORT must be an integer between 1 and 65535');
+  }
+  return port;
+}
 
 @Module({
   imports: [
-    CoreModule.register({
-      database: {
-        host: process.env.DB_HOST || 'localhost',
-        port: parseInt(process.env.DB_PORT || '5432', 10),
-        username: process.env.DB_USERNAME || 'postgres',
-        password: process.env.DB_PASSWORD || 'postgres',
-        database: process.env.DB_NAME || 'backend_core_dev',
-        synchronize: true, // test-app: siempre sync (NO usar en producción)
-        logging: process.env.DB_LOGGING === 'true',
-      },
-      auth: {
-        jwtSecret: process.env.JWT_SECRET || 'change-this-secret',
-        jwtExpiration: process.env.JWT_EXPIRATION || '1d',
-        jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || 'change-this-refresh-secret',
-        jwtRefreshExpiration: process.env.JWT_REFRESH_EXPIRATION || '7d',
-      },
-      modules: {
-        audit: true,
-        health: true,
-        taxonomies: true,
-        settings: true,
-        files: {
-          storage: 'local',
-          path: './uploads/files',
+    ConfigModule.forRoot({ isGlobal: true }),
+    CoreModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        database: {
+          host: config.get('DB_HOST', 'localhost'),
+          port: parseDatabasePort(config.get('DB_PORT', '5432')),
+          username: config.get('DB_USERNAME', 'postgres'),
+          password: config.get('DB_PASSWORD', 'postgres'),
+          database: config.get('DB_NAME', 'backend_core_dev'),
+          synchronize: false,
+          logging: config.get('DB_LOGGING') === 'true',
         },
-        media: {
-          storage: 'local',
-          path: './uploads/media',
+        auth: {
+          sessionExpiration: config.get('SESSION_EXPIRATION', '365'),
         },
-        notifications: {
-          email: {
-            host: process.env.SMTP_HOST || 'localhost',
-            port: parseInt(process.env.SMTP_PORT || '587', 10),
-            user: process.env.SMTP_USER || '',
-            pass: process.env.SMTP_PASS || '',
-            from: process.env.SMTP_FROM || 'noreply@example.com',
-            fromName: process.env.SMTP_FROM_NAME || 'Backend Core',
-          },
-        },
-      },
+      }),
     }),
   ],
 })

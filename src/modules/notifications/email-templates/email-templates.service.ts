@@ -42,7 +42,7 @@ export class EmailTemplatesService {
   async findOne(id: number): Promise<EmailTemplate> {
     const template = await this.repository.findOne({
       where: { id },
-      relations: ['header', 'footer'],
+      relations: { header: true, footer: true },
     });
     if (!template) {
       throw new ApiException(
@@ -57,7 +57,7 @@ export class EmailTemplatesService {
   async findByType(entityType: string, notificationType: string): Promise<EmailTemplate | null> {
     return this.repository.findOne({
       where: { entityType, notificationType },
-      relations: ['header', 'footer'],
+      relations: { header: true, footer: true },
     });
   }
 
@@ -107,7 +107,7 @@ export class EmailTemplatesService {
   async compileAndSave(template: EmailTemplate): Promise<EmailTemplate> {
     const full = await this.repository.findOne({
       where: { id: template.id },
-      relations: ['header', 'footer'],
+      relations: { header: true, footer: true },
     });
 
     const headerSections = full?.header?.sections ?? [];

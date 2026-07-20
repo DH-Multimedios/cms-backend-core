@@ -47,14 +47,16 @@ exports.NotificationTypesController = NotificationTypesController;
 __decorate([
     (0, common_1.Get)(),
     (0, public_decorator_1.Public)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Listar tipos de notificación (público — usado en panel de preferencias)' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Listar tipos de notificación (público — usado en panel de preferencias)',
+    }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], NotificationTypesController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, require_permissions_decorator_1.RequirePermissions)('notifications.manage'),
     (0, swagger_1.ApiOperation)({ summary: 'Obtener tipo por ID' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
@@ -64,7 +66,7 @@ __decorate([
 ], NotificationTypesController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Post)(),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, require_permissions_decorator_1.RequirePermissions)('notifications.manage'),
     (0, swagger_1.ApiOperation)({ summary: 'Registrar nuevo tipo de notificación' }),
     __param(0, (0, common_1.Body)()),
@@ -74,7 +76,7 @@ __decorate([
 ], NotificationTypesController.prototype, "create", null);
 __decorate([
     (0, common_1.Patch)(':id'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, require_permissions_decorator_1.RequirePermissions)('notifications.manage'),
     (0, swagger_1.ApiOperation)({ summary: 'Actualizar tipo — incluye toggle isEnabled' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
@@ -85,7 +87,7 @@ __decorate([
 ], NotificationTypesController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, require_permissions_decorator_1.RequirePermissions)('notifications.manage'),
     (0, swagger_1.ApiOperation)({ summary: 'Eliminar tipo de notificación' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),

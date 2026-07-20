@@ -92,7 +92,7 @@ __decorate([
 ], EmailTemplatesController.prototype, "remove", null);
 exports.EmailTemplatesController = EmailTemplatesController = __decorate([
     (0, swagger_1.ApiTags)('Email Templates'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, common_1.UseGuards)(session_auth_guard_1.SessionAuthGuard, permissions_guard_1.PermissionsGuard),
     (0, common_1.Controller)('email-templates'),
     __metadata("design:paramtypes", [email_templates_service_1.EmailTemplatesService])

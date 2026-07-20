@@ -18,7 +18,7 @@ import {
 import {
   ApiTags,
   ApiOperation,
-  ApiBearerAuth,
+  ApiCookieAuth,
   ApiConsumes,
   ApiBody,
   ApiParam,
@@ -41,7 +41,7 @@ export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
   @Post('upload')
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @RequirePermissions('files.upload')
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
@@ -75,7 +75,7 @@ export class FilesController {
   }
 
   @Get()
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @ApiOperation({
     summary: 'Listar archivos — con permiso files.list ve todos, sin permiso solo los suyos',
   })
@@ -126,7 +126,7 @@ export class FilesController {
   }
 
   @Patch(':id')
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @RequirePermissions('files.edit')
   @ApiOperation({ summary: 'Editar nombre, descripción o dueño del archivo' })
   @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
@@ -139,7 +139,7 @@ export class FilesController {
   }
 
   @Delete(':id')
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @RequirePermissions('files.delete')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Eliminar archivo — borra el archivo físico y el registro' })

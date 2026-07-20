@@ -32,6 +32,12 @@ let AuthController = class AuthController {
     constructor(authService, authConfig) {
         this.authService = authService;
         this.authConfig = authConfig;
+        if (process.env.NODE_ENV === 'production' && authConfig.cookieSecure === false) {
+            throw new Error('cookieSecure cannot be false when NODE_ENV=production');
+        }
+        if (authConfig.cookieSameSite === 'none' && authConfig.cookieSecure === false) {
+            throw new Error('cookieSecure cannot be false when cookieSameSite=none');
+        }
     }
     get cookiePath() {
         return this.authConfig.cookiePath ?? '/';
@@ -127,7 +133,7 @@ __decorate([
 ], AuthController.prototype, "login", null);
 __decorate([
     (0, common_1.Post)('logout'),
-    (0, swagger_1.ApiSecurity)('session'),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, swagger_1.ApiOperation)({ summary: 'Cerrar sesión actual' }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Req)()),
@@ -138,7 +144,7 @@ __decorate([
 ], AuthController.prototype, "logout", null);
 __decorate([
     (0, common_1.Post)('logout-all'),
-    (0, swagger_1.ApiSecurity)('session'),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, swagger_1.ApiOperation)({ summary: 'Cerrar todas las sesiones del usuario' }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Res)({ passthrough: true })),
@@ -148,7 +154,7 @@ __decorate([
 ], AuthController.prototype, "logoutAll", null);
 __decorate([
     (0, common_1.Get)('me'),
-    (0, swagger_1.ApiSecurity)('session'),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, swagger_1.ApiOperation)({ summary: 'Obtener usuario actual' }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
@@ -157,7 +163,7 @@ __decorate([
 ], AuthController.prototype, "me", null);
 __decorate([
     (0, common_1.Get)('me/permissions'),
-    (0, swagger_1.ApiSecurity)('session'),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, swagger_1.ApiOperation)({ summary: 'Obtener permisos del usuario actual' }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),

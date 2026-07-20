@@ -34,10 +34,10 @@ export class User {
   isActive: boolean;
 
   /**
-   * Usuario del sistema (desarrollador/propietario)
+   * Cuenta operacional altamente privilegiada
    * - Solo puede haber UNO en toda la base de datos
    * - Bypasea todos los permisos
-   * - Invisible para todos los usuarios
+   * - Excluida de los endpoints de gestión de usuarios
    * - Inmutable desde la API
    */
   @Column({ default: false })

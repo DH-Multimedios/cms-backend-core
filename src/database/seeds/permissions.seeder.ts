@@ -198,7 +198,7 @@ export async function seedPermissions(dataSource: DataSource): Promise<void> {
   // Asignar TODOS los permisos a SuperAdmin
   const superAdminRole = await roleRepository.findOne({
     where: { name: 'super_admin' },
-    relations: ['permissions'],
+    relations: { permissions: true },
   });
 
   if (superAdminRole) {
@@ -210,7 +210,7 @@ export async function seedPermissions(dataSource: DataSource): Promise<void> {
   // Asignar permisos limitados a Admin (solo read en la mayoría)
   const adminRole = await roleRepository.findOne({
     where: { name: 'admin' },
-    relations: ['permissions'],
+    relations: { permissions: true },
   });
 
   if (adminRole) {
@@ -233,7 +233,7 @@ export async function seedPermissions(dataSource: DataSource): Promise<void> {
   // Asignar permisos básicos a User
   const userRole = await roleRepository.findOne({
     where: { name: 'user' },
-    relations: ['permissions'],
+    relations: { permissions: true },
   });
 
   if (userRole) {

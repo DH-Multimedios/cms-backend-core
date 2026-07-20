@@ -1,5 +1,5 @@
 import { Controller, Get, Patch, Body, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiCookieAuth } from '@nestjs/swagger';
 import { UserPreferencesService } from './user-preferences.service';
 import { UpdateUserPreferenceDto } from './dto/update-user-preference.dto';
 import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
@@ -7,7 +7,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../../database/entities/user.entity';
 
 @ApiTags('User Preferences')
-@ApiBearerAuth()
+@ApiCookieAuth('session')
 @UseGuards(SessionAuthGuard)
 @Controller('user-preferences')
 export class UserPreferencesController {

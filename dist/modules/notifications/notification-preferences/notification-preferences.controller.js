@@ -53,7 +53,7 @@ __decorate([
 ], NotificationPreferencesController.prototype, "upsert", null);
 exports.NotificationPreferencesController = NotificationPreferencesController = __decorate([
     (0, swagger_1.ApiTags)('Notification Preferences'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, common_1.UseGuards)(session_auth_guard_1.SessionAuthGuard, permissions_guard_1.PermissionsGuard),
     (0, common_1.Controller)('notification-preferences'),
     __metadata("design:paramtypes", [notification_preferences_service_1.NotificationPreferencesService])

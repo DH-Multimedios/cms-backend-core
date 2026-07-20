@@ -9,7 +9,7 @@ import {
   ParseUUIDPipe,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiCookieAuth } from '@nestjs/swagger';
 import { SettingsService } from './settings.service';
 import { CreateSettingDto } from './dto/create-setting.dto';
 import { UpdateSettingDto } from './dto/update-setting.dto';
@@ -33,13 +33,16 @@ export class SettingsController {
 
   @Get(':key')
   @Public()
-  @ApiOperation({ summary: 'Obtener setting por key — devuelve key, label, value, type, inputType, meta (público)' })
+  @ApiOperation({
+    summary:
+      'Obtener setting por key — devuelve key, label, value, type, inputType, meta (público)',
+  })
   findOne(@Param('key') key: string) {
     return this.settingsService.findByKey(key);
   }
 
   @Post()
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @RequirePermissions('settings.create')
   @ApiOperation({ summary: 'Crear setting' })
   create(@Body() dto: CreateSettingDto) {
@@ -47,7 +50,7 @@ export class SettingsController {
   }
 
   @Patch(':id')
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @RequirePermissions('settings.update')
   @ApiOperation({ summary: 'Actualizar setting' })
   update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateSettingDto) {
@@ -55,7 +58,7 @@ export class SettingsController {
   }
 
   @Delete(':id')
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @RequirePermissions('settings.delete')
   @ApiOperation({ summary: 'Eliminar setting' })
   remove(@Param('id', ParseUUIDPipe) id: string) {

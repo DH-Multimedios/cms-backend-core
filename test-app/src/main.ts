@@ -4,6 +4,17 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
+function corsOrigins(): string[] {
+  const origins = (process.env.CORS_ORIGINS ?? '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  if (origins.length === 0 || origins.includes('*')) {
+    throw new Error('CORS_ORIGINS must contain explicit origins when credentials are enabled');
+  }
+  return origins;
+}
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -12,7 +23,7 @@ async function bootstrap() {
 
   // CORS
   app.enableCors({
-    origin: process.env.CORS_ORIGINS?.split(',') || '*',
+    origin: corsOrigins(),
     credentials: true,
   });
 
@@ -30,7 +41,7 @@ async function bootstrap() {
     .setTitle('Backend Core API')
     .setDescription('Core reutilizable para APIs en NestJS')
     .setVersion('0.1.0')
-    .addBearerAuth()
+    .addCookieAuth('session_id', { type: 'apiKey', in: 'cookie' }, 'session')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

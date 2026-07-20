@@ -12,7 +12,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiCookieAuth } from '@nestjs/swagger';
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
@@ -21,12 +21,15 @@ import { UpdatePermissionsDto } from './dto/update-permissions.dto';
 import { RolesQueryDto } from './dto/roles-query.dto';
 import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
-import { RequirePermissions, RequireAnyPermission } from '../auth/decorators/require-permissions.decorator';
+import {
+  RequirePermissions,
+  RequireAnyPermission,
+} from '../auth/decorators/require-permissions.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../../database/entities/user.entity';
 
 @ApiTags('Roles')
-@ApiBearerAuth()
+@ApiCookieAuth('session')
 @UseGuards(SessionAuthGuard, PermissionsGuard)
 @Controller('roles')
 export class RolesController {

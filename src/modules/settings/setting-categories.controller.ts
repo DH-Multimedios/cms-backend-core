@@ -12,7 +12,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiCookieAuth, ApiQuery } from '@nestjs/swagger';
 import { SettingsService } from './settings.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -33,10 +33,7 @@ export class SettingCategoriesController {
   @ApiOperation({ summary: 'Listar categorías paginadas con cantidad de settings (público)' })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
-  findAll(
-    @Query('page') page = 1,
-    @Query('limit') limit = 20,
-  ) {
+  findAll(@Query('page') page = 1, @Query('limit') limit = 20) {
     return this.settingsService.findAllCategories(Number(page), Number(limit));
   }
 
@@ -45,16 +42,12 @@ export class SettingCategoriesController {
   @ApiOperation({ summary: 'Obtener categoría por slug con sus settings paginados (público)' })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
-  findOne(
-    @Param('slug') slug: string,
-    @Query('page') page = 1,
-    @Query('limit') limit = 20,
-  ) {
+  findOne(@Param('slug') slug: string, @Query('page') page = 1, @Query('limit') limit = 20) {
     return this.settingsService.findCategoryBySlug(slug, Number(page), Number(limit));
   }
 
   @Post()
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @RequirePermissions('settings.create')
   @ApiOperation({ summary: 'Crear categoría (slug auto-generado si no se envía)' })
   create(@Body() dto: CreateCategoryDto) {
@@ -62,7 +55,7 @@ export class SettingCategoriesController {
   }
 
   @Patch('reorder')
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @RequirePermissions('settings.update')
   @ApiOperation({ summary: 'Reordenar categorías — enviar IDs en el orden deseado' })
   reorder(@Body() dto: ReorderCategoriesDto) {
@@ -70,7 +63,7 @@ export class SettingCategoriesController {
   }
 
   @Patch(':id')
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @RequirePermissions('settings.update')
   @ApiOperation({ summary: 'Actualizar categoría' })
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateCategoryDto) {
@@ -78,7 +71,7 @@ export class SettingCategoriesController {
   }
 
   @Delete(':id')
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @RequirePermissions('settings.delete')
   @ApiOperation({ summary: 'Eliminar categoría (solo si no tiene settings)' })
   remove(@Param('id', ParseIntPipe) id: number) {

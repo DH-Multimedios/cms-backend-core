@@ -52,7 +52,7 @@ __decorate([
 ], UserPreferencesController.prototype, "updateMine", null);
 exports.UserPreferencesController = UserPreferencesController = __decorate([
     (0, swagger_1.ApiTags)('User Preferences'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, common_1.UseGuards)(session_auth_guard_1.SessionAuthGuard),
     (0, common_1.Controller)('user-preferences'),
     __metadata("design:paramtypes", [user_preferences_service_1.UserPreferencesService])

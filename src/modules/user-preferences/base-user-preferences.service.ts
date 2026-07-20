@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
 
 /**
  * Servicio base genérico para preferencias de usuario.
@@ -25,20 +25,20 @@ export abstract class BaseUserPreferencesService<T extends { userId: string }> {
    * provistos (o vacío si no se pasan).
    */
   async findOrCreate(userId: string, defaults: Partial<Omit<T, 'userId'>> = {}): Promise<T> {
-    const existing = await this.repository.findOneBy({ userId } as any);
+    const existing = await this.repository.findOneBy({ userId } as FindOptionsWhere<T>);
     if (existing) return existing;
 
-    const created = this.repository.create({ userId, ...defaults } as any) as unknown as T;
-    return (await this.repository.save(created)) as unknown as T;
+    const created = this.repository.create({ userId, ...defaults } as DeepPartial<T>);
+    return this.repository.save(created);
   }
 
   /**
    * Actualiza (upsert) las preferencias del usuario.
    */
   async update(userId: string, dto: Partial<Omit<T, 'userId'>>): Promise<T> {
-    const existing = await this.repository.findOneBy({ userId } as any);
-    const preference = existing ?? (this.repository.create({ userId } as any) as unknown as T);
+    const existing = await this.repository.findOneBy({ userId } as FindOptionsWhere<T>);
+    const preference = existing ?? this.repository.create({ userId } as DeepPartial<T>);
     Object.assign(preference, dto);
-    return (await this.repository.save(preference)) as unknown as T;
+    return this.repository.save(preference);
   }
 }

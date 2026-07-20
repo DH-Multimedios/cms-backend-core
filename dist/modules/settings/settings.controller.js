@@ -55,7 +55,9 @@ __decorate([
 __decorate([
     (0, common_1.Get)(':key'),
     (0, public_decorator_1.Public)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Obtener setting por key — devuelve key, label, value, type, inputType, meta (público)' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Obtener setting por key — devuelve key, label, value, type, inputType, meta (público)',
+    }),
     __param(0, (0, common_1.Param)('key')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -63,7 +65,7 @@ __decorate([
 ], SettingsController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Post)(),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, require_permissions_decorator_1.RequirePermissions)('settings.create'),
     (0, swagger_1.ApiOperation)({ summary: 'Crear setting' }),
     __param(0, (0, common_1.Body)()),
@@ -73,7 +75,7 @@ __decorate([
 ], SettingsController.prototype, "create", null);
 __decorate([
     (0, common_1.Patch)(':id'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, require_permissions_decorator_1.RequirePermissions)('settings.update'),
     (0, swagger_1.ApiOperation)({ summary: 'Actualizar setting' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
@@ -84,7 +86,7 @@ __decorate([
 ], SettingsController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, require_permissions_decorator_1.RequirePermissions)('settings.delete'),
     (0, swagger_1.ApiOperation)({ summary: 'Eliminar setting' }),
     __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),

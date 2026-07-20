@@ -51,7 +51,7 @@ export class SessionStrategy extends PassportStrategy(Strategy, 'session') {
         revokedAt: IsNull(),
         expiresAt: MoreThan(new Date()),
       },
-      relations: ['user', 'user.roles', 'user.roles.permissions'],
+      relations: { user: { roles: { permissions: true } } },
     });
 
     if (!session || !session.user?.isActive) {

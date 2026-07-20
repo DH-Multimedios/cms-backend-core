@@ -162,7 +162,7 @@ let AuthService = class AuthService {
         const resetTokenHash = (0, crypto_1.createHash)('sha256').update(resetToken).digest('hex');
         const token = await this.passwordResetTokenRepository.findOne({
             where: { resetTokenHash, usedAt: (0, typeorm_2.IsNull)() },
-            relations: ['user'],
+            relations: { user: true },
         });
         if (!token || token.expiresAt < new Date()) {
             throw new api_exception_1.ApiException(common_1.HttpStatus.BAD_REQUEST, error_codes_enum_1.ErrorCode.VALIDATION_ERROR, 'Token inválido o expirado');

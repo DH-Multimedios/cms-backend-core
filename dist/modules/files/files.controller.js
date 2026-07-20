@@ -69,7 +69,7 @@ let FilesController = class FilesController {
 exports.FilesController = FilesController;
 __decorate([
     (0, common_1.Post)('upload'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, require_permissions_decorator_1.RequirePermissions)('files.upload'),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
@@ -98,7 +98,7 @@ __decorate([
 ], FilesController.prototype, "upload", null);
 __decorate([
     (0, common_1.Get)(),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, swagger_1.ApiOperation)({
         summary: 'Listar archivos — con permiso files.list ve todos, sin permiso solo los suyos',
     }),
@@ -135,7 +135,7 @@ __decorate([
 ], FilesController.prototype, "download", null);
 __decorate([
     (0, common_1.Patch)(':id'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, require_permissions_decorator_1.RequirePermissions)('files.edit'),
     (0, swagger_1.ApiOperation)({ summary: 'Editar nombre, descripción o dueño del archivo' }),
     (0, swagger_1.ApiParam)({ name: 'id', type: 'string', format: 'uuid' }),
@@ -149,7 +149,7 @@ __decorate([
 ], FilesController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, require_permissions_decorator_1.RequirePermissions)('files.delete'),
     (0, common_1.HttpCode)(common_1.HttpStatus.NO_CONTENT),
     (0, swagger_1.ApiOperation)({ summary: 'Eliminar archivo — borra el archivo físico y el registro' }),

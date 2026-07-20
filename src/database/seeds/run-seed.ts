@@ -8,10 +8,12 @@ async function runSeed() {
     await runCoreSeeds(AppDataSource);
   } catch (error) {
     console.error('❌ Error ejecutando seeds:', error);
-    process.exit(1);
+    process.exitCode = 1;
   } finally {
-    await AppDataSource.destroy();
+    if (AppDataSource.isInitialized) {
+      await AppDataSource.destroy();
+    }
   }
 }
 
-runSeed();
+void runSeed();

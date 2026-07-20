@@ -13,7 +13,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiCookieAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { TaxonomiesService } from './taxonomies.service';
 import { CreateTaxonomyDto } from './dto/create-taxonomy.dto';
 import { UpdateTaxonomyDto } from './dto/update-taxonomy.dto';
@@ -46,10 +46,12 @@ export class TaxonomiesController {
   }
 
   @Put('entity/:entityType/:entityId')
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @RequirePermissions('taxonomies.update')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Sincronizar taxonomías de una entidad — reemplaza todas las existentes' })
+  @ApiOperation({
+    summary: 'Sincronizar taxonomías de una entidad — reemplaza todas las existentes',
+  })
   @ApiParam({ name: 'entityType', example: 'Product' })
   @ApiParam({ name: 'entityId', example: 'uuid' })
   syncEntity(
@@ -61,7 +63,7 @@ export class TaxonomiesController {
   }
 
   @Patch('reorder')
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @RequirePermissions('taxonomies.update')
   @ApiOperation({ summary: 'Reordenar taxonomías — enviar IDs en el orden deseado' })
   reorder(@Body() dto: ReorderTaxonomiesDto) {
@@ -91,7 +93,7 @@ export class TaxonomiesController {
   }
 
   @Post()
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @RequirePermissions('taxonomies.create')
   @ApiOperation({ summary: 'Crear taxonomía (slug auto-generado si no se envía)' })
   create(@Body() dto: CreateTaxonomyDto) {
@@ -99,15 +101,17 @@ export class TaxonomiesController {
   }
 
   @Patch(':id')
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @RequirePermissions('taxonomies.update')
-  @ApiOperation({ summary: 'Actualizar taxonomía — slug se regenera si cambia el name y no se envía slug' })
+  @ApiOperation({
+    summary: 'Actualizar taxonomía — slug se regenera si cambia el name y no se envía slug',
+  })
   update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateTaxonomyDto) {
     return this.taxonomiesService.update(id, dto);
   }
 
   @Delete(':id')
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @RequirePermissions('taxonomies.delete')
   @ApiOperation({ summary: 'Eliminar taxonomía — falla si tiene hijos' })
   remove(@Param('id', ParseUUIDPipe) id: string) {

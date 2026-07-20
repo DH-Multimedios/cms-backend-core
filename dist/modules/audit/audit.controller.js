@@ -53,7 +53,7 @@ __decorate([
 ], AuditController.prototype, "findOne", null);
 exports.AuditController = AuditController = __decorate([
     (0, swagger_1.ApiTags)('Audit'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, common_1.UseGuards)(session_auth_guard_1.SessionAuthGuard, permissions_guard_1.PermissionsGuard),
     (0, common_1.Controller)('audit'),
     __metadata("design:paramtypes", [audit_service_1.AuditService])

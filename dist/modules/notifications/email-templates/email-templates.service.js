@@ -45,7 +45,7 @@ let EmailTemplatesService = class EmailTemplatesService {
     async findOne(id) {
         const template = await this.repository.findOne({
             where: { id },
-            relations: ['header', 'footer'],
+            relations: { header: true, footer: true },
         });
         if (!template) {
             throw new api_exception_1.ApiException(common_1.HttpStatus.NOT_FOUND, error_codes_enum_1.ErrorCode.NOT_FOUND, `Template ${id} no encontrado`);
@@ -55,7 +55,7 @@ let EmailTemplatesService = class EmailTemplatesService {
     async findByType(entityType, notificationType) {
         return this.repository.findOne({
             where: { entityType, notificationType },
-            relations: ['header', 'footer'],
+            relations: { header: true, footer: true },
         });
     }
     async create(dto) {
@@ -87,7 +87,7 @@ let EmailTemplatesService = class EmailTemplatesService {
     async compileAndSave(template) {
         const full = await this.repository.findOne({
             where: { id: template.id },
-            relations: ['header', 'footer'],
+            relations: { header: true, footer: true },
         });
         const headerSections = full?.header?.sections ?? [];
         const footerSections = full?.footer?.sections ?? [];

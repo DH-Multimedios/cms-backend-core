@@ -17,7 +17,7 @@ import {
 import {
   ApiTags,
   ApiOperation,
-  ApiBearerAuth,
+  ApiCookieAuth,
   ApiConsumes,
   ApiBody,
   ApiParam,
@@ -38,7 +38,7 @@ export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
   @Post('upload')
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @RequirePermissions('media.upload')
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
@@ -66,7 +66,7 @@ export class MediaController {
   }
 
   @Get()
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @ApiOperation({
     summary: 'Listar imágenes — con permiso media.list ve todas, sin permiso solo las suyas',
   })
@@ -79,7 +79,7 @@ export class MediaController {
   }
 
   @Get(':id')
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @ApiOperation({ summary: 'Obtener detalles de una imagen' })
   @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
   async findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user?: User) {
@@ -91,7 +91,7 @@ export class MediaController {
   }
 
   @Patch(':id')
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @RequirePermissions('media.edit')
   @ApiOperation({ summary: 'Editar el texto alternativo (alt) de una imagen' })
   @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
@@ -108,7 +108,7 @@ export class MediaController {
   }
 
   @Delete(':id')
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @RequirePermissions('media.delete')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Eliminar imagen — borra el archivo físico y el registro' })

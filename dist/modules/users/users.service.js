@@ -111,7 +111,7 @@ let UsersService = class UsersService {
     async findOne(id, currentUser) {
         const user = await this.userRepository.findOne({
             where: { id, isSystemUser: false },
-            relations: ['roles'],
+            relations: { roles: true },
         });
         if (!user)
             throw new api_exception_1.ApiException(common_1.HttpStatus.NOT_FOUND, error_codes_enum_1.ErrorCode.USER_NOT_FOUND, `Usuario ${id} no encontrado`);
@@ -126,7 +126,7 @@ let UsersService = class UsersService {
     async findByUsername(username, currentUser) {
         const user = await this.userRepository.findOne({
             where: { username, isSystemUser: false },
-            relations: ['roles'],
+            relations: { roles: true },
         });
         if (!user)
             throw new api_exception_1.ApiException(common_1.HttpStatus.NOT_FOUND, error_codes_enum_1.ErrorCode.USER_NOT_FOUND, `Usuario ${username} no encontrado`);
@@ -146,7 +146,7 @@ let UsersService = class UsersService {
             .select(['user.id', 'user.firstName', 'user.lastName'])
             .where('user.isSystemUser = false')
             .andWhere('user.isActive = true')
-            .andWhere('(user.firstName ILIKE :search OR user.lastName ILIKE :search OR CONCAT(user.firstName, \' \', user.lastName) ILIKE :search)', { search: `%${search.trim()}%` })
+            .andWhere("(user.firstName ILIKE :search OR user.lastName ILIKE :search OR CONCAT(user.firstName, ' ', user.lastName) ILIKE :search)", { search: `%${search.trim()}%` })
             .orderBy('user.firstName', 'ASC')
             .take(10);
         if (!currentUser.isSystemUser) {
@@ -178,7 +178,7 @@ let UsersService = class UsersService {
                 throw new api_exception_1.ApiException(common_1.HttpStatus.CONFLICT, error_codes_enum_1.ErrorCode.USERNAME_TAKEN, 'El username ya está en uso');
         }
         const roles = dto.roleIds?.length
-            ? await this.roleRepository.findByIds(dto.roleIds)
+            ? await this.roleRepository.findBy({ id: (0, typeorm_2.In)(dto.roleIds) })
             : await this.roleRepository.find({ order: { weight: 'ASC' }, take: 1 });
         const hashedPassword = await bcrypt.hash(dto.password, 10);
         const user = this.userRepository.create({
@@ -224,7 +224,9 @@ let UsersService = class UsersService {
                 }
             }
             const currentMaxWeight = Math.max(...(currentUser.roles?.map((r) => r.weight) ?? [0]));
-            const newRoles = await this.roleRepository.findByIds(dto.roleIds);
+            const newRoles = dto.roleIds.length
+                ? await this.roleRepository.findBy({ id: (0, typeorm_2.In)(dto.roleIds) })
+                : [];
             if (!currentUser.isSystemUser) {
                 const hasHigherRole = newRoles.some((r) => r.weight > currentMaxWeight);
                 if (hasHigherRole) {

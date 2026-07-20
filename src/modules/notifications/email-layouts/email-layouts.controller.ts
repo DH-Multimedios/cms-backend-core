@@ -1,5 +1,16 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, ParseIntPipe, Query, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  ParseIntPipe,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiCookieAuth, ApiQuery } from '@nestjs/swagger';
 import { EmailLayoutsService } from './email-layouts.service';
 import { CreateEmailLayoutDto } from './dto/create-email-layout.dto';
 import { UpdateEmailLayoutDto } from './dto/update-email-layout.dto';
@@ -9,7 +20,7 @@ import { RequirePermissions } from '../../auth/decorators/require-permissions.de
 import { EmailLayoutType } from '../../../database/entities/email-layout.entity';
 
 @ApiTags('Email Layouts')
-@ApiBearerAuth()
+@ApiCookieAuth('session')
 @UseGuards(SessionAuthGuard, PermissionsGuard)
 @Controller('email-layouts')
 export class EmailLayoutsController {

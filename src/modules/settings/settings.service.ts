@@ -67,16 +67,29 @@ export class SettingsService implements OnModuleInit {
   ): Promise<PaginatedResult<SettingCategory & { settingsCount: number }>> {
     const qb = this.categoryRepository
       .createQueryBuilder('category')
-      .loadRelationCountAndMap('category.settingsCount', 'category.settings')
+      .addSelect(
+        (subquery) =>
+          subquery
+            .select('COUNT(*)')
+            .from(Setting, 'countedSetting')
+            .where('countedSetting.categoryId = category.id'),
+        'category_settingsCount',
+      )
       .orderBy('category.order', 'ASC')
       .addOrderBy('category.id', 'ASC')
       .skip((page - 1) * limit)
       .take(limit);
 
-    const [items, total] = await qb.getManyAndCount();
+    const [{ entities, raw }, total] = await Promise.all([
+      qb.getRawAndEntities(),
+      qb.clone().getCount(),
+    ]);
+    const items = entities.map((category, index) =>
+      Object.assign(category, { settingsCount: Number(raw[index].category_settingsCount) }),
+    );
 
     return {
-      items: items as (SettingCategory & { settingsCount: number })[],
+      items,
       total,
       page,
       limit,
@@ -209,7 +222,7 @@ export class SettingsService implements OnModuleInit {
   async removeCategory(id: number): Promise<{ message: string }> {
     const category = await this.categoryRepository.findOne({
       where: { id },
-      relations: ['settings'],
+      relations: { settings: true },
     });
     if (!category) {
       throw new ApiException(
@@ -266,7 +279,7 @@ export class SettingsService implements OnModuleInit {
   async findByKey(key: string): Promise<Setting> {
     const setting = await this.settingRepository.findOne({
       where: { key },
-      relations: ['category'],
+      relations: { category: true },
     });
     if (!setting) {
       throw new ApiException(
@@ -323,7 +336,7 @@ export class SettingsService implements OnModuleInit {
   async update(id: string, dto: UpdateSettingDto): Promise<Setting> {
     const setting = await this.settingRepository.findOne({
       where: { id },
-      relations: ['category'],
+      relations: { category: true },
     });
     if (!setting) {
       throw new ApiException(

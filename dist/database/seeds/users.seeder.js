@@ -74,7 +74,7 @@ async function seedUsers(dataSource) {
     else {
         let superAdmin = await userRepository.findOne({
             where: { email: superAdminEmail },
-            relations: ['roles'],
+            relations: { roles: true },
         });
         if (!superAdmin) {
             const hashedPassword = await bcrypt.hash(superAdminPassword, 10);
@@ -101,7 +101,7 @@ async function seedUsers(dataSource) {
     if (adminEmail && adminPassword) {
         let admin = await userRepository.findOne({
             where: { email: adminEmail },
-            relations: ['roles'],
+            relations: { roles: true },
         });
         if (!admin) {
             const hashedPassword = await bcrypt.hash(adminPassword, 10);
@@ -128,7 +128,7 @@ async function seedUsers(dataSource) {
     if (userEmail && userPassword) {
         let user = await userRepository.findOne({
             where: { email: userEmail },
-            relations: ['roles'],
+            relations: { roles: true },
         });
         if (!user) {
             const hashedPassword = await bcrypt.hash(userPassword, 10);

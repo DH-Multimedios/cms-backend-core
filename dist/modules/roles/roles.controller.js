@@ -143,7 +143,7 @@ __decorate([
 ], RolesController.prototype, "assignPermissions", null);
 exports.RolesController = RolesController = __decorate([
     (0, swagger_1.ApiTags)('Roles'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, common_1.UseGuards)(session_auth_guard_1.SessionAuthGuard, permissions_guard_1.PermissionsGuard),
     (0, common_1.Controller)('roles'),
     __metadata("design:paramtypes", [roles_service_1.RolesService])

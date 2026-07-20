@@ -178,7 +178,7 @@ async function seedPermissions(dataSource) {
     }
     const superAdminRole = await roleRepository.findOne({
         where: { name: 'super_admin' },
-        relations: ['permissions'],
+        relations: { permissions: true },
     });
     if (superAdminRole) {
         superAdminRole.permissions = createdPermissions;
@@ -187,7 +187,7 @@ async function seedPermissions(dataSource) {
     }
     const adminRole = await roleRepository.findOne({
         where: { name: 'admin' },
-        relations: ['permissions'],
+        relations: { permissions: true },
     });
     if (adminRole) {
         const adminPermissions = createdPermissions.filter((p) => p.name.endsWith('.read') ||
@@ -204,7 +204,7 @@ async function seedPermissions(dataSource) {
     }
     const userRole = await roleRepository.findOne({
         where: { name: 'user' },
-        relations: ['permissions'],
+        relations: { permissions: true },
     });
     if (userRole) {
         const userPermissions = createdPermissions.filter((p) => [

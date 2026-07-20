@@ -31,6 +31,9 @@
 
 ## 🚀 Instalación
 
+Requiere Node.js `^20.19.0 || ^22.13.0 || >=24.11.0`, TypeORM `^1.1.0` y
+`@nestjs/typeorm` `^11.0.1`.
+
 ### Desde GitHub (recomendado para desarrollo)
 
 ```bash
@@ -114,51 +117,62 @@ CORS_ORIGINS=https://tuapp.com,https://dashboard.tuapp.com
 
 ```typescript
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CoreModule } from '@dh/backend-core';
 
 @Module({
   imports: [
-    CoreModule.register({
-      database: {
-        host: process.env.DB_HOST,
-        port: parseInt(process.env.DB_PORT, 10),
-        username: process.env.DB_USER,
-        password: process.env.DB_PASS,
-        database: process.env.DB_NAME,
-        synchronize: process.env.NODE_ENV === 'development',
-        logging: process.env.NODE_ENV === 'development',
-      },
-      auth: {
-        sessionExpiration: process.env.SESSION_EXPIRATION || '365',
-        cookiePath: '/',
-      },
-      modules: {
-        audit: true,
-        files: {
-          storage: 'local',
-          path: './uploads/files',
-          maxSize: 10485760, // 10MB
+    ConfigModule.forRoot({ isGlobal: true }),
+    CoreModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        database: {
+          host: config.getOrThrow<string>('DB_HOST'),
+          port: config.getOrThrow<number>('DB_PORT'),
+          username: config.getOrThrow<string>('DB_USERNAME'),
+          password: config.getOrThrow<string>('DB_PASSWORD'),
+          database: config.getOrThrow<string>('DB_NAME'),
+          synchronize: false,
+          logging: config.get('DB_LOGGING') === 'true',
         },
-        media: {
-          storage: 'local',
-          path: './uploads/media',
-          maxSize: 5242880, // 5MB
+        auth: {
+          sessionExpiration: config.get('SESSION_EXPIRATION', '365'),
+          cookiePath: '/',
         },
-        taxonomies: true,
-        notifications: {
-          email: {
-            host: process.env.SMTP_HOST,
-            port: parseInt(process.env.SMTP_PORT, 10),
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
-            from: process.env.SMTP_FROM,
+        modules: {
+          audit: true,
+          files: {
+            storage: 'local',
+            path: './uploads/files',
           },
+          media: {
+            storage: 'local',
+            path: './uploads/media',
+          },
+          taxonomies: true,
+          notifications: true,
         },
-      },
+      }),
     }),
   ],
 })
 export class AppModule {}
+```
+
+La guía completa usa `ConfigModule.forRoot({ isGlobal: true })` antes de
+`CoreModule.registerAsync(...)`; ver [Setup del proyecto cliente](./docs/backend-client/00-setup.md).
+No habilites `synchronize`, ni siquiera en desarrollo: el schema se crea con migraciones.
+El cliente también debe declarar `CORE_ENTITIES` antes de sus entidades, incluir las migraciones
+del core y ejecutar `runCoreSeeds(AppDataSource)` antes de sus propios seeds.
+
+Para autenticación por cookie, CORS debe conservar credenciales:
+
+```typescript
+app.enableCors({
+  origin: process.env.CORS_ORIGINS?.split(','),
+  credentials: true,
+});
 ```
 
 ## 🔐 Usuarios del sistema
@@ -167,10 +181,10 @@ El core incluye un sistema de usuarios con diferentes niveles:
 
 ### Usuario del sistema (`isSystemUser`)
 
-- **Único en todo el sistema** (el desarrollador/propietario)
-- Bypasea todos los permisos
-- Invisible para todos los usuarios (incluso SuperAdmin del cliente)
-- Configurado mediante variables de entorno:
+- Cuenta operacional opcional y única en la base de datos
+- Omite todas las verificaciones de permisos
+- Está excluida de los endpoints de gestión de usuarios, pero no debe considerarse globalmente invisible
+- Sus credenciales deben administrarse como secretos y se configuran mediante:
   - `SYSTEM_USER_EMAIL`
   - `SYSTEM_USER_PASSWORD`
 

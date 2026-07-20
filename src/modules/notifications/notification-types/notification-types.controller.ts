@@ -1,5 +1,15 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, ParseIntPipe, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  ParseIntPipe,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiCookieAuth } from '@nestjs/swagger';
 import { NotificationTypesService } from './notification-types.service';
 import { CreateNotificationTypeDto } from './dto/create-notification-type.dto';
 import { UpdateNotificationTypeDto } from './dto/update-notification-type.dto';
@@ -16,13 +26,15 @@ export class NotificationTypesController {
 
   @Get()
   @Public()
-  @ApiOperation({ summary: 'Listar tipos de notificación (público — usado en panel de preferencias)' })
+  @ApiOperation({
+    summary: 'Listar tipos de notificación (público — usado en panel de preferencias)',
+  })
   findAll() {
     return this.service.findAll();
   }
 
   @Get(':id')
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @RequirePermissions('notifications.manage')
   @ApiOperation({ summary: 'Obtener tipo por ID' })
   findOne(@Param('id', ParseIntPipe) id: number) {
@@ -30,7 +42,7 @@ export class NotificationTypesController {
   }
 
   @Post()
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @RequirePermissions('notifications.manage')
   @ApiOperation({ summary: 'Registrar nuevo tipo de notificación' })
   create(@Body() dto: CreateNotificationTypeDto) {
@@ -38,7 +50,7 @@ export class NotificationTypesController {
   }
 
   @Patch(':id')
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @RequirePermissions('notifications.manage')
   @ApiOperation({ summary: 'Actualizar tipo — incluye toggle isEnabled' })
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateNotificationTypeDto) {
@@ -46,7 +58,7 @@ export class NotificationTypesController {
   }
 
   @Delete(':id')
-  @ApiBearerAuth()
+  @ApiCookieAuth('session')
   @RequirePermissions('notifications.manage')
   @ApiOperation({ summary: 'Eliminar tipo de notificación' })
   remove(@Param('id', ParseIntPipe) id: number) {

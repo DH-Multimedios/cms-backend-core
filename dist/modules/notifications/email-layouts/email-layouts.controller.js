@@ -92,7 +92,7 @@ __decorate([
 ], EmailLayoutsController.prototype, "remove", null);
 exports.EmailLayoutsController = EmailLayoutsController = __decorate([
     (0, swagger_1.ApiTags)('Email Layouts'),
-    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiCookieAuth)('session'),
     (0, common_1.UseGuards)(session_auth_guard_1.SessionAuthGuard, permissions_guard_1.PermissionsGuard),
     (0, common_1.Controller)('email-layouts'),
     __metadata("design:paramtypes", [email_layouts_service_1.EmailLayoutsService])

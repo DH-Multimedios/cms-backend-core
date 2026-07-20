@@ -11,13 +11,13 @@ class BaseUserPreferencesService {
         if (existing)
             return existing;
         const created = this.repository.create({ userId, ...defaults });
-        return (await this.repository.save(created));
+        return this.repository.save(created);
     }
     async update(userId, dto) {
         const existing = await this.repository.findOneBy({ userId });
         const preference = existing ?? this.repository.create({ userId });
         Object.assign(preference, dto);
-        return (await this.repository.save(preference));
+        return this.repository.save(preference);
     }
 }
 exports.BaseUserPreferencesService = BaseUserPreferencesService;

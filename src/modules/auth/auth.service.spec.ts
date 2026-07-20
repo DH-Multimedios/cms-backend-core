@@ -9,6 +9,7 @@ import { PasswordResetToken } from '../../database/entities/password-reset-token
 import { UsersService } from '../users/users.service';
 import { AuditService } from '../audit/audit.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { SettingsService } from '../settings/settings.service';
 
 const mockSessionRepository = () => ({
   findOne: jest.fn(),
@@ -37,6 +38,10 @@ const mockPasswordResetTokenRepository = () => ({
 const mockNotificationsService = () => ({
   notifySystem: jest.fn().mockResolvedValue(undefined),
   sendEmail: jest.fn().mockResolvedValue(undefined),
+});
+
+const mockSettingsService = () => ({
+  getValue: jest.fn().mockResolvedValue('365'),
 });
 
 const makeUser = (overrides: Partial<User> = {}): User =>
@@ -70,6 +75,7 @@ describe('AuthService', () => {
         { provide: UsersService, useFactory: mockUsersService },
         { provide: AuditService, useFactory: mockAuditService },
         { provide: NotificationsService, useFactory: mockNotificationsService },
+        { provide: SettingsService, useFactory: mockSettingsService },
       ],
     }).compile();
 

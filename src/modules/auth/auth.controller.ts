@@ -10,7 +10,7 @@ import {
   Inject,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { ApiTags, ApiOperation, ApiSecurity } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiCookieAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { SessionAuthGuard } from './guards/session-auth.guard';
@@ -31,7 +31,14 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     @Inject('CORE_AUTH_CONFIG') private readonly authConfig: AuthConfig,
-  ) {}
+  ) {
+    if (process.env.NODE_ENV === 'production' && authConfig.cookieSecure === false) {
+      throw new Error('cookieSecure cannot be false when NODE_ENV=production');
+    }
+    if (authConfig.cookieSameSite === 'none' && authConfig.cookieSecure === false) {
+      throw new Error('cookieSecure cannot be false when cookieSameSite=none');
+    }
+  }
 
   private get cookiePath() {
     return this.authConfig.cookiePath ?? '/';
@@ -87,7 +94,7 @@ export class AuthController {
   }
 
   @Post('logout')
-  @ApiSecurity('session')
+  @ApiCookieAuth('session')
   @ApiOperation({ summary: 'Cerrar sesión actual' })
   async logout(
     @CurrentUser() user: User,
@@ -105,7 +112,7 @@ export class AuthController {
   }
 
   @Post('logout-all')
-  @ApiSecurity('session')
+  @ApiCookieAuth('session')
   @ApiOperation({ summary: 'Cerrar todas las sesiones del usuario' })
   async logoutAll(
     @CurrentUser() user: User,
@@ -119,14 +126,14 @@ export class AuthController {
   }
 
   @Get('me')
-  @ApiSecurity('session')
+  @ApiCookieAuth('session')
   @ApiOperation({ summary: 'Obtener usuario actual' })
   me(@CurrentUser() user: User): UserResponseDto {
     return UserResponseDto.from(user);
   }
 
   @Get('me/permissions')
-  @ApiSecurity('session')
+  @ApiCookieAuth('session')
   @ApiOperation({ summary: 'Obtener permisos del usuario actual' })
   myPermissions(@CurrentUser() user: User) {
     const permissionSet = new Set<string>();

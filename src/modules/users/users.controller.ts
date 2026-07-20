@@ -15,7 +15,7 @@ import {
 import {
   ApiTags,
   ApiOperation,
-  ApiBearerAuth,
+  ApiCookieAuth,
   ApiConsumes,
   ApiBody,
   ApiParam,
@@ -33,7 +33,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../../database/entities/user.entity';
 
 @ApiTags('Users')
-@ApiBearerAuth()
+@ApiCookieAuth('session')
 @UseGuards(SessionAuthGuard, PermissionsGuard)
 @Controller('users')
 export class UsersController {

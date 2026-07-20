@@ -34,11 +34,7 @@ export class AuthService {
    * Crea una nueva sesión y devuelve el sessionId en texto plano.
    * El sessionId se almacena hasheado en DB; el plano viaja en cookie/header.
    */
-  async login(
-    user: User,
-    ip?: string,
-    userAgent?: string,
-  ): Promise<AuthResponseDto> {
+  async login(user: User, ip?: string, userAgent?: string): Promise<AuthResponseDto> {
     await this.usersService.updateLastLogin(user.id);
 
     const rawSessionId = randomUUID();
@@ -89,10 +85,7 @@ export class AuthService {
    * Revoca todas las sesiones activas del usuario.
    */
   async logoutAll(userId: string): Promise<{ message: string }> {
-    await this.sessionRepository.update(
-      { userId, revokedAt: IsNull() },
-      { revokedAt: new Date() },
-    );
+    await this.sessionRepository.update({ userId, revokedAt: IsNull() }, { revokedAt: new Date() });
 
     await this.auditService.log({
       action: 'logout_all',
@@ -179,7 +172,7 @@ export class AuthService {
 
     const token = await this.passwordResetTokenRepository.findOne({
       where: { resetTokenHash, usedAt: IsNull() },
-      relations: ['user'],
+      relations: { user: true },
     });
 
     if (!token || token.expiresAt < new Date()) {

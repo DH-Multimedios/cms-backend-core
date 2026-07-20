@@ -81,6 +81,16 @@ pnpm db:down
 pnpm db:logs
 ```
 
+### Verificación de instalación limpia
+
+`pnpm verify:fresh-install` compila el paquete, borra únicamente una base cuyo nombre termina en
+`_test`, ejecuta todas las migraciones empaquetadas desde `dist`, corre los seeds del core dos veces
+y valida sus registros críticos e idempotencia.
+
+Por defecto espera PostgreSQL en `localhost:55432`, con usuario/password `postgres` y base
+`backend_core_fresh_test`. Se puede configurar con `FRESH_DB_HOST`, `FRESH_DB_PORT`,
+`FRESH_DB_USERNAME`, `FRESH_DB_PASSWORD` y `FRESH_DB_NAME`.
+
 ---
 
 ## 🔄 Flujo de trabajo típico

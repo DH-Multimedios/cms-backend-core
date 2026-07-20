@@ -46,7 +46,7 @@ let SessionStrategy = class SessionStrategy extends (0, passport_1.PassportStrat
                 revokedAt: (0, typeorm_2.IsNull)(),
                 expiresAt: (0, typeorm_2.MoreThan)(new Date()),
             },
-            relations: ['user', 'user.roles', 'user.roles.permissions'],
+            relations: { user: { roles: { permissions: true } } },
         });
         if (!session || !session.user?.isActive) {
             throw new api_exception_1.ApiException(common_1.HttpStatus.UNAUTHORIZED, error_codes_enum_1.ErrorCode.INVALID_CREDENTIALS, 'Sesión inválida, expirada o usuario inactivo');

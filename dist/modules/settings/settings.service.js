@@ -65,14 +65,21 @@ let SettingsService = class SettingsService {
     async findAllCategories(page = 1, limit = 20) {
         const qb = this.categoryRepository
             .createQueryBuilder('category')
-            .loadRelationCountAndMap('category.settingsCount', 'category.settings')
+            .addSelect((subquery) => subquery
+            .select('COUNT(*)')
+            .from(setting_entity_1.Setting, 'countedSetting')
+            .where('countedSetting.categoryId = category.id'), 'category_settingsCount')
             .orderBy('category.order', 'ASC')
             .addOrderBy('category.id', 'ASC')
             .skip((page - 1) * limit)
             .take(limit);
-        const [items, total] = await qb.getManyAndCount();
+        const [{ entities, raw }, total] = await Promise.all([
+            qb.getRawAndEntities(),
+            qb.clone().getCount(),
+        ]);
+        const items = entities.map((category, index) => Object.assign(category, { settingsCount: Number(raw[index].category_settingsCount) }));
         return {
-            items: items,
+            items,
             total,
             page,
             limit,
@@ -155,7 +162,7 @@ let SettingsService = class SettingsService {
     async removeCategory(id) {
         const category = await this.categoryRepository.findOne({
             where: { id },
-            relations: ['settings'],
+            relations: { settings: true },
         });
         if (!category) {
             throw new api_exception_1.ApiException(common_1.HttpStatus.NOT_FOUND, error_codes_enum_1.ErrorCode.NOT_FOUND, `Categoría ${id} no encontrada`);
@@ -195,7 +202,7 @@ let SettingsService = class SettingsService {
     async findByKey(key) {
         const setting = await this.settingRepository.findOne({
             where: { key },
-            relations: ['category'],
+            relations: { category: true },
         });
         if (!setting) {
             throw new api_exception_1.ApiException(common_1.HttpStatus.NOT_FOUND, error_codes_enum_1.ErrorCode.NOT_FOUND, `Setting '${key}' no encontrado`);
@@ -233,7 +240,7 @@ let SettingsService = class SettingsService {
     async update(id, dto) {
         const setting = await this.settingRepository.findOne({
             where: { id },
-            relations: ['category'],
+            relations: { category: true },
         });
         if (!setting) {
             throw new api_exception_1.ApiException(common_1.HttpStatus.NOT_FOUND, error_codes_enum_1.ErrorCode.NOT_FOUND, `Setting ${id} no encontrado`);
