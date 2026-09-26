@@ -64,6 +64,16 @@ pnpm seed
 pnpm start:dev
 ```
 
+Este repositorio y `test-app` son proyectos pnpm independientes; ambos utilizan pnpm `12.6.0`. Si Sharp detecta la libvips instalada en el sistema e intenta compilarse sin disponer de las herramientas nativas necesarias, evite esa detección durante la instalación local:
+
+```bash
+SHARP_IGNORE_GLOBAL_LIBVIPS=1 pnpm install
+cd test-app
+SHARP_IGNORE_GLOBAL_LIBVIPS=1 pnpm install
+```
+
+Esta alternativa utiliza el binario precompilado de Sharp. No es necesaria para otras instalaciones ni constituye un requisito para los proyectos clientes.
+
 ## ⚙️ Configuración
 
 ### Variables de entorno necesarias

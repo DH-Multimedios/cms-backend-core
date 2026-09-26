@@ -18,7 +18,7 @@ El flujo completo es: crear proyecto, instalar, configurar `.env`, levantar Post
 ## 1. Requisitos
 
 - Node.js `^20.19.0 || ^22.13.0 || >=24.11.0`.
-- pnpm 11.
+- pnpm compatible con el proyecto cliente. Para contribuir a este repositorio y ejecutar `test-app`, utilice pnpm `12.6.0`; esta versión no es un requisito para los proyectos que consumen el core.
 - NestJS CLI: `pnpm add --global @nestjs/cli`.
 - PostgreSQL; los ejemplos usan Podman y `podman-compose`.
 - Acceso SSH al repositorio privado de GitHub.

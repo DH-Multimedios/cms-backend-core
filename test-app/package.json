@@ -1,6 +1,7 @@
 {
   "name": "@dh/backend-core-test-app",
   "version": "0.1.0",
+  "packageManager": "pnpm@12.6.0",
   "description": "Aplicación de testing para el core",
   "private": true,
   "scripts": {
