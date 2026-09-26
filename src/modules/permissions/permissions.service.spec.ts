@@ -1,8 +1,11 @@
+import { jest as jestRuntime } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { PermissionsService } from './permissions.service';
 import { Permission } from '../../database/entities/permission.entity';
 import { PermissionsQueryDto } from './dto/permissions-query.dto';
+
+const jest = jestRuntime as typeof globalThis.jest;
 
 const mockQb = () => ({
   andWhere: jest.fn().mockReturnThis(),

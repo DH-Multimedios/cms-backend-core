@@ -1,3 +1,4 @@
+import { jest as jestRuntime } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { SettingsService } from './settings.service';
@@ -6,6 +7,8 @@ import { SettingCategory } from '../../database/entities/setting-category.entity
 import { Media } from '../../database/entities/media.entity';
 import { AuditService } from '../audit/audit.service';
 import { PermissionsService } from '../permissions/permissions.service';
+
+const jest = jestRuntime as typeof globalThis.jest;
 
 const mockAuditService = () => ({ log: jest.fn().mockResolvedValue(undefined) });
 const mockPermissionsService = () => ({

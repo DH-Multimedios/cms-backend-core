@@ -1,3 +1,4 @@
+import { jest as jestRuntime } from '@jest/globals';
 import { ExecutionContext } from '@nestjs/common';
 import { ApiException } from '../../../common/exceptions/api.exception';
 import { ErrorCode } from '../../../common/enums/error-codes.enum';
@@ -6,6 +7,8 @@ import { PermissionsGuard } from './permissions.guard';
 import { User } from '../../../database/entities/user.entity';
 import { Role } from '../../../database/entities/role.entity';
 import { Permission } from '../../../database/entities/permission.entity';
+
+const jest = jestRuntime as typeof globalThis.jest;
 
 const makeUser = (overrides: Partial<User> = {}): User =>
   ({

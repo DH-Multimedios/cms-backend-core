@@ -1,3 +1,4 @@
+import { jest as jestRuntime } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ApiException } from '../../common/exceptions/api.exception';
@@ -10,6 +11,8 @@ import { UsersService } from '../users/users.service';
 import { AuditService } from '../audit/audit.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { SettingsService } from '../settings/settings.service';
+
+const jest = jestRuntime as typeof globalThis.jest;
 
 const mockSessionRepository = () => ({
   findOne: jest.fn(),

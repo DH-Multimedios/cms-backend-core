@@ -1,3 +1,4 @@
+import { jest as jestRuntime } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ApiException } from '../../common/exceptions/api.exception';
@@ -8,6 +9,8 @@ import { Permission } from '../../database/entities/permission.entity';
 import { User } from '../../database/entities/user.entity';
 import { PermissionsService } from '../permissions/permissions.service';
 import { AuditService } from '../audit/audit.service';
+
+const jest = jestRuntime as typeof globalThis.jest;
 
 const mockRoleRepository = () => ({
   find: jest.fn(),

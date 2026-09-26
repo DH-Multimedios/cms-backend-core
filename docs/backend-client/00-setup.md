@@ -17,7 +17,8 @@ El flujo completo es: crear proyecto, instalar, configurar `.env`, levantar Post
 
 ## 1. Requisitos
 
-- Node.js `^20.19.0 || ^22.13.0 || >=24.11.0`.
+- Node.js `>=22.12.0` para consumir el core con NestJS 12 desde CommonJS. Para desarrollar este repositorio con `@nestjs/schematics` 12, use Node.js `^22.22.3 || ^24.15.0 || >=26.0.0`.
+- NestJS 12 en el proyecto cliente, incluido `@nestjs/platform-express` 12; no mezcle versiones 11 y 12 de NestJS.
 - pnpm compatible con el proyecto cliente. Para contribuir a este repositorio y ejecutar `test-app`, utilice pnpm `12.6.0`; esta versión no es un requisito para los proyectos que consumen el core.
 - NestJS CLI: `pnpm add --global @nestjs/cli`.
 - PostgreSQL; los ejemplos usan Podman y `podman-compose`.
@@ -41,8 +42,9 @@ cd mi-proyecto
 CORE_REF='<release-tag-or-40-char-commit>'
 pnpm add "git+ssh://git@github.com/DH-Multimedios/cms-backend-core.git#${CORE_REF}"
 
-pnpm add @nestjs/config @nestjs/swagger dotenv
-pnpm add @nestjs/typeorm@^11.0.1 typeorm@^1.1.0 pg
+pnpm add @nestjs/common@^12 @nestjs/core@^12 @nestjs/platform-express@^12
+pnpm add @nestjs/config@^12 @nestjs/swagger@^12 dotenv
+pnpm add @nestjs/typeorm@^12 typeorm@^1.1.0 pg
 ```
 
 No instale desde la rama por defecto sin fijar una revisión: dos instalaciones realizadas en fechas distintas podrían resolver código diferente. El placeholder `CORE_REF` debe reemplazarse antes de ejecutar el comando.
@@ -52,7 +54,7 @@ Declare el runtime y el target requeridos:
 ```json
 {
   "engines": {
-    "node": "^20.19.0 || ^22.13.0 || >=24.11.0"
+    "node": ">=22.12.0"
   }
 }
 ```

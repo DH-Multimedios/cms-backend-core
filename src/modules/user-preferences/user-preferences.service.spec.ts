@@ -1,8 +1,11 @@
+import { jest as jestRuntime } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserPreferencesService } from './user-preferences.service';
 import { UserPreference } from '../../database/entities/user-preference.entity';
 import { BaseUserPreferencesService } from './base-user-preferences.service';
+
+const jest = jestRuntime as typeof globalThis.jest;
 
 const mockRepo = () => ({
   findOneBy: jest.fn(),

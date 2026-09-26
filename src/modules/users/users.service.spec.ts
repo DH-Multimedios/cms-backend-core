@@ -1,3 +1,4 @@
+import { jest as jestRuntime } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ApiException } from '../../common/exceptions/api.exception';
@@ -9,6 +10,8 @@ import { UsersQueryDto } from './dto/users-query.dto';
 import { AuditService } from '../audit/audit.service';
 import { MediaService } from '../media/media.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+
+const jest = jestRuntime as typeof globalThis.jest;
 
 const mockQb = (users: User[] = [], total = 0) => ({
   leftJoinAndSelect: jest.fn().mockReturnThis(),

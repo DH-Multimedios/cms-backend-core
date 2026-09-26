@@ -31,8 +31,9 @@
 
 ## 🚀 Instalación
 
-Requiere Node.js `^20.19.0 || ^22.13.0 || >=24.11.0`, TypeORM `^1.1.0` y
-`@nestjs/typeorm` `^11.0.1`.
+Requiere Node.js `>=22.12.0`, NestJS 12 (incluido `@nestjs/platform-express` 12),
+TypeORM `^1.1.0` y `@nestjs/typeorm` `^12.0.0`. Para desarrollar este repositorio
+con `@nestjs/schematics` 12 se requiere Node.js `^22.22.3 || ^24.15.0 || >=26.0.0`.
 
 ### Desde GitHub (recomendado para desarrollo)
 
