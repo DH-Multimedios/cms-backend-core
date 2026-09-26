@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { CoreModule } from '../../src'; // Dev: importa source directamente
+import { CoreModule } from '@dh/backend-core';
 
 function parseDatabasePort(value: string): number {
   const port = Number(value);
