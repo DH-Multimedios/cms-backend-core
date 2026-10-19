@@ -5,7 +5,8 @@ import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ClsModule } from 'nestjs-cls';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
+import { resolve } from 'path';
+import { resolveUploadPaths } from './upload-paths';
 import { DatabaseModule } from '../database/database.module';
 import { HealthModule } from '../modules/health/health.module';
 import { AuthModule } from '../modules/auth/auth.module';
@@ -38,18 +39,18 @@ export class CoreModule implements NestModule {
   }
 
   private static getMediaPath(modules?: ModulesConfig): string {
-    const mediaConfig = modules?.media;
-    if (mediaConfig && mediaConfig !== true && mediaConfig.path) {
-      return mediaConfig.path;
-    }
-    return process.env.UPLOADS_PATH || 'uploads/media';
+    const mediaPath = modules?.media && modules.media !== true ? modules.media.path : undefined;
+    const filesPath = modules?.files && modules.files !== true ? modules.files.path : undefined;
+    return resolveUploadPaths({ filesPath, mediaPath }).media;
   }
 
   static register(config: CoreModuleConfig): DynamicModule {
+    const configModule = ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' });
     const mediaPath = this.getMediaPath(config.modules);
-    const debugProviders = process.env.DEBUG_REQUESTS === 'true'
-      ? [{ provide: APP_INTERCEPTOR, useClass: DebugRequestInterceptor }]
-      : [];
+    const debugProviders =
+      process.env.DEBUG_REQUESTS === 'true'
+        ? [{ provide: APP_INTERCEPTOR, useClass: DebugRequestInterceptor }]
+        : [];
 
     return {
       module: CoreModule,
@@ -60,11 +61,11 @@ export class CoreModule implements NestModule {
         ...debugProviders,
       ],
       imports: [
-        ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
+        configModule,
         EventEmitterModule.forRoot(),
         ClsModule.forRoot({ global: true, middleware: { mount: true } }),
         ServeStaticModule.forRoot({
-          rootPath: join(process.cwd(), mediaPath),
+          rootPath: resolve(mediaPath),
           serveRoot: '/uploads/media/',
           serveStaticOptions: { index: false },
         }),
@@ -104,9 +105,10 @@ export class CoreModule implements NestModule {
   }
 
   static registerAsync(options: CoreModuleAsyncOptions): DynamicModule {
-    const debugProviders = process.env.DEBUG_REQUESTS === 'true'
-      ? [{ provide: APP_INTERCEPTOR, useClass: DebugRequestInterceptor }]
-      : [];
+    const debugProviders =
+      process.env.DEBUG_REQUESTS === 'true'
+        ? [{ provide: APP_INTERCEPTOR, useClass: DebugRequestInterceptor }]
+        : [];
 
     return {
       module: CoreModule,
@@ -143,7 +145,7 @@ export class CoreModule implements NestModule {
             const mediaPath = CoreModule.getMediaPath(config.modules);
             return [
               {
-                rootPath: join(process.cwd(), mediaPath),
+                rootPath: resolve(mediaPath),
                 serveRoot: '/uploads/media/',
                 serveStaticOptions: { index: false },
               },

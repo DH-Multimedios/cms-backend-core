@@ -65,6 +65,8 @@ pnpm seed
 pnpm start:dev
 ```
 
+`UPLOADS_PATH` ya no se admite: antes se compartía entre Files y Media y podía exponer archivos privados por la ruta estática de Media. Configurá `FILES_UPLOAD_PATH` y `MEDIA_UPLOAD_PATH` por separado; el directorio privado no puede estar dentro del público. Si ya tenés archivos guardados con `UPLOADS_PATH`, respaldalos y migrá manualmente los archivos de Files al directorio privado y los de Media al público antes de arrancar con la configuración nueva. No se mueven automáticamente. Consultá [la guía de migración](./docs/backend-client/files.md#storage-físico).
+
 Este repositorio y `test-app` son proyectos pnpm independientes; ambos utilizan pnpm `12.6.0`. Si Sharp detecta la libvips instalada en el sistema e intenta compilarse sin disponer de las herramientas nativas necesarias, evite esa detección durante la instalación local:
 
 ```bash
@@ -89,7 +91,8 @@ API_PREFIX=api
 BASE_URL=https://api.tudominio.com  # URL pública para Media
 
 # Storage
-UPLOADS_PATH=uploads  # Path relativo para Files y Media
+FILES_UPLOAD_PATH=uploads/files  # Archivos privados; nunca dentro de MEDIA_UPLOAD_PATH
+MEDIA_UPLOAD_PATH=uploads/media  # Imágenes públicas servidas bajo /uploads/media/
 
 # Database
 DB_HOST=localhost

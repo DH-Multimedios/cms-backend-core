@@ -50,7 +50,7 @@ Applies to: module wiring, guards, permissions, seeds, migrations, files, media,
 | Thumbnails | None — not generated | None — not generated automatically |
 | Ownership | `uploadedByUserId` + `fileOwnerUserId` | `uploadedByUserId` only |
 
-- **NEVER** serve `uploads/files/` as static. Only `uploads/media/` is served statically.
+- **NEVER** serve Files storage as static. Use separate `FILES_UPLOAD_PATH` (private) and `MEDIA_UPLOAD_PATH` (public); private storage must not be inside the public root. `UPLOADS_PATH` is rejected because it shared the roots and could expose private files. Migrate existing files manually before startup; never move or delete client data automatically.
 - Media does NOT generate thumbnails. Implement resize on-demand via `MediaService` subclass if needed.
 - All images in Media are public. For private images, use Files.
 
@@ -70,7 +70,8 @@ Applies to: module wiring, guards, permissions, seeds, migrations, files, media,
 - Do NOT extend TypeORM core entities via inheritance for domain modeling — TypeORM doesn't support it cross-package.
 - Do NOT import from internal paths (e.g. `@dh/backend-core/dist/modules/...`) unless documented — it creates fragile coupling.
   - **Exception**: `EmailSenderService` and `NotificationTypesService` are injectable via DI but not in the barrel; import from their dist path only inside a module that imports `NotificationsModule`.
-- Do NOT assume `uploads/files/` is publicly accessible.
+- Do NOT assume Files storage is publicly accessible; reject any configuration that places it under the Media static root.
+- `FilesService.update/remove` load the active user by the supplied ID and enforce `files.edit/files.delete` (system users bypass). Pass only the authenticated user's ID; the service argument alone is not proof of authentication. Keep the controller guards as defense in depth.
 - Do NOT assume Media generates thumbnails automatically.
 - Do NOT use core Setting keys without the documented prefix.
 - Do NOT write seeds that run before `runCoreSeeds`.

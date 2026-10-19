@@ -1,6 +1,7 @@
 import { StreamableFile } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { File } from '../../database/entities/file.entity';
+import { User } from '../../database/entities/user.entity';
 import { SettingsService } from '../settings/settings.service';
 import { AuditService } from '../audit/audit.service';
 import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
@@ -9,8 +10,10 @@ export declare class FilesService {
     private readonly fileRepository;
     private readonly settingsService;
     private readonly auditService;
+    private readonly userRepository;
     private readonly uploadPath;
-    constructor(fileRepository: Repository<File>, settingsService: SettingsService, auditService: AuditService);
+    constructor(fileRepository: Repository<File>, settingsService: SettingsService, auditService: AuditService, userRepository: Repository<User>);
+    private requirePermission;
     private validateFile;
     private generateStoragePath;
     private saveFileToDisk;

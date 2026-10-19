@@ -2,6 +2,7 @@ import { Injectable, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Media } from '../../database/entities/media.entity';
+import { resolveUploadPaths } from '../../core/upload-paths';
 import { SettingsService } from '../settings/settings.service';
 import { AuditService } from '../audit/audit.service';
 import { ApiException } from '../../common/exceptions/api.exception';
@@ -16,7 +17,7 @@ import sharp from 'sharp';
 
 @Injectable()
 export class MediaService {
-  private readonly uploadPath = process.env.UPLOADS_PATH || 'uploads/media';
+  private readonly uploadPath = resolveUploadPaths().media;
 
   constructor(
     @InjectRepository(Media)

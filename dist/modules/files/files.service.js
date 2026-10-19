@@ -50,6 +50,8 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const file_entity_1 = require("../../database/entities/file.entity");
+const user_entity_1 = require("../../database/entities/user.entity");
+const upload_paths_1 = require("../../core/upload-paths");
 const settings_service_1 = require("../settings/settings.service");
 const audit_service_1 = require("../audit/audit.service");
 const api_exception_1 = require("../../common/exceptions/api.exception");
@@ -62,11 +64,26 @@ let FilesService = class FilesService {
     fileRepository;
     settingsService;
     auditService;
-    uploadPath = process.env.UPLOADS_PATH || 'uploads/files';
-    constructor(fileRepository, settingsService, auditService) {
+    userRepository;
+    uploadPath = (0, upload_paths_1.resolveUploadPaths)().files;
+    constructor(fileRepository, settingsService, auditService, userRepository) {
         this.fileRepository = fileRepository;
         this.settingsService = settingsService;
         this.auditService = auditService;
+        this.userRepository = userRepository;
+    }
+    async requirePermission(userId, permission) {
+        const user = userId
+            ? await this.userRepository.findOne({
+                where: { id: userId, isActive: true },
+                relations: { roles: { permissions: true } },
+            })
+            : null;
+        if (!user ||
+            (!user.isSystemUser &&
+                !user.roles?.some((role) => role.permissions?.some((entry) => entry.name === permission)))) {
+            throw new api_exception_1.ApiException(common_1.HttpStatus.FORBIDDEN, error_codes_enum_1.ErrorCode.FORBIDDEN, 'No tenés los permisos necesarios');
+        }
     }
     async validateFile(file) {
         const allowedMimetypesStr = await this.settingsService.getValue('files.allowedMimetypes');
@@ -193,6 +210,7 @@ let FilesService = class FilesService {
         return { file, stream: new common_1.StreamableFile(stream) };
     }
     async update(id, dto, userId) {
+        await this.requirePermission(userId, 'files.edit');
         const file = await this.fileRepository.findOne({ where: { id } });
         if (!file) {
             throw new api_exception_1.ApiException(common_1.HttpStatus.NOT_FOUND, error_codes_enum_1.ErrorCode.NOT_FOUND, 'Archivo no encontrado');
@@ -215,6 +233,7 @@ let FilesService = class FilesService {
         return updated;
     }
     async remove(id, userId) {
+        await this.requirePermission(userId, 'files.delete');
         const file = await this.fileRepository.findOne({ where: { id } });
         if (!file) {
             throw new api_exception_1.ApiException(common_1.HttpStatus.NOT_FOUND, error_codes_enum_1.ErrorCode.NOT_FOUND, 'Archivo no encontrado');
@@ -240,8 +259,10 @@ exports.FilesService = FilesService;
 exports.FilesService = FilesService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(file_entity_1.File)),
+    __param(3, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
         settings_service_1.SettingsService,
-        audit_service_1.AuditService])
+        audit_service_1.AuditService,
+        typeorm_2.Repository])
 ], FilesService);
 //# sourceMappingURL=files.service.js.map

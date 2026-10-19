@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { File } from '../../database/entities/file.entity';
+import { User } from '../../database/entities/user.entity';
 import { FilesService } from './files.service';
 import { FilesController } from './files.controller';
 import { SettingsModule } from '../settings/settings.module';
@@ -10,7 +11,7 @@ import { AuditModule } from '../audit/audit.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([File]),
+    TypeOrmModule.forFeature([File, User]),
     MulterModule.register({
       storage: memoryStorage(), // Guardamos en memoria para validar antes de escribir a disco
     }),

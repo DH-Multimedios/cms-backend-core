@@ -443,18 +443,19 @@ Los permisos de Media funcionan de manera similar a Files, pero con algunas dife
 
 ## Configuración de storage en producción
 
-Por defecto, Media usa `process.env.UPLOADS_PATH` (defaults a `uploads/media`). En producción:
+Por defecto, Media usa `MEDIA_UPLOAD_PATH=uploads/media` y Files usa `FILES_UPLOAD_PATH=uploads/files`. `UPLOADS_PATH` ya no se admite porque compartía el directorio privado con la ruta pública. En producción:
 
 ### Opción 1: Filesystem local
 
 ```env
-UPLOADS_PATH=uploads/media
+MEDIA_UPLOAD_PATH=uploads/media
+FILES_UPLOAD_PATH=uploads/files
 BASE_URL=https://api.example.com
 ```
 
 **No hace falta configurar nada adicional.** `CoreModule` ya sirve `uploads/media/` como carpeta estática via `ServeStaticModule`. La carpeta se sirve bajo el prefijo `/uploads/media/`.
 
-Si usás un path personalizado (distinto al default), configuralo en `CoreModule.registerAsync`:
+Si usás un path personalizado, configurá `MEDIA_UPLOAD_PATH` para la escritura y el servidor estático. Si además declarás `modules.media.path`, debe apuntar al mismo directorio: su valor no configura por sí solo la escritura. La app rechaza una discrepancia al iniciar:
 
 ```typescript
 CoreModule.registerAsync({
@@ -463,7 +464,7 @@ CoreModule.registerAsync({
     database: { ... },
     auth: { ... },
     modules: {
-      media: { path: 'custom/media/path' }, // override del path físico
+      media: { storage: 'local', path: 'custom/media/path' }, // requiere MEDIA_UPLOAD_PATH=custom/media/path
     },
   }),
 })
@@ -522,9 +523,9 @@ if (!isImage) {
 
 1. Que el directorio físico exista y tenga los archivos (`uploads/media/` por defecto)
 2. Que `BASE_URL` apunte al servidor correcto
-3. Si usás un path personalizado, que esté configurado en `CoreModule.registerAsync` bajo `modules.media.path`
+3. Si usás un path personalizado, que `MEDIA_UPLOAD_PATH` y `modules.media.path` (si está definido) coincidan.
 
-Si estás usando un path distinto al default sin configurarlo, el `ServeStaticModule` seguirá sirviendo `uploads/media/` y las imágenes subidas al path alternativo no serán accesibles.
+Si el path de la variable y el de `modules.media.path` no coinciden, la aplicación se detiene en lugar de servir un directorio distinto al de las imágenes subidas.
 
 ### Las dimensiones (width/height) son 0
 

@@ -12,6 +12,7 @@ const typeorm_1 = require("@nestjs/typeorm");
 const platform_express_1 = require("@nestjs/platform-express");
 const multer_1 = require("multer");
 const file_entity_1 = require("../../database/entities/file.entity");
+const user_entity_1 = require("../../database/entities/user.entity");
 const files_service_1 = require("./files.service");
 const files_controller_1 = require("./files.controller");
 const settings_module_1 = require("../settings/settings.module");
@@ -22,7 +23,7 @@ exports.FilesModule = FilesModule;
 exports.FilesModule = FilesModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            typeorm_1.TypeOrmModule.forFeature([file_entity_1.File]),
+            typeorm_1.TypeOrmModule.forFeature([file_entity_1.File, user_entity_1.User]),
             platform_express_1.MulterModule.register({
                 storage: (0, multer_1.memoryStorage)(),
             }),

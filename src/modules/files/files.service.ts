@@ -2,6 +2,8 @@ import { Injectable, HttpStatus, StreamableFile } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { File } from '../../database/entities/file.entity';
+import { User } from '../../database/entities/user.entity';
+import { resolveUploadPaths } from '../../core/upload-paths';
 import { SettingsService } from '../settings/settings.service';
 import { AuditService } from '../audit/audit.service';
 import { ApiException } from '../../common/exceptions/api.exception';
@@ -15,14 +17,36 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class FilesService {
-  private readonly uploadPath = process.env.UPLOADS_PATH || 'uploads/files';
+  private readonly uploadPath = resolveUploadPaths().files;
 
   constructor(
     @InjectRepository(File)
     private readonly fileRepository: Repository<File>,
     private readonly settingsService: SettingsService,
     private readonly auditService: AuditService,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
+
+  private async requirePermission(userId: string, permission: string): Promise<void> {
+    const user = userId
+      ? await this.userRepository.findOne({
+          where: { id: userId, isActive: true },
+          relations: { roles: { permissions: true } },
+        })
+      : null;
+    if (
+      !user ||
+      (!user.isSystemUser &&
+        !user.roles?.some((role) => role.permissions?.some((entry) => entry.name === permission)))
+    ) {
+      throw new ApiException(
+        HttpStatus.FORBIDDEN,
+        ErrorCode.FORBIDDEN,
+        'No tenés los permisos necesarios',
+      );
+    }
+  }
 
   /**
    * Valida el archivo contra las configuraciones de settings
@@ -260,6 +284,7 @@ export class FilesService {
    * Actualiza un archivo (requiere permiso files.edit)
    */
   async update(id: string, dto: UpdateFileDto, userId: string): Promise<File> {
+    await this.requirePermission(userId, 'files.edit');
     const file = await this.fileRepository.findOne({ where: { id } });
 
     if (!file) {
@@ -290,6 +315,7 @@ export class FilesService {
    * Elimina un archivo (requiere permiso files.delete)
    */
   async remove(id: string, userId: string): Promise<void> {
+    await this.requirePermission(userId, 'files.delete');
     const file = await this.fileRepository.findOne({ where: { id } });
 
     if (!file) {

@@ -19,6 +19,7 @@ const event_emitter_1 = require("@nestjs/event-emitter");
 const nestjs_cls_1 = require("nestjs-cls");
 const serve_static_1 = require("@nestjs/serve-static");
 const path_1 = require("path");
+const upload_paths_1 = require("./upload-paths");
 const database_module_1 = require("../database/database.module");
 const health_module_1 = require("../modules/health/health.module");
 const auth_module_1 = require("../modules/auth/auth.module");
@@ -42,13 +43,12 @@ let CoreModule = CoreModule_1 = class CoreModule {
         consumer.apply((0, cookie_parser_1.default)()).forRoutes('*');
     }
     static getMediaPath(modules) {
-        const mediaConfig = modules?.media;
-        if (mediaConfig && mediaConfig !== true && mediaConfig.path) {
-            return mediaConfig.path;
-        }
-        return process.env.UPLOADS_PATH || 'uploads/media';
+        const mediaPath = modules?.media && modules.media !== true ? modules.media.path : undefined;
+        const filesPath = modules?.files && modules.files !== true ? modules.files.path : undefined;
+        return (0, upload_paths_1.resolveUploadPaths)({ filesPath, mediaPath }).media;
     }
     static register(config) {
+        const configModule = config_1.ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' });
         const mediaPath = this.getMediaPath(config.modules);
         const debugProviders = process.env.DEBUG_REQUESTS === 'true'
             ? [{ provide: core_1.APP_INTERCEPTOR, useClass: debug_request_interceptor_1.DebugRequestInterceptor }]
@@ -62,11 +62,11 @@ let CoreModule = CoreModule_1 = class CoreModule {
                 ...debugProviders,
             ],
             imports: [
-                config_1.ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
+                configModule,
                 event_emitter_1.EventEmitterModule.forRoot(),
                 nestjs_cls_1.ClsModule.forRoot({ global: true, middleware: { mount: true } }),
                 serve_static_1.ServeStaticModule.forRoot({
-                    rootPath: (0, path_1.join)(process.cwd(), mediaPath),
+                    rootPath: (0, path_1.resolve)(mediaPath),
                     serveRoot: '/uploads/media/',
                     serveStaticOptions: { index: false },
                 }),
@@ -143,7 +143,7 @@ let CoreModule = CoreModule_1 = class CoreModule {
                         const mediaPath = CoreModule_1.getMediaPath(config.modules);
                         return [
                             {
-                                rootPath: (0, path_1.join)(process.cwd(), mediaPath),
+                                rootPath: (0, path_1.resolve)(mediaPath),
                                 serveRoot: '/uploads/media/',
                                 serveStaticOptions: { index: false },
                             },

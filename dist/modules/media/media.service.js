@@ -53,6 +53,7 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const media_entity_1 = require("../../database/entities/media.entity");
+const upload_paths_1 = require("../../core/upload-paths");
 const settings_service_1 = require("../settings/settings.service");
 const audit_service_1 = require("../audit/audit.service");
 const api_exception_1 = require("../../common/exceptions/api.exception");
@@ -66,7 +67,7 @@ let MediaService = class MediaService {
     mediaRepository;
     settingsService;
     auditService;
-    uploadPath = process.env.UPLOADS_PATH || 'uploads/media';
+    uploadPath = (0, upload_paths_1.resolveUploadPaths)().media;
     constructor(mediaRepository, settingsService, auditService) {
         this.mediaRepository = mediaRepository;
         this.settingsService = settingsService;

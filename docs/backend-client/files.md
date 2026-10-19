@@ -169,7 +169,7 @@ async downloadInvoiceFile(
 
 ### `update(id, dto, userId)`
 
-Actualiza nombre, descripción o dueño del archivo. Requiere permiso `files.edit`.
+Actualiza nombre, descripción o dueño del archivo. El servicio consulta el usuario activo en la base de datos y exige `files.edit` (o usuario del sistema) antes de leer o modificar el archivo. Pasá únicamente el ID del usuario autenticado; el argumento `userId` no autentica al llamador por sí solo.
 
 **Parámetros:**
 
@@ -189,7 +189,7 @@ userId: string  // Para auditoría
 
 ### `remove(id, userId)`
 
-Elimina el archivo (físico y registro). Requiere permiso `files.delete`.
+Elimina el archivo (físico y registro). El servicio consulta el usuario activo en la base de datos y exige `files.delete` (o usuario del sistema) antes de leer o eliminar el archivo. Pasá únicamente el ID del usuario autenticado; el argumento `userId` no autentica al llamador por sí solo.
 
 **Parámetros:**
 
@@ -396,14 +396,19 @@ export class InvoicesService {
 Los archivos se guardan en:
 
 ```
-{UPLOADS_PATH}/{fileOwnerUserId}/{usage}/{YYYY-MM-DD}/{uuid}.ext
+{FILES_UPLOAD_PATH}/{fileOwnerUserId}/{usage}/{YYYY-MM-DD}/{uuid}.ext
 ```
 
-**Variable de entorno:**
+**Variables de entorno (valores por defecto):**
 
 ```env
-UPLOADS_PATH=uploads/files  # Default: 'uploads/files'
+FILES_UPLOAD_PATH=uploads/files
+MEDIA_UPLOAD_PATH=uploads/media
 ```
+
+`UPLOADS_PATH` se rechaza al iniciar: antes era compartida por Files, Media y el servidor estático, por lo que podía hacer públicos archivos privados bajo `/uploads/media/`. El directorio de Files no puede ser el mismo que el de Media ni estar dentro de él, incluso mediante un enlace simbólico existente. Si usás `modules.files.path` o `modules.media.path`, debe coincidir con la variable correspondiente o con su valor por defecto; no configura por separado la escritura.
+
+**Migración de instalaciones existentes:** con la aplicación detenida, respaldá el directorio anterior y la base de datos. Localizá los archivos por sus registros `File.path` y `Media.path`: copiá cada archivo desde el antiguo `UPLOADS_PATH` al nuevo directorio privado o público correspondiente, conservando su ruta relativa. Verificá que todos los registros se resuelvan en el destino y que los archivos privados no respondan por `/uploads/media/`; recién entonces quitá `UPLOADS_PATH` y configurá los dos paths separados. No hay traslado automático ni borres los originales hasta comprobar la migración.
 
 Si `fileOwnerUserId` es `null`:
 
