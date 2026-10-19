@@ -132,4 +132,4 @@ orders.maxItems   → cliente
 | `media.allowedMimetypes` | Tipos de imagen permitidos (JSON array) | `json` | `['image/jpeg', ...]` |
 | `media.maxFileSize` | Tamaño máximo de imagen en bytes | `number` | `5242880` (5MB) |
 
-> ⚠️ El seed crea la key de logo como `app.logo`, pero `NotificationsService` la lee como `app.logoUrl`. Hay una inconsistencia en el core — hasta que se corrija, `{{appLogoUrl}}` no se inyecta en los templates. Si necesitás el logo en emails, guardalo en `app.logo` y reemplazalo manualmente en tu listener.
+> `NotificationsService` lee **`app.logo`** como `{{appLogoUrl}}` en los templates de email del core y en `notifySystem()`. No consulta `app.logoUrl`: configurar esa clave no carga el logo. `sendEmail()` envía HTML directo sin variables globales.
