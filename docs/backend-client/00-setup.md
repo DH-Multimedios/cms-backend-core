@@ -17,7 +17,7 @@ El flujo completo es: crear proyecto, instalar, configurar `.env`, levantar Post
 
 ## 1. Requisitos
 
-- Node.js `>=22.12.0` para ejecutar el core con NestJS 12 desde CommonJS. Para crear un cliente con `nest new` o desarrollar este repositorio con `@nestjs/schematics` 12, use Node.js `^22.22.3 || ^24.15.0 || >=26.0.0`.
+- Node.js `^22.22.3 || ^24.15.0 || >=26.0.0` para instalar el core y crear un cliente con `nest new` o desarrollar este repositorio con `@nestjs/schematics` 12.
 - NestJS 12 en el proyecto cliente, incluido `@nestjs/platform-express` 12; no mezcle versiones 11 y 12 de NestJS.
 - pnpm compatible con el proyecto cliente. Para contribuir a este repositorio y ejecutar `test-app`, utilice pnpm `12.6.0`; esta versión no es un requisito para los proyectos que consumen el core.
 - NestJS CLI 12: `pnpm add --global @nestjs/cli@^12`.
@@ -54,7 +54,7 @@ Declare el runtime y el target requeridos:
 ```json
 {
   "engines": {
-    "node": ">=22.12.0"
+    "node": "^22.22.3 || ^24.15.0 || >=26.0.0"
   }
 }
 ```
