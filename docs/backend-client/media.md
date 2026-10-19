@@ -33,6 +33,8 @@ export class ProductsService {
 
 ## API del MediaService
 
+**Límite de confianza:** este servicio no autentica al llamador ni consulta permisos para `upload`, `findAll`, `findOne`, `update` o `remove`. Sus flags booleanos son afirmaciones del endpoint, no pruebas: protegé el endpoint con `SessionAuthGuard` y, para mutaciones, `PermissionsGuard` + `@RequirePermissions(...)`; derivá usuario y flags de la sesión, nunca de parámetros del cliente. La URL estática de Media es pública, pero la metadata y las mutaciones necesitan autorización.
+
 ### `upload(file, uploadedByUserId, options)`
 
 Sube una imagen con validación automática desde settings y extracción de dimensiones con Sharp.
@@ -54,7 +56,7 @@ options: {
 
 - `INTERNAL_ERROR`: Settings no configurados
 - `VALIDATION_ERROR`: Tipo de imagen no permitido, excede tamaño máximo, o imagen corrupta
-- `VALIDATION_ERROR`: Alt text faltante o vacío
+- El DTO del endpoint valida `alt`; las llamadas directas a `MediaService.upload()` deben validarlo en el cliente antes de invocar el servicio.
 
 **Ejemplo:**
 
@@ -64,7 +66,7 @@ const media = await this.mediaService.upload(multerFile, currentUser.id, {
   usage: 'logos',
 });
 
-console.log(media.url); // https://api.example.com/uploads/media/user-123/logos/2026-04-11/abc-def.jpg
+console.log(media.url); // /uploads/media/user-123/logos/2026-04-11/abc-def.jpg (ruta relativa al origen de la API)
 console.log(media.width); // 1920
 console.log(media.height); // 1080
 ```
@@ -73,7 +75,7 @@ console.log(media.height); // 1080
 
 ### `findAll(filters, userId?, hasListPermission?)`
 
-Lista imágenes con filtros y control de acceso automático.
+Lista metadata de imágenes con filtros. En endpoints del cliente, obtené `userId` de la sesión y derivá `hasListPermission` de permisos comprobados en el servidor; **sin `userId`, el servicio no restringe por uploader** aunque el flag sea `false`.
 
 **Parámetros:**
 
@@ -87,13 +89,13 @@ userId?: string;            // Usuario actual (para restringir si no tiene permi
 hasListPermission?: boolean;// Si tiene permiso media.list (ve todas, sino solo las propias)
 ```
 
-**Retorna:** `Promise<Media[]>`
+**Retorna:** `Promise<PaginatedResult<Media>>`, con `{ items, total, page, limit, pages }` (por defecto `page=1`, `limit=20`).
 
 **Ejemplo:**
 
 ```typescript
 // Listar imágenes de productos subidas por un usuario específico
-const productImages = await this.mediaService.findAll(
+const { items: productImages, total } = await this.mediaService.findAll(
   { usage: 'products', uploadedByUserId: userId },
   userId,
   false, // Sin permiso list, solo ve las propias
@@ -104,21 +106,21 @@ const productImages = await this.mediaService.findAll(
 
 ### `findOne(id, userId?, hasReadPermission?)`
 
-Obtiene una imagen por ID con control de acceso.
+Obtiene metadata de una imagen por ID. Solo filtra por uploader cuando se proporciona `userId` y `hasReadPermission=false`; no ofrece autenticación propia. La URL estática de la imagen es pública.
 
 **Parámetros:**
 
 ```typescript
 id: string;                 // UUID de la imagen
-userId?: string;            // Usuario actual (para restringir si no tiene permiso read)
-hasReadPermission?: boolean;// Si tiene permiso media.read (ve todas, sino solo las propias)
+userId?: string;            // ID de la sesión autenticada
+hasReadPermission?: boolean;// Solo true tras comprobar media.read en el servidor
 ```
 
 **Retorna:** `Promise<Media>`
 
 **Errores:**
 
-- `RESOURCE_NOT_FOUND`: Imagen no existe o el usuario no tiene acceso
+- `NOT_FOUND`: Imagen inexistente o no visible por el filtro de uploader
 
 **Ejemplo:**
 
@@ -138,25 +140,25 @@ Actualiza el texto alternativo (alt) de una imagen. **Solo se puede editar el ca
 ```typescript
 id: string;                 // UUID de la imagen
 updateDto: { alt: string }; // Nuevo texto alternativo
-userId: string;             // Usuario que hace la edición (para auditoría)
-hasEditPermission?: boolean;// Si tiene permiso media.edit
+userId: string;             // ID autenticado (y para auditoría)
+hasEditPermission?: boolean;// Solo true tras comprobar media.edit; permite editar imágenes ajenas
 ```
 
 **Retorna:** `Promise<Media>`
 
 **Errores:**
 
-- `RESOURCE_NOT_FOUND`: Imagen no existe o el usuario no tiene acceso
-- `VALIDATION_ERROR`: Alt text vacío
+- `NOT_FOUND`: Imagen inexistente o no visible por el filtro de uploader.
+- El DTO del endpoint valida `alt`; la llamada directa al servicio no valida si está vacío.
 
-**Ejemplo:**
+**Ejemplo:** dentro de un endpoint que ya comprobó `media.edit`, limitado a una imagen propia por el flag `false`:
 
 ```typescript
 const updated = await this.mediaService.update(
   mediaId,
   { alt: 'Logo de la empresa actualizado 2026' },
   currentUser.id,
-  true,
+  false, // Acceso a una imagen propia; comprobar media.edit antes de dar acceso global
 );
 ```
 
@@ -170,20 +172,21 @@ Elimina una imagen (archivo físico + registro en DB).
 
 ```typescript
 id: string;                 // UUID de la imagen
-userId: string;             // Usuario que elimina (para auditoría)
-hasDeletePermission?: boolean;// Si tiene permiso media.delete
+userId: string;             // ID autenticado (y para auditoría)
+hasDeletePermission?: boolean;// Solo true tras comprobar media.delete; permite eliminar imágenes ajenas
 ```
 
 **Retorna:** `Promise<void>`
 
 **Errores:**
 
-- `RESOURCE_NOT_FOUND`: Imagen no existe o el usuario no tiene acceso
+- `NOT_FOUND`: Imagen inexistente o no visible por el filtro de uploader.
 
 **Ejemplo:**
 
 ```typescript
-await this.mediaService.remove(mediaId, currentUser.id, true);
+// En un endpoint autenticado que ya comprobó media.delete; false limita a imágenes propias.
+await this.mediaService.remove(mediaId, currentUser.id, false);
 ```
 
 ---
@@ -292,7 +295,7 @@ export class BannersService {
 
   async getActiveBanners() {
     const banners = await this.bannerRepository.find({ where: { isActive: true } });
-    return banners; // Frontend consume directamente banner.imageUrl (URL pública)
+    return banners; // imageUrl es relativa a la API; el frontend debe anteponer el origen de la API
   }
 }
 ```
@@ -301,66 +304,15 @@ export class BannersService {
 
 ## Extender el módulo Media
 
-### Agregar validación personalizada
+`MediaService` no ofrece hooks de almacenamiento ni un `uploadPath` público/protegido: `saveImageToDisk()`, `generatePublicUrl()` y `uploadPath` son miembros `private`. No los sobrescribas en una subclase ni accedas a ellos desde un thumbnail service; esos ejemplos no compilan o no modifican el flujo interno.
 
-```typescript
-import { Injectable, HttpStatus } from '@nestjs/common';
-import { MediaService } from '@dh/backend-core';
-import { ApiException, ErrorCode } from '@dh/backend-core';
+### Validación propia
 
-@Injectable()
-export class CustomMediaService extends MediaService {
-  async upload(file: Express.Multer.File, uploadedByUserId: string, options: any) {
-    // Validación personalizada: solo usuarios premium pueden subir imágenes >2MB
-    const user = await this.userRepository.findOne(uploadedByUserId);
-    if (!user.isPremium && file.size > 2 * 1024 * 1024) {
-      throw new ApiException(
-        HttpStatus.FORBIDDEN,
-        ErrorCode.FORBIDDEN,
-        'Solo usuarios premium pueden subir imágenes mayores a 2MB',
-      );
-    }
+Validá el usuario y el archivo en el endpoint o servicio de negocio autenticado **antes** de llamar a `MediaService.upload()`. El core valida tipo y tamaño según Settings; reglas de negocio como "solo usuarios premium" y permisos de la ruta pertenecen al cliente.
 
-    // Llamar al método original
-    return super.upload(file, uploadedByUserId, options);
-  }
-}
-```
+### Resize on-demand
 
-### Agregar resize on-demand
-
-```typescript
-import { Injectable } from '@nestjs/common';
-import { MediaService } from '@dh/backend-core';
-import * as sharp from 'sharp';
-import * as path from 'path';
-
-@Injectable()
-export class ResizeMediaService extends MediaService {
-  async getThumbnail(id: string, width: number): Promise<Buffer> {
-    const media = await this.findOne(id);
-    const fullPath = path.join(this.uploadPath, media.path);
-
-    // Generar thumbnail con Sharp
-    return sharp(fullPath).resize(width).toBuffer();
-  }
-}
-```
-
-Crear endpoint en un controller personalizado:
-
-```typescript
-@Get(':id/thumbnail')
-async getThumbnail(
-  @Param('id') id: string,
-  @Query('width') width: number,
-  @Res() res: Response,
-) {
-  const thumbnail = await this.resizeMediaService.getThumbnail(id, width);
-  res.set('Content-Type', 'image/jpeg');
-  res.send(thumbnail);
-}
-```
+Si necesitás thumbnails, implementá un servicio independiente: obtené la metadata con la identidad autenticada, resolvé el archivo bajo `MEDIA_UPLOAD_PATH`, verificá que la ruta física permanezca dentro del directorio público y limitá dimensiones/carga antes de llamar a Sharp. No hay generación automática de thumbnails ni un método del core listo para sobrescribir.
 
 ---
 
@@ -423,7 +375,7 @@ Los permisos de Media funcionan de manera similar a Files, pero con algunas dife
 | `media.edit`   | Puede editar el alt text de imágenes.                      |
 | `media.delete` | Puede eliminar imágenes.                                   |
 
-**Nota importante:** Las URLs de las imágenes son públicas — cualquiera con la URL puede verlas sin autenticación. Los permisos aplican solo a las operaciones de gestión (upload, edit, delete, list metadata).
+**Nota importante:** La URL de Media es una ruta pública relativa a la API (`/uploads/media/...`). Cualquiera puede obtener los bytes al solicitarla al origen de la API; en un frontend con otro origen, resolvé esa ruta contra el origen de la API. Los permisos aplican a las operaciones de gestión y metadata, no a la ruta estática.
 
 ---
 
@@ -450,7 +402,6 @@ Por defecto, Media usa `MEDIA_UPLOAD_PATH=uploads/media` y Files usa `FILES_UPLO
 ```env
 MEDIA_UPLOAD_PATH=uploads/media
 FILES_UPLOAD_PATH=uploads/files
-BASE_URL=https://api.example.com
 ```
 
 **No hace falta configurar nada adicional.** `CoreModule` ya sirve `uploads/media/` como carpeta estática via `ServeStaticModule`. La carpeta se sirve bajo el prefijo `/uploads/media/`.
@@ -470,29 +421,9 @@ CoreModule.registerAsync({
 })
 ```
 
-### Opción 2: S3 / Cloud Storage (futura extensión)
+### Opción 2: S3 / Cloud Storage (no soportada por este módulo)
 
-Para usar S3, extender `MediaService` y sobrescribir `saveImageToDisk()` y `generatePublicUrl()`:
-
-```typescript
-@Injectable()
-export class S3MediaService extends MediaService {
-  private async saveImageToDisk(file: Express.Multer.File, storagePath: string): Promise<string> {
-    const key = `${storagePath}/${uuidv4()}${path.extname(file.originalname)}`;
-    await this.s3Client.putObject({
-      Bucket: 'my-bucket',
-      Key: key,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-    });
-    return key;
-  }
-
-  private generatePublicUrl(key: string): string {
-    return `https://my-bucket.s3.amazonaws.com/${key}`;
-  }
-}
-```
+El módulo actual guarda imágenes en disco y genera URLs relativas bajo `/uploads/media/`. `modules.media.storage: 's3'` no cambia ese comportamiento y los métodos de almacenamiento/URL son privados; no hay una extensión S3 funcional mediante herencia. Si un cliente necesita S3, requiere una implementación independiente o una ampliación explícita del core antes de anunciarlo como compatible.
 
 ---
 
@@ -503,7 +434,7 @@ export class S3MediaService extends MediaService {
 Los settings `media.allowedMimetypes` y `media.maxFileSize` no existen en la tabla `settings`. Ejecutar seeds:
 
 ```bash
-npm run seed
+pnpm seed
 ```
 
 ### Error: "No se pudo procesar la imagen"
@@ -522,7 +453,7 @@ if (!isImage) {
 `CoreModule` ya registra `ServeStaticModule` internamente y sirve `uploads/media/` bajo `/uploads/media/`. Si las imágenes no cargan, verificá:
 
 1. Que el directorio físico exista y tenga los archivos (`uploads/media/` por defecto)
-2. Que `BASE_URL` apunte al servidor correcto
+2. Que el frontend resuelva `media.url` (relativa, `/uploads/media/...`) contra el origen de la API y no contra el origen del frontend
 3. Si usás un path personalizado, que `MEDIA_UPLOAD_PATH` y `modules.media.path` (si está definido) coincidan.
 
 Si el path de la variable y el de `modules.media.path` no coinciden, la aplicación se detiene en lugar de servir un directorio distinto al de las imágenes subidas.
@@ -540,6 +471,8 @@ Validar que `file.buffer` no esté vacío antes de llamar a `upload()`.
 ---
 
 ## Ejemplo completo: CRUD de imágenes de producto
+
+Los métodos siguientes suponen que los endpoints que los llaman ya autenticaron al usuario y comprobaron `media.edit` o `media.delete` según la acción. Con `false`, las mutaciones del servicio quedan limitadas a las imágenes subidas por ese usuario; para administración de imágenes ajenas, comprobá el permiso correspondiente antes de pasar `true`.
 
 ```typescript
 import { Injectable } from '@nestjs/common';
@@ -595,7 +528,7 @@ export class ProductImagesService {
     });
 
     // Actualizar en Media
-    const media = await this.mediaService.update(productImage.mediaId, { alt }, userId, true);
+    const media = await this.mediaService.update(productImage.mediaId, { alt }, userId, false);
 
     // Actualizar en ProductImage
     productImage.alt = alt;
@@ -608,7 +541,7 @@ export class ProductImagesService {
     });
 
     // Eliminar de Media (archivo físico + registro)
-    await this.mediaService.remove(productImage.mediaId, userId, true);
+    await this.mediaService.remove(productImage.mediaId, userId, false);
 
     // Eliminar relación
     await this.productImageRepository.remove(productImage);

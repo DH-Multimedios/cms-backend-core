@@ -38,7 +38,7 @@ export class InvoicesService {
 
 ### `upload(file, uploadedByUserId, options)`
 
-Sube un archivo con validación automática desde settings.
+Sube un archivo con validación de tipo/tamaño desde settings. En endpoints propios, protegé la ruta y derivá `uploadedByUserId` de la sesión: el servicio no autentica ese argumento.
 
 **Parámetros:**
 
@@ -46,7 +46,7 @@ Sube un archivo con validación automática desde settings.
 file: Express.Multer.File           // Archivo Multer (buffer en memoria)
 uploadedByUserId: string            // UUID del usuario que sube
 options: {
-  fileOwnerUserId?: string;         // UUID del dueño (defaults a uploadedByUserId)
+  fileOwnerUserId?: string;         // UUID del dueño (si se omite se guarda null, NO el uploader)
   usage: string;                    // Categoría libre: 'invoices', 'contracts', etc.
   name?: string;                    // Nombre descriptivo (defaults a originalName)
   description?: string | null;      // Descripción opcional
@@ -77,7 +77,7 @@ const file = await this.filesService.upload(multerFile, currentUser.id, {
 
 ### `findAll(filters, userId?, hasListPermission?)`
 
-Lista archivos con filtros y control de acceso automático.
+Lista archivos con filtros. En endpoints del cliente, obtené `userId` de la sesión autenticada y derivá `hasListPermission` del servidor; **si omitís `userId`, el servicio no filtra por dueño**, aun cuando `hasListPermission` sea `false`. No expongas la llamada sin un guard del endpoint.
 
 **Parámetros:**
 
@@ -88,25 +88,26 @@ filters: {
   isPublic?: boolean;          // Filtrar públicos/privados
   search?: string;             // Buscar en name o description
 }
-userId?: string                // Usuario actual (opcional)
-hasListPermission?: boolean    // Si tiene permiso files.list (opcional)
+userId?: string                // Pasar siempre el ID autenticado desde un endpoint privado
+hasListPermission?: boolean    // Solo true tras comprobar files.list en el servidor
 ```
 
-**Retorna:** `Promise<File[]>`
+**Retorna:** `Promise<PaginatedResult<File>>`, con `{ items, total, page, limit, pages }` (por defecto `page=1`, `limit=20`).
 
 **Lógica de acceso:**
 
-- Si `hasListPermission = true` → ve todos los archivos
-- Si `hasListPermission = false` → solo ve archivos donde `fileOwnerUserId = userId`
+- Con `hasListPermission = true` derivado de un permiso real → ve todos los archivos.
+- Con `hasListPermission = false` y `userId` definido → solo ve archivos donde `fileOwnerUserId = userId`.
+- Sin `userId` → la consulta no aplica el filtro de dueño; no lo uses en un endpoint privado.
 
-**Ejemplo:**
+**Ejemplo para los archivos propios:**
 
 ```typescript
-// Listar todos los archivos de facturas de un cliente
-const files = await this.filesService.findAll({
-  usage: 'invoices',
-  fileOwnerUserId: clientId,
-});
+const { items, total } = await this.filesService.findAll(
+  { usage: 'invoices' },
+  currentUser.id,
+  false,
+);
 ```
 
 ---
