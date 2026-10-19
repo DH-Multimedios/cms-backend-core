@@ -38,7 +38,7 @@ export class UserProfile {
 
 ## Agregar permisos propios
 
-Cada módulo del cliente puede registrar sus propios permisos en `onModuleInit`. El sistema los crea si no existen y los asigna al SuperAdmin:
+Cada módulo del cliente puede registrar sus propios permisos en `onModuleInit`. `registerPermissions` los crea si no existen, **pero no los asigna a ningún rol**. Asignalos explícitamente al rol que corresponda desde la administración de permisos; no supongas que el SuperAdmin los recibe al registrarlos:
 
 ```typescript
 import { Injectable, OnModuleInit } from '@nestjs/common';
@@ -179,48 +179,26 @@ export class CrmSyncService {
 
 ## Sobreescribir el guard de permisos
 
-Si necesitás lógica de autorización personalizada (ej: multi-tenant), podés reemplazar el guard:
+Para autorización por tenant, conservá los guards del core en el endpoint y agregá un guard del cliente que implemente `CanActivate`. `PermissionsGuard.canActivate()` es síncrono (`boolean`): no lo sobrescribas con `async canActivate(): Promise<boolean>`, porque esa subclase no compila. El cliente debe definir su comprobación de pertenencia y cargarla desde una fuente confiable; no uses un tenant ID del request como prueba de acceso.
 
 ```typescript
-// src/guards/tenant-permissions.guard.ts
-import { PermissionsGuard } from '@dh/backend-core';
-
-@Injectable()
-export class TenantPermissionsGuard extends PermissionsGuard {
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const baseResult = await super.canActivate(context);
-    if (!baseResult) return false;
-
-    // Tu lógica adicional
-    const user = context.switchToHttp().getRequest().user;
-    return this.checkTenantAccess(user);
-  }
-}
+@UseGuards(SessionAuthGuard, PermissionsGuard, TenantGuard)
+@RequirePermissions('products.read')
+@Get(':id')
+findOne(@Param('id') id: string) { /* ... */ }
 ```
 
-Registralo globalmente en tu `AppModule`:
-
-```typescript
-{ provide: APP_GUARD, useClass: TenantPermissionsGuard }
-```
+No registres un guard de tenant como `APP_GUARD` sin contemplar las rutas públicas y la sesión. Esta guía no implementa una política de tenants: su lógica pertenece al cliente.
 
 ---
 
 ## Agregar migraciones propias
 
-En tu `data-source.ts`, incluí las entidades y migraciones del core más las tuyas:
+En una **base nueva**, incluí las entidades y migraciones empaquetadas del core junto con las tuyas en el mismo `DataSource`. El core no corre migraciones automáticamente al importarlo; `synchronize: false` no crea el esquema y los seeds no sustituyen las migraciones. Usá el `DataSource` completo, los globs TS/JS y el orden de ejecución de [00-setup.md, sección 7](./00-setup.md#7-datasource-y-migraciones-typeorm-11). Solo agregá tus entidades después de `...CORE_ENTITIES` y tu propio glob de migraciones al ejemplo de esa sección.
 
-```typescript
-import { CORE_ENTITIES } from '@dh/backend-core';
+En el ejemplo de setup, mantené `entities: [...CORE_ENTITIES, Product, Order, UserProfile]`, los dos globs de migraciones (core empaquetado y cliente TS/JS) y `synchronize: false`. No reemplaces el glob del core por `src/database/migrations/*.ts` del cliente.
 
-export const AppDataSource = new DataSource({
-  // ...
-  entities: [...CORE_ENTITIES, Product, Order, UserProfile],
-  migrations: ['src/database/migrations/*.ts'],
-});
-```
-
-Las migraciones del core ya corrieron. Solo creás migraciones para tus entidades propias.
+En una **base existente**, no ejecutes el baseline consolidado sin revisar el historial aplicado; primero acordá una ruta de transición. Una vez aplicado el esquema del core, creá migraciones para tus nuevas entidades o columnas.
 
 ---
 
@@ -253,8 +231,8 @@ async function runSeed() {
 # Base de datos
 DB_HOST=localhost
 DB_PORT=5432
-DB_USER=...
-DB_PASS=...
+DB_USERNAME=...
+DB_PASSWORD=...
 DB_NAME=...
 
 # Cuenta operacional altamente privilegiada (opcional; usar secret manager)

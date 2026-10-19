@@ -1,10 +1,13 @@
 # Configuración de un cliente nuevo
 
-Esta guía instala `@dh/backend-core` en un proyecto NestJS nuevo, crea una base PostgreSQL desde cero y verifica autenticación por sesión con la cookie HttpOnly `session_id`.
+Esta guía es el punto de partida para un **cliente nuevo con una base PostgreSQL vacía**: instala `@dh/backend-core`, aplica el esquema y verifica la cookie HttpOnly `session_id`. El paquete instalado incluye esta documentación y `skills/backend-core/SKILL.md`; leé ambos desde la misma revisión fijada del paquete. El skill no se activa automáticamente por estar instalado.
+
+**Si el cliente ya tiene datos o migraciones aplicadas, detenete antes de la sección 7:** el baseline del core no es una actualización de una base existente. Prepará una ruta de migración específica para ese historial.
 
 ## Ruta rápida verificada
 
-- [ ] Instalar una revisión fija del core por SSH.
+- [ ] Confirmar que la base es nueva y vacía; si no lo es, acordar una migración específica antes de ejecutar comandos.
+- [ ] Instalar una revisión fija del core por SSH y consultar los docs/skill incluidos en esa revisión.
 - [ ] Registrar `ConfigModule.forRoot({ isGlobal: true })` antes de `CoreModule.registerAsync`.
 - [ ] Mantener `synchronize: false` y `CORE_ENTITIES` antes de las entidades del cliente.
 - [ ] Incluir migraciones empaquetadas del core y migraciones TS/JS del cliente.
@@ -47,7 +50,7 @@ pnpm add @nestjs/config@^12 @nestjs/swagger@^12 dotenv
 pnpm add @nestjs/typeorm@^12 typeorm@^1.1.0 pg
 ```
 
-No instale desde la rama por defecto sin fijar una revisión: dos instalaciones realizadas en fechas distintas podrían resolver código diferente. El placeholder `CORE_REF` debe reemplazarse antes de ejecutar el comando.
+No instale desde la rama por defecto sin fijar una revisión: dos instalaciones realizadas en fechas distintas podrían resolver código diferente. El placeholder `CORE_REF` debe reemplazarse antes de ejecutar el comando. Tras instalar, el equipo encuentra esta guía en `node_modules/@dh/backend-core/docs/backend-client/00-setup.md` y el skill en `node_modules/@dh/backend-core/skills/backend-core/SKILL.md`. Para rutas de almacenamiento y autorización especializadas, consulte [Files](./files.md#storage-físico), [Media](./media.md#configuración-de-storage-en-producción) y [Permisos](./01-permissions.md); no trate ejemplos de módulos opcionales como pasos obligatorios del arranque.
 
 Declare el runtime y el target requeridos:
 
@@ -393,7 +396,7 @@ async function runSeed(): Promise<void> {
 void runSeed();
 ```
 
-`runCoreSeeds(AppDataSource)` debe ejecutarse siempre antes de cualquier seed del cliente.
+`runCoreSeeds(AppDataSource)` debe ejecutarse siempre antes de cualquier seed del cliente. `seedPermissions` reemplaza las asignaciones de los roles base por permisos del core: si reejecutás los seeds después de asignar permisos propios del cliente, verificá y restaurá esas asignaciones. Registrarlos con `PermissionsService.registerPermissions` no los asigna a ningún rol; consultá [01-permissions.md](./01-permissions.md).
 
 ### Cuentas controladas por entorno
 
@@ -510,4 +513,4 @@ pnpm seed
 pnpm start:dev
 ```
 
-No use `pnpm update @dh/backend-core` como sustituto de seleccionar una revisión. En bases nuevas se ejecutan todas las migraciones empaquetadas; en bases existentes solo deben ejecutarse migraciones compatibles con su historial real.
+No use `pnpm update @dh/backend-core` como sustituto de seleccionar una revisión. En bases nuevas se ejecutan todas las migraciones empaquetadas; en bases existentes solo deben ejecutarse migraciones compatibles con su historial real. Antes de reejecutar seeds en un cliente existente, preservá las asignaciones de permisos de sus roles: el seed del core las reemplaza por su lista base.

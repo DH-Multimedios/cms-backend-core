@@ -6,7 +6,7 @@ Cómo registrar permisos propios, proteger endpoints y usar el sistema de autori
 
 ## Registrar permisos de un módulo
 
-Cada módulo define y registra sus propios permisos en `onModuleInit`. El sistema los crea si no existen y los asigna automáticamente al SuperAdmin.
+Cada módulo define y registra sus propios permisos en `onModuleInit`. `registerPermissions` los crea si no existen, pero **no los asigna automáticamente a ningún rol**. Después de registrarlos, asigná los permisos que necesite cada rol desde la administración; el usuario de sistema tiene bypass por `isSystemUser`, mientras que el rol `super_admin` necesita la asignación explícita.
 
 ```typescript
 import { Injectable, OnModuleInit } from '@nestjs/common';
@@ -47,7 +47,7 @@ export class ProductsService implements OnModuleInit {
 }
 ```
 
-> `registerPermissions` es **idempotente** — se puede llamar en cada arranque sin duplicar nada. Si el permiso ya existe y `moduleName` cambió, lo actualiza.
+> `registerPermissions` es **idempotente** — se puede llamar en cada arranque sin duplicar nada. Si el permiso ya existe y `moduleName` cambió, lo actualiza. No lo confundas con `seedPermissions`: ese seed asigna permisos del core a roles y debe ejecutarse antes de iniciar la app; no concede automáticamente permisos registrados posteriormente por módulos del cliente. **Al reejecutarlo, reemplaza las asignaciones de `super_admin`, `admin` y `user` con su lista de permisos del core**, por lo que debés prever cómo restaurar asignaciones personalizadas.
 
 ---
 
