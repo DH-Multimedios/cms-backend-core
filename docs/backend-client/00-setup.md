@@ -7,14 +7,14 @@ Esta guía es el punto de partida para un **cliente nuevo con una base PostgreSQ
 ## Ruta rápida verificada
 
 - [ ] Confirmar que la base es nueva y vacía; si no lo es, acordar una migración específica antes de ejecutar comandos.
-- [ ] Instalar por SSH un commit publicado de la rama ESM `feat/backend-core-esm-only` para el ensayo de `2.0.0`; usar el tag inmutable `v2.0.0` solo si se publica, y consultar los docs/skill incluidos en esa revisión.
+- [ ] Instalar por SSH un commit publicado de `main` con el core ESM `2.0.0`; usar `v2.0.0` solo si se publica ese tag, y consultar los docs/skill incluidos en esa revisión.
 - [ ] Registrar `ConfigModule.forRoot({ isGlobal: true })` antes de `CoreModule.registerAsync`.
 - [ ] Mantener `synchronize: false` y `CORE_ENTITIES` antes de las entidades del cliente.
 - [ ] Incluir migraciones empaquetadas del core y migraciones TS/JS del cliente.
 - [ ] Ejecutar migraciones, luego `runCoreSeeds(AppDataSource)` y después los seeds del cliente.
 - [ ] Habilitar CORS con `credentials: true` y enviar credenciales desde el navegador.
 - [ ] Registrar en Swagger la cookie bajo el esquema `session`.
-- [ ] Verificar login y `/auth/me` con un cookie jar.
+- [ ] Verificar login y `/auth/me` desde el mismo navegador en Swagger UI.
 
 El flujo completo es: crear proyecto, instalar, configurar `.env`, levantar PostgreSQL, ejecutar `pnpm migration:run`, ejecutar `pnpm seed`, iniciar con `pnpm start:dev` y probar la sesión.
 
@@ -41,17 +41,20 @@ GitHub puede responder sin abrir una shell interactiva; lo importante es que aut
 nest new mi-proyecto
 cd mi-proyecto
 
-# Ensayo: ejecutar solo después de que el equipo publique la rama ESM en GitHub.
-# Para una entrega estable, usar v2.0.0 únicamente después de publicar ese tag.
-CORE_REF='feat/backend-core-esm-only'
+# Sustituí el placeholder por el SHA publicado de main que vas a probar.
+# Para una entrega etiquetada, usar v2.0.0 únicamente después de publicar ese tag.
+CORE_REF='<SHA-publicado-en-main>'
 pnpm add "git+ssh://git@github.com/DH-Multimedios/cms-backend-core.git#${CORE_REF}"
 
 pnpm add @nestjs/common@^12 @nestjs/core@^12 @nestjs/platform-express@^12
 pnpm add @nestjs/config@^12 @nestjs/swagger@^12 dotenv
 pnpm add @nestjs/typeorm@^12 typeorm@^1.1.0 pg
+pnpm add -D ts-node@^10.9.2
 ```
 
-Este paquete es **ESM-only `2.0.0`**. La rama del ejemplo sirve solo para el ensayo cuando exista en GitHub; todavía no equivale a una versión estable ni a un tag publicado. El lockfile del cliente fija el commit resuelto: revisalo, guardalo junto a `package.json` y autorizá el build **de ese commit**, no de cualquier revisión futura. Para producción, cambiá a `#v2.0.0` solamente si se crea un tag inmutable de esa entrega. El antiguo `1.0.0` conserva CommonJS; no se publica en un registry, por lo que `pnpm add @dh/backend-core@2.0.0` no sustituye la URL Git.
+`typeorm-ts-node-esm` y `node --loader ts-node/esm` necesitan `ts-node` como dependencia **directa** del cliente para ejecutar fuentes `.ts`; con pnpm no dependas de que llegue transitivamente. Los scripts de producción que ejecutan `.js` compilado no usan este loader.
+
+Este paquete es **ESM-only `2.0.0`** en `main`. Hasta que exista un tag inmutable `v2.0.0`, instalá el SHA concreto publicado en `main`, no la rama móvil. El lockfile del cliente fija el commit resuelto: revisalo, guardalo junto a `package.json` y autorizá el build **de ese commit**, no de cualquier revisión futura. Para producción, cambiá a `#v2.0.0` solamente si se crea y publica ese tag. El antiguo `1.0.0` conserva CommonJS; no se publica en un registry, por lo que `pnpm add @dh/backend-core@2.0.0` no sustituye la URL Git.
 
 Tras instalar, el equipo encuentra esta guía en `node_modules/@dh/backend-core/docs/backend-client/00-setup.md` y el skill en `node_modules/@dh/backend-core/skills/backend-core/SKILL.md`. Para rutas de almacenamiento y autorización especializadas, consultá [Files](./files.md#storage-físico), [Media](./media.md#configuración-de-storage-en-producción) y [Permisos](./01-permissions.md); no trates ejemplos de módulos opcionales como pasos obligatorios del arranque.
 
@@ -311,7 +314,7 @@ volumes:
 
 ## 7. DataSource y migraciones TypeORM 1.1
 
-Este `DataSource` ESM funciona desde TypeScript con `typeorm-ts-node-esm` y desde JavaScript compilado. `import.meta.resolve` ubica la entrada exportada del paquete instalado; el glob de migraciones del core apunta a su `dist`, generado por pnpm durante la instalación Git. Las rutas no dependen del directorio de ejecución.
+Este `DataSource` ESM funciona desde TypeScript con `typeorm-ts-node-esm` y desde JavaScript compilado. En esta revisión `import.meta.resolve` ubica `dist/index.js` del paquete instalado; por eso `dirname` apunta al `dist` que contiene las migraciones generadas durante la instalación Git. Esta estructura es parte de la distribución **de esta revisión**, no una garantía para versiones futuras. Las rutas no dependen del directorio de ejecución.
 
 ```typescript
 import 'dotenv/config';
@@ -374,7 +377,23 @@ Scripts:
 pnpm migration:generate src/database/migrations/AddProducts
 ```
 
-Para producción, compile primero y ejecute `pnpm migration:run:prod`; el glob del cliente seleccionará migraciones `.js`, mientras las migraciones del core siempre salen del `dist` empaquetado.
+Antes de ejecutar migraciones, verificá **desde el cliente, después de instalar el core**, que la entrada y el baseline empaquetado correspondan a esta revisión:
+
+```bash
+node --input-type=module -e '
+import { existsSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+const entry = fileURLToPath(import.meta.resolve("@dh/backend-core"));
+const migration = join(dirname(entry), "database/migrations/1733500000100-BaselineSchema.js");
+if (!entry.endsWith(join("dist", "index.js")) || !existsSync(migration)) {
+  throw new Error("El core instalado no contiene el layout ESM y el baseline esperado; no ejecutes migraciones");
+}
+console.log("Core ESM y migración empaquetada verificados");
+'
+```
+
+Si falla, revisá la versión y el lockfile antes de aplicar el esquema; no corrijas la ruta a ciegas. Para producción, compilá primero y ejecutá `pnpm migration:run:prod`; el glob del cliente seleccionará migraciones `.js`, mientras las migraciones del core salen del `dist` empaquetado.
 
 > Esta guía es para instalaciones nuevas. La migración consolidada de baseline crea el esquema completo y no debe ejecutarse a ciegas sobre una base anterior al baseline. Para una base histórica, identifique su última migración aplicada y prepare una ruta de transición específica antes de actualizar el paquete.
 
@@ -428,23 +447,11 @@ pnpm seed
 pnpm start:dev
 ```
 
-Verifique salud, login y reutilización de la cookie. Use las credenciales de una cuenta creada por el seed:
+Verificá salud y sesión desde el **mismo navegador**, sin guardar cookies en archivos del proyecto:
 
-```bash
-curl --fail http://localhost:3000/api/health
-
-curl --fail-with-body --include \
-  --cookie-jar .cookies.txt \
-  --header 'Content-Type: application/json' \
-  --data '{"login":"admin@miproyecto.com","password":"gestionar-desde-secret-manager"}' \
-  http://localhost:3000/api/auth/login
-
-curl --fail-with-body --include \
-  --cookie .cookies.txt \
-  http://localhost:3000/api/auth/me
-```
-
-La primera respuesta debe incluir `Set-Cookie: session_id=...; HttpOnly`; la segunda debe devolver el usuario autenticado. Swagger queda disponible en `http://localhost:3000/api/docs`.
+1. Abrí `http://localhost:3000/api/health` y comprobá que responda correctamente.
+2. Abrí `http://localhost:3000/api/docs` y ejecutá `POST /api/auth/login` con una cuenta creada por el seed. En las herramientas de red del navegador, comprobá que la respuesta incluya `Set-Cookie` para `session_id` con `HttpOnly`; no copies el valor de la cookie ni la contraseña a logs o al repositorio.
+3. Sin cambiar de navegador ni de origen, ejecutá `GET /api/auth/me` desde Swagger UI: debe devolver el usuario autenticado. El navegador conserva y envía la cookie automáticamente. Si falla, revisá `credentials`, CORS y las políticas `SameSite`/`Secure` de la sección 5.
 
 ## 10. Servicios y protección de endpoints
 
@@ -511,7 +518,7 @@ diff .opencode/skills/backend-core/SKILL.md \
 
 ## 12. Actualizaciones deliberadas
 
-Para entregas estables, el equipo crea un tag Git **nuevo e inmutable** `vMAJOR.MINOR.PATCH` que coincide con `package.json`. Este ensayo ESM `2.0.0` usa una rama solo mientras se prueba; no implica que `v2.0.0` exista ni autoriza publicarlo. Una vez disponible un tag estable, elegí una versión publicada, leé el changelog y revisá el lockfile:
+Para entregas estables, el equipo crea un tag Git **nuevo e inmutable** `vMAJOR.MINOR.PATCH` que coincide con `package.json`. El código ESM `2.0.0` en `main` no implica que exista el tag `v2.0.0` ni autoriza publicarlo. Una vez disponible un tag estable, elegí una versión publicada, leé el changelog y revisá el lockfile:
 
 ```bash
 CORE_VERSION='<version-publicada>' # Por ejemplo, 2.0.0 solo si existe v2.0.0

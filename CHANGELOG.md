@@ -7,9 +7,9 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
-La rama de ensayo `feat/backend-core-esm-only` prepara la versión `2.0.0`; el trabajo local no publica la rama ni crea el tag `v2.0.0`. El tag `v1.0.0` tampoco fue publicado. El campo `version` del paquete no publica por sí solo una revisión Git.
+La versión ESM `2.0.0` corresponde a `main`. Hasta que se publique el tag `v2.0.0`, instalá el SHA concreto publicado de `main`; el campo `version` del paquete no crea un tag. El tag `v1.0.0` tampoco fue publicado.
 
-## [2.0.0] - en preparación, sin tag
+## [2.0.0] - en main, sin tag
 
 ### Breaking Changes
 
@@ -20,7 +20,7 @@ La rama de ensayo `feat/backend-core-esm-only` prepara la versión `2.0.0`; el t
 ### Verified locally
 
 - Instalación Git desde un commit sin `dist` rastreado, build del paquete, imports ESM, renderizado de notificaciones y documentación/skill empaquetados.
-- `test-app` ESM y base PostgreSQL nueva y aislada: migraciones empaquetadas, seeds idempotentes y arranque del contexto Nest. **No** se probó en el cliente real ni se publicó la rama o el tag.
+- `test-app` ESM y base PostgreSQL nueva y aislada: migraciones empaquetadas, seeds idempotentes y arranque del contexto Nest. **No** se probó en el cliente real ni se publicó el tag.
 
 ## [1.0.0] - pendiente de publicación
 

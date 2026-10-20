@@ -37,14 +37,14 @@ El mismo rango se aplica al desarrollo de este repositorio con `@nestjs/schemati
 
 ### Desde el repositorio privado (clientes)
 
-La rama de ensayo `feat/backend-core-esm-only` prepara desde fuentes el paquete **ESM-only `2.0.0`** durante la instalación Git; todavía no equivale al tag estable `v2.0.0`. Una vez que el equipo publique la rama en GitHub, el dueño del cliente puede probarla por su ref (el lockfile fija el commit). Para una entrega estable, usar un tag nuevo e inmutable solo si se publica. El paquete no está en un registry.
+`main` contiene el paquete **ESM-only `2.0.0`**, que pnpm compila desde fuentes al instalarlo por Git. Hasta que se publique un tag inmutable `v2.0.0`, fijá el SHA publicado de `main` en el cliente; el número del manifiesto por sí solo no crea un tag. El paquete no está en un registry.
 
 ```bash
-# Solo para el ensayo, después de publicar la rama y autorizar su build por commit en pnpm.
-pnpm add "git+ssh://git@github.com/DH-Multimedios/cms-backend-core.git#feat/backend-core-esm-only"
+CORE_REF='<SHA-publicado-en-main>' # Sustituí el placeholder por el commit real.
+pnpm add "git+ssh://git@github.com/DH-Multimedios/cms-backend-core.git#${CORE_REF}"
 ```
 
-**pnpm 12 exige `allowBuilds` para el SHA Git exacto y la clasificación de scripts transitivos** antes de preparar el paquete. Leé [la guía ESM de instalación](./docs/backend-client/00-setup.md#autorización-de-build-al-instalar-desde-git) y usá los docs/skill de la revisión instalada. Para bases existentes, revisá el historial de migraciones antes de actualizar; nunca ejecutes el baseline a ciegas. `1.0.0` conserva su contrato CommonJS.
+**pnpm 12 exige `allowBuilds` para el SHA Git exacto y la clasificación de scripts transitivos** antes de preparar el paquete. El cliente necesita `ts-node` como dependencia directa para los scripts TypeScript ESM. Leé [la guía ESM de instalación](./docs/backend-client/00-setup.md#autorización-de-build-al-instalar-desde-git) y usá los docs/skill de la revisión instalada. Para bases existentes, revisá el historial de migraciones antes de actualizar; nunca ejecutes el baseline a ciegas. `1.0.0` conserva su contrato CommonJS.
 
 ### Local (para desarrollo del core)
 
