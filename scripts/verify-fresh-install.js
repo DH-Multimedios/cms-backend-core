@@ -1,9 +1,8 @@
-'use strict';
-
-const assert = require('node:assert/strict');
-const path = require('node:path');
-const { DataSource } = require('typeorm');
-const {
+import assert from 'node:assert/strict';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { DataSource } from 'typeorm';
+import {
   CORE_ENTITIES,
   EmailLayout,
   EmailTemplate,
@@ -19,7 +18,7 @@ const {
   TaxonomiesService,
   User,
   runCoreSeeds,
-} = require('../dist');
+} from '../dist/index.js';
 
 const database = process.env.FRESH_DB_NAME || 'backend_core_fresh_test';
 const host = process.env.FRESH_DB_HOST || 'localhost';
@@ -46,7 +45,7 @@ const dataSource = new DataSource({
   password,
   database,
   entities: [...CORE_ENTITIES],
-  migrations: [path.join(__dirname, '../dist/database/migrations/*.js')],
+  migrations: [path.join(path.dirname(fileURLToPath(import.meta.url)), '../dist/database/migrations/*.js')],
   synchronize: false,
   logging: false,
 });

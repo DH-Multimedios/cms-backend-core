@@ -33,11 +33,11 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
     "test:cov": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
-    "typeorm": "typeorm-ts-node-commonjs",
+    "typeorm": "typeorm-ts-node-esm",
     "migration:generate": "pnpm typeorm migration:generate -d src/database/data-source.ts",
     "migration:run": "pnpm typeorm migration:run -d src/database/data-source.ts",
     "migration:revert": "pnpm typeorm migration:revert -d src/database/data-source.ts",
-    "seed": "ts-node src/database/seeds/run-seed.ts",
+    "seed": "node --loader ts-node/esm src/database/seeds/run-seed.ts",
     "start:dev": "./scripts/start-dev.sh",
     "start:dev:seed": "./scripts/start-dev.sh --seed",
     "stop:dev": "./scripts/stop-dev.sh",
@@ -140,12 +140,14 @@
         {
           "useESM": true,
           "tsconfig": {
-            "module": "ESNext"
+            "module": "NodeNext",
+            "moduleResolution": "NodeNext"
           }
         }
       ]
     },
     "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1",
       "^uuid$": "<rootDir>/../test/uuid.mock.cjs"
     },
     "collectCoverageFrom": [
