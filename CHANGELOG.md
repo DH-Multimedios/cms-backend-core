@@ -7,6 +7,12 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+Sin cambios posteriores a la primera versión estable. El tag `v1.0.0` todavía no fue publicado: esta entrada queda preparada para la entrega del commit final en `main`, no es evidencia de que la versión pueda instalarse desde Git.
+
+## [1.0.0] - pendiente de publicación
+
+Primera versión estable de `@dh/backend-core`. Se consume desde el repositorio privado mediante el tag inmutable `v1.0.0`, una vez publicado; no está disponible en un registry. Los cambios siguientes son respecto de la entrada histórica `0.1.0`.
+
 ### Added
 
 - **`deletedAt` en `User`**: nuevo campo `@DeleteDateColumn()` en la entidad `User` — registra timestamp de baja formal. Habilita `softDelete()`, `restore()` y `withDeleted()` de TypeORM. Complementa `isActive`: ambos campos coexisten con semántica diferente (`isActive: false` + `deletedAt: null` = inactivo temporal; `deletedAt: timestamp` = dado de baja formalmente)
@@ -20,8 +26,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
-- **TypeORM 1.1**: el core y su contrato de cliente ahora requieren TypeORM `^1.1.0`,
-  `@nestjs/typeorm` `^11.0.1`, Node.js `^20.19.0 || ^22.13.0 || >=24.11.0` y target ES2023.
+- **Contrato de instalación para NestJS 12**: el core y sus clientes nuevos requieren TypeORM `^1.1.0`, `@nestjs/typeorm` `^12.0.0`, Node.js `^22.22.3 || ^24.15.0 || >=26.0.0` y target ES2023.
 - **Instalación limpia verificable**: `pnpm verify:fresh-install` ejecuta las migraciones
   empaquetadas y los seeds idempotentes contra una base PostgreSQL descartable.
 - **PermissionsGuard**: soporta lógica OR además de AND — si un endpoint usa `@RequireAnyPermission`, el usuario necesita al menos uno de los permisos especificados
@@ -30,6 +35,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Breaking Changes
 
+- **Storage separado**: `UPLOADS_PATH` ya no se acepta; configurar `FILES_UPLOAD_PATH` privado y `MEDIA_UPLOAD_PATH` público por separado. Los archivos existentes requieren una migración manual antes de arrancar; el core no los mueve automáticamente.
 - **TypeORM 0.3 ya no es compatible**: los clientes nuevos deben instalar TypeORM 1.1 y usar
   find options con relaciones en sintaxis objeto.
 - **Sistema JWT eliminado**: `JwtAuthGuard`, `JwtStrategy`, `JwtModule` y `@nestjs/jwt` ya no forman parte del sistema de auth. Reemplazados por sesiones server-side con UUID opaco.
@@ -148,5 +154,6 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
-[Unreleased]: https://github.com/DH-Multimedios/cms-backend-core/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/DH-Multimedios/cms-backend-core/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/DH-Multimedios/cms-backend-core/releases/tag/v1.0.0
 [0.1.0]: https://github.com/DH-Multimedios/cms-backend-core/releases/tag/v0.1.0

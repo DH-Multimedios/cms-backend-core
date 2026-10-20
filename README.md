@@ -35,11 +35,15 @@ Requiere Node.js `^22.22.3 || ^24.15.0 || >=26.0.0`, NestJS 12 (incluido
 `@nestjs/platform-express` 12), TypeORM `^1.1.0` y `@nestjs/typeorm` `^12.0.0`.
 El mismo rango se aplica al desarrollo de este repositorio con `@nestjs/schematics` 12.
 
-### Desde GitHub (recomendado para desarrollo)
+### Desde el repositorio privado (clientes)
+
+Instalá una versión estable por su tag Git inmutable, una vez publicado. `package.json` identifica la versión; el lockfile del cliente fija el commit resuelto. El paquete no está publicado en un registry.
 
 ```bash
-pnpm add git+ssh://git@github.com:tu-org/backend-core.git
+pnpm add "git+ssh://git@github.com/DH-Multimedios/cms-backend-core.git#v1.0.0"
 ```
+
+Para bases nuevas, seguí [la guía de configuración del cliente](./docs/backend-client/00-setup.md); las bases existentes requieren revisar su historial de migraciones antes de actualizar. No instales desde una rama móvil ni muevas un tag ya publicado.
 
 ### Local (para desarrollo del core)
 

@@ -7,7 +7,7 @@ Esta guía es el punto de partida para un **cliente nuevo con una base PostgreSQ
 ## Ruta rápida verificada
 
 - [ ] Confirmar que la base es nueva y vacía; si no lo es, acordar una migración específica antes de ejecutar comandos.
-- [ ] Instalar una revisión fija del core por SSH y consultar los docs/skill incluidos en esa revisión.
+- [ ] Instalar el tag estable `v1.0.0` del core por SSH (una vez publicado) y consultar los docs/skill incluidos en esa versión.
 - [ ] Registrar `ConfigModule.forRoot({ isGlobal: true })` antes de `CoreModule.registerAsync`.
 - [ ] Mantener `synchronize: false` y `CORE_ENTITIES` antes de las entidades del cliente.
 - [ ] Incluir migraciones empaquetadas del core y migraciones TS/JS del cliente.
@@ -41,16 +41,18 @@ GitHub puede responder sin abrir una shell interactiva; lo importante es que aut
 nest new mi-proyecto
 cd mi-proyecto
 
-# Sustituir por un tag publicado o por el SHA completo aprobado por el equipo.
-CORE_REF='<release-tag-or-40-char-commit>'
-pnpm add "git+ssh://git@github.com/DH-Multimedios/cms-backend-core.git#${CORE_REF}"
+# Ejecutar solo cuando el equipo haya publicado el tag inmutable v1.0.0.
+CORE_VERSION='1.0.0'
+pnpm add "git+ssh://git@github.com/DH-Multimedios/cms-backend-core.git#v${CORE_VERSION}"
 
 pnpm add @nestjs/common@^12 @nestjs/core@^12 @nestjs/platform-express@^12
 pnpm add @nestjs/config@^12 @nestjs/swagger@^12 dotenv
 pnpm add @nestjs/typeorm@^12 typeorm@^1.1.0 pg
 ```
 
-No instale desde la rama por defecto sin fijar una revisión: dos instalaciones realizadas en fechas distintas podrían resolver código diferente. El placeholder `CORE_REF` debe reemplazarse antes de ejecutar el comando. Tras instalar, el equipo encuentra esta guía en `node_modules/@dh/backend-core/docs/backend-client/00-setup.md` y el skill en `node_modules/@dh/backend-core/skills/backend-core/SKILL.md`. Para rutas de almacenamiento y autorización especializadas, consulte [Files](./files.md#storage-físico), [Media](./media.md#configuración-de-storage-en-producción) y [Permisos](./01-permissions.md); no trate ejemplos de módulos opcionales como pasos obligatorios del arranque.
+`1.0.0` es la primera versión estable del paquete: la instalación desde este repositorio privado se identifica por el **tag Git `v1.0.0`**, no solo por el campo `version` de `package.json`. Este comando fallará hasta que se cree y publique ese tag sobre la entrega definitiva en `main`; preparar `package.json` no lo publica. No instales desde la rama por defecto ni muevas tags publicados: el cliente declara un tag concreto, y su lockfile resuelve el commit exacto. Commiteá ambos archivos en el cliente y avanzá la versión deliberadamente; no es necesario conocer el SHA para instalar una versión publicada. No se publica un paquete en un registry, así que `pnpm add @dh/backend-core@1.0.0` **no** sustituye la URL Git.
+
+Tras instalar, el equipo encuentra esta guía en `node_modules/@dh/backend-core/docs/backend-client/00-setup.md` y el skill en `node_modules/@dh/backend-core/skills/backend-core/SKILL.md`. Para rutas de almacenamiento y autorización especializadas, consultá [Files](./files.md#storage-físico), [Media](./media.md#configuración-de-storage-en-producción) y [Permisos](./01-permissions.md); no trates ejemplos de módulos opcionales como pasos obligatorios del arranque.
 
 Declare el runtime y el target requeridos:
 
@@ -503,14 +505,13 @@ diff .opencode/skills/backend-core/SKILL.md \
 
 ## 12. Actualizaciones deliberadas
 
-Una actualización debe cambiar explícitamente el tag o SHA fijado y revisar changelog, migraciones y diff de lockfile:
+El equipo publica cada versión con un tag Git **nuevo e inmutable** `vMAJOR.MINOR.PATCH`, cuyo número coincide con `package.json`. Una corrección compatible sube `PATCH` (`1.0.1`); una funcionalidad compatible, `MINOR` (`1.1.0`); un cambio incompatible, `MAJOR` (`2.0.0`). Nunca cambies el destino de un tag publicado ni instales desde una rama móvil.
+
+Para actualizar un cliente, seleccioná **una versión cuyo tag ya esté publicado**, leé el changelog de las versiones intermedias y revisá el diff del lockfile:
 
 ```bash
-CORE_REF='<new-release-tag-or-40-char-commit>'
-pnpm add "git+ssh://git@github.com/DH-Multimedios/cms-backend-core.git#${CORE_REF}"
-pnpm migration:run
-pnpm seed
-pnpm start:dev
+CORE_VERSION='<published-version>' # Por ejemplo, 1.0.1 cuando exista v1.0.1
+pnpm add "git+ssh://git@github.com/DH-Multimedios/cms-backend-core.git#v${CORE_VERSION}"
 ```
 
-No use `pnpm update @dh/backend-core` como sustituto de seleccionar una revisión. En bases nuevas se ejecutan todas las migraciones empaquetadas; en bases existentes solo deben ejecutarse migraciones compatibles con su historial real. Antes de reejecutar seeds en un cliente existente, preservá las asignaciones de permisos de sus roles: el seed del core las reemplaza por su lista base.
+Commiteá el cambio del `package.json` y el lockfile del cliente. No uses `pnpm update @dh/backend-core` para seleccionar una versión Git. **No ejecutes migraciones ni seeds en una base existente solo por cambiar el tag:** comprobá su historial, planificá las migraciones compatibles, respaldá los datos y recién entonces aplicá la transición. Al reejecutar los seeds del core, preservá y restaurá las asignaciones de permisos propias del cliente: el seed reemplaza las de los roles base por su lista.

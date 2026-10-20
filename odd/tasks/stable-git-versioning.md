@@ -1,0 +1,19 @@
+# Stable Git-tag versioning
+Branch: `docs/backend-client-handoff-accuracy`. Prepare stable package version and client-facing guidance; do not create or push a tag, merge, publish, or install in a client.
+
+## Specs
+
+S1. User: “veamos el tema de como el cliente instala versiones ahora lo ata a un commit ¿no es mejor que sea a la versión? Hablemos. cambiamos a la versión 1.0.0 y de ahí vamos subiendo versiones con los cambios”
+S2. User: “si hagamos esto y ajustemos @docs/backend-client/00-setup.md para reflejarlo. A partir de ahora el paquete es estable”
+
+## Tasks
+
+- [x] T1 [S1-S2] Inline: align package version, changelog, README and fresh-client setup with private immutable version tags and deliberate SemVer upgrades; commit pending evidence entry.
+- [>] T2 [S1-S2] Inline: check version references, package inventory, build and applicable tests; document release boundary and close; commit pending.
+
+## Log
+
+L1. User: “si hagamos esto y ajustemos @docs/backend-client/00-setup.md para reflejarlo. A partir de ahora el paquete es estable”.
+L2. Decision context: the preceding proposal was to use Git tags in the private repository instead of publishing to a registry, with `v1.0.0` for the first stable package. The current package version is `0.1.0`, changelog has `Unreleased` breaking changes, and no local tags exist. The existing client guide already accepts either tag or SHA; its default should become an immutable version tag, with lockfile preserving the resolved commit. The README currently gives an unpinned Git URL. `test-app/package.json` is an independent project; its `0.1.0` is not this package version.
+L3. Publishing and repository operations remain separate: existing docs handoff commits are not yet merged into `main`; creating an actual `v1.0.0` tag before the final delivery commit would point to the wrong tree. A local tag or push is not part of this preparation. No registry publication or client installation was authorized.
+L4. T1: package manifest declares 1.0.0; README and `00-setup.md` install from `#v1.0.0` only after the tag is published and explicitly distinguish package version from Git tag/lockfile commit; existing-DB upgrade no longer gives an unsafe unqualified migration/seed shell sequence. Changelog stages first stable release as pending tag publication (no false date), corrects runtime requirements and records storage breaking change. `test-app` version stays independent. `git diff --check` passed. This is a release/environment change (Risk: item 5), not a code-logic change: no meaningful runnable RED; T2 will perform structural and package checks with an independent verifier.
