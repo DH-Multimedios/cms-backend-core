@@ -1,5 +1,5 @@
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller.js';
+import { AuthService } from './auth.service.js';
 
 describe('AuthController cookie configuration', () => {
   const originalNodeEnv = process.env.NODE_ENV;

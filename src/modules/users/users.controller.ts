@@ -21,16 +21,16 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { UpdateProfileDto } from './dto/update-profile.dto';
-import { UsersQueryDto } from './dto/users-query.dto';
-import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
-import { PermissionsGuard } from '../auth/guards/permissions.guard';
-import { RequirePermissions } from '../auth/decorators/require-permissions.decorator';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { User } from '../../database/entities/user.entity';
+import { UsersService } from './users.service.js';
+import { CreateUserDto } from './dto/create-user.dto.js';
+import { UpdateUserDto } from './dto/update-user.dto.js';
+import { UpdateProfileDto } from './dto/update-profile.dto.js';
+import { UsersQueryDto } from './dto/users-query.dto.js';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard.js';
+import { PermissionsGuard } from '../auth/guards/permissions.guard.js';
+import { RequirePermissions } from '../auth/decorators/require-permissions.decorator.js';
+import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
+import { User } from '../../database/entities/user.entity.js';
 
 @ApiTags('Users')
 @ApiCookieAuth('session')

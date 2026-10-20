@@ -1,4 +1,4 @@
-import { AuditLog } from '../../../database/entities/audit-log.entity';
+import { AuditLog } from '../../../database/entities/audit-log.entity.js';
 
 export class AuditUserDto {
   id: string;

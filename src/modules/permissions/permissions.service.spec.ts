@@ -1,9 +1,9 @@
 import { jest as jestRuntime } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { PermissionsService } from './permissions.service';
-import { Permission } from '../../database/entities/permission.entity';
-import { PermissionsQueryDto } from './dto/permissions-query.dto';
+import { PermissionsService } from './permissions.service.js';
+import { Permission } from '../../database/entities/permission.entity.js';
+import { PermissionsQueryDto } from './dto/permissions-query.dto.js';
 
 const jest = jestRuntime as typeof globalThis.jest;
 

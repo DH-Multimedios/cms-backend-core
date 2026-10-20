@@ -3,19 +3,19 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { User } from '../../database/entities/user.entity';
-import { Role } from '../../database/entities/role.entity';
-import { AuditService } from '../audit/audit.service';
-import { MediaService } from '../media/media.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { UpdateProfileDto } from './dto/update-profile.dto';
-import { UsersQueryDto } from './dto/users-query.dto';
-import { UserResponseDto } from './dto/user-response.dto';
-import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
-import { ApiException } from '../../common/exceptions/api.exception';
-import { ErrorCode } from '../../common/enums/error-codes.enum';
-import { UserCreatedEvent } from './events/user-created.event';
+import { User } from '../../database/entities/user.entity.js';
+import { Role } from '../../database/entities/role.entity.js';
+import { AuditService } from '../audit/audit.service.js';
+import { MediaService } from '../media/media.service.js';
+import { CreateUserDto } from './dto/create-user.dto.js';
+import { UpdateUserDto } from './dto/update-user.dto.js';
+import { UpdateProfileDto } from './dto/update-profile.dto.js';
+import { UsersQueryDto } from './dto/users-query.dto.js';
+import { UserResponseDto } from './dto/user-response.dto.js';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface.js';
+import { ApiException } from '../../common/exceptions/api.exception.js';
+import { ErrorCode } from '../../common/enums/error-codes.enum.js';
+import { UserCreatedEvent } from './events/user-created.event.js';
 
 @Injectable()
 export class UsersService {

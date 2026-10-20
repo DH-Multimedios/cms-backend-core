@@ -1,14 +1,14 @@
 import { jest as jestRuntime } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { ApiException } from '../../common/exceptions/api.exception';
-import { ErrorCode } from '../../common/enums/error-codes.enum';
-import { RolesService } from './roles.service';
-import { Role } from '../../database/entities/role.entity';
-import { Permission } from '../../database/entities/permission.entity';
-import { User } from '../../database/entities/user.entity';
-import { PermissionsService } from '../permissions/permissions.service';
-import { AuditService } from '../audit/audit.service';
+import { ApiException } from '../../common/exceptions/api.exception.js';
+import { ErrorCode } from '../../common/enums/error-codes.enum.js';
+import { RolesService } from './roles.service.js';
+import { Role } from '../../database/entities/role.entity.js';
+import { Permission } from '../../database/entities/permission.entity.js';
+import { User } from '../../database/entities/user.entity.js';
+import { PermissionsService } from '../permissions/permissions.service.js';
+import { AuditService } from '../audit/audit.service.js';
 
 const jest = jestRuntime as typeof globalThis.jest;
 

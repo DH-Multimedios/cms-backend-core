@@ -1,6 +1,6 @@
 import { IsIn, IsOptional, IsString } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { PaginationDto } from '../../../common/dto/pagination.dto';
+import { PaginationDto } from '../../../common/dto/pagination.dto.js';
 
 export class RolesQueryDto extends PaginationDto {
   @ApiPropertyOptional({ description: 'Busca en name o label' })

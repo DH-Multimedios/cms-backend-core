@@ -3,18 +3,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, IsNull } from 'typeorm';
 import { createHash, randomUUID } from 'crypto';
 import * as bcrypt from 'bcrypt';
-import { User } from '../../database/entities/user.entity';
-import { Session } from '../../database/entities/session.entity';
-import { PasswordResetToken } from '../../database/entities/password-reset-token.entity';
-import { AuthConfig } from '../../core/interfaces/core-config.interface';
-import { UsersService } from '../users/users.service';
-import { AuditService } from '../audit/audit.service';
-import { NotificationsService } from '../notifications/notifications.service';
-import { SettingsService } from '../settings/settings.service';
-import { AuthResponseDto } from './dto/auth-response.dto';
-import { UserResponseDto } from '../users/dto/user-response.dto';
-import { ApiException } from '../../common/exceptions/api.exception';
-import { ErrorCode } from '../../common/enums/error-codes.enum';
+import { User } from '../../database/entities/user.entity.js';
+import { Session } from '../../database/entities/session.entity.js';
+import { PasswordResetToken } from '../../database/entities/password-reset-token.entity.js';
+import { AuthConfig } from '../../core/interfaces/core-config.interface.js';
+import { UsersService } from '../users/users.service.js';
+import { AuditService } from '../audit/audit.service.js';
+import { NotificationsService } from '../notifications/notifications.service.js';
+import { SettingsService } from '../settings/settings.service.js';
+import { AuthResponseDto } from './dto/auth-response.dto.js';
+import { UserResponseDto } from '../users/dto/user-response.dto.js';
+import { ApiException } from '../../common/exceptions/api.exception.js';
+import { ErrorCode } from '../../common/enums/error-codes.enum.js';
 
 @Injectable()
 export class AuthService {

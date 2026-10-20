@@ -2,12 +2,12 @@ import { Injectable, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ClsService } from 'nestjs-cls';
-import { AuditLog } from '../../database/entities/audit-log.entity';
-import { AuditQueryDto } from './dto/audit-query.dto';
-import { AuditLogListItemDto, AuditLogDetailDto } from './dto/audit-log-response.dto';
-import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
-import { ApiException } from '../../common/exceptions/api.exception';
-import { ErrorCode } from '../../common/enums/error-codes.enum';
+import { AuditLog } from '../../database/entities/audit-log.entity.js';
+import { AuditQueryDto } from './dto/audit-query.dto.js';
+import { AuditLogListItemDto, AuditLogDetailDto } from './dto/audit-log-response.dto.js';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface.js';
+import { ApiException } from '../../common/exceptions/api.exception.js';
+import { ErrorCode } from '../../common/enums/error-codes.enum.js';
 
 export interface AuditLogOptions {
   action: string;

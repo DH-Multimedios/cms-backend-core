@@ -1,14 +1,14 @@
 import { jest as jestRuntime } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { ApiException } from '../../common/exceptions/api.exception';
-import { ErrorCode } from '../../common/enums/error-codes.enum';
-import { UsersService } from './users.service';
-import { User } from '../../database/entities/user.entity';
-import { Role } from '../../database/entities/role.entity';
-import { UsersQueryDto } from './dto/users-query.dto';
-import { AuditService } from '../audit/audit.service';
-import { MediaService } from '../media/media.service';
+import { ApiException } from '../../common/exceptions/api.exception.js';
+import { ErrorCode } from '../../common/enums/error-codes.enum.js';
+import { UsersService } from './users.service.js';
+import { User } from '../../database/entities/user.entity.js';
+import { Role } from '../../database/entities/role.entity.js';
+import { UsersQueryDto } from './dto/users-query.dto.js';
+import { AuditService } from '../audit/audit.service.js';
+import { MediaService } from '../media/media.service.js';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 const jest = jestRuntime as typeof globalThis.jest;

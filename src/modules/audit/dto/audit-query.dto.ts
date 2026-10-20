@@ -1,6 +1,6 @@
 import { IsOptional, IsString, IsUUID, IsDateString, IsIn } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { PaginationDto } from '../../../common/dto/pagination.dto';
+import { PaginationDto } from '../../../common/dto/pagination.dto.js';
 
 export class AuditQueryDto extends PaginationDto {
   @ApiPropertyOptional()

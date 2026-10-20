@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Permission } from '../../database/entities/permission.entity';
-import { PermissionsQueryDto } from './dto/permissions-query.dto';
-import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
+import { Permission } from '../../database/entities/permission.entity.js';
+import { PermissionsQueryDto } from './dto/permissions-query.dto.js';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface.js';
 
 export interface PermissionDefinition {
   name: string;

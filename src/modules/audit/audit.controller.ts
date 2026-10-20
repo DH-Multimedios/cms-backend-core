@@ -1,10 +1,10 @@
 import { Controller, Get, Param, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiCookieAuth } from '@nestjs/swagger';
-import { AuditService } from './audit.service';
-import { AuditQueryDto } from './dto/audit-query.dto';
-import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
-import { PermissionsGuard } from '../auth/guards/permissions.guard';
-import { RequirePermissions } from '../auth/decorators/require-permissions.decorator';
+import { AuditService } from './audit.service.js';
+import { AuditQueryDto } from './dto/audit-query.dto.js';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard.js';
+import { PermissionsGuard } from '../auth/guards/permissions.guard.js';
+import { RequirePermissions } from '../auth/decorators/require-permissions.decorator.js';
 
 @ApiTags('Audit')
 @ApiCookieAuth('session')

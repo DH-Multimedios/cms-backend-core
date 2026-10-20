@@ -1,16 +1,16 @@
 import { jest as jestRuntime } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { ApiException } from '../../common/exceptions/api.exception';
-import { ErrorCode } from '../../common/enums/error-codes.enum';
-import { AuthService } from './auth.service';
-import { Session } from '../../database/entities/session.entity';
-import { User } from '../../database/entities/user.entity';
-import { PasswordResetToken } from '../../database/entities/password-reset-token.entity';
-import { UsersService } from '../users/users.service';
-import { AuditService } from '../audit/audit.service';
-import { NotificationsService } from '../notifications/notifications.service';
-import { SettingsService } from '../settings/settings.service';
+import { ApiException } from '../../common/exceptions/api.exception.js';
+import { ErrorCode } from '../../common/enums/error-codes.enum.js';
+import { AuthService } from './auth.service.js';
+import { Session } from '../../database/entities/session.entity.js';
+import { User } from '../../database/entities/user.entity.js';
+import { PasswordResetToken } from '../../database/entities/password-reset-token.entity.js';
+import { UsersService } from '../users/users.service.js';
+import { AuditService } from '../audit/audit.service.js';
+import { NotificationsService } from '../notifications/notifications.service.js';
+import { SettingsService } from '../settings/settings.service.js';
 
 const jest = jestRuntime as typeof globalThis.jest;
 

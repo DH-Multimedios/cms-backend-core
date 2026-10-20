@@ -5,10 +5,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan, IsNull } from 'typeorm';
 import { createHash } from 'crypto';
 import { Request } from 'express';
-import { Session } from '../../../database/entities/session.entity';
-import { User } from '../../../database/entities/user.entity';
-import { ApiException } from '../../../common/exceptions/api.exception';
-import { ErrorCode } from '../../../common/enums/error-codes.enum';
+import { Session } from '../../../database/entities/session.entity.js';
+import { User } from '../../../database/entities/user.entity.js';
+import { ApiException } from '../../../common/exceptions/api.exception.js';
+import { ErrorCode } from '../../../common/enums/error-codes.enum.js';
 
 /**
  * Extrae el session ID del request.

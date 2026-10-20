@@ -1,20 +1,20 @@
 import { Module, DynamicModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PassportModule } from '@nestjs/passport';
-import { AuthConfig } from '../../core/interfaces/core-config.interface';
-import { Session } from '../../database/entities/session.entity';
-import { PasswordResetToken } from '../../database/entities/password-reset-token.entity';
-import { User } from '../../database/entities/user.entity';
-import { UsersModule } from '../users/users.module';
-import { AuditModule } from '../audit/audit.module';
-import { NotificationsModule } from '../notifications/notifications.module';
-import { SettingsModule } from '../settings/settings.module';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
-import { LocalStrategy } from './strategies/local.strategy';
-import { SessionStrategy } from './strategies/session.strategy';
-import { SessionAuthGuard } from './guards/session-auth.guard';
-import { PermissionsGuard } from './guards/permissions.guard';
+import { AuthConfig } from '../../core/interfaces/core-config.interface.js';
+import { Session } from '../../database/entities/session.entity.js';
+import { PasswordResetToken } from '../../database/entities/password-reset-token.entity.js';
+import { User } from '../../database/entities/user.entity.js';
+import { UsersModule } from '../users/users.module.js';
+import { AuditModule } from '../audit/audit.module.js';
+import { NotificationsModule } from '../notifications/notifications.module.js';
+import { SettingsModule } from '../settings/settings.module.js';
+import { AuthService } from './auth.service.js';
+import { AuthController } from './auth.controller.js';
+import { LocalStrategy } from './strategies/local.strategy.js';
+import { SessionStrategy } from './strategies/session.strategy.js';
+import { SessionAuthGuard } from './guards/session-auth.guard.js';
+import { PermissionsGuard } from './guards/permissions.guard.js';
 
 @Module({})
 export class AuthModule {

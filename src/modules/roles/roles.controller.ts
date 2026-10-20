@@ -13,20 +13,20 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiCookieAuth } from '@nestjs/swagger';
-import { RolesService } from './roles.service';
-import { CreateRoleDto } from './dto/create-role.dto';
-import { UpdateRoleDto } from './dto/update-role.dto';
-import { AssignPermissionsDto } from './dto/assign-permissions.dto';
-import { UpdatePermissionsDto } from './dto/update-permissions.dto';
-import { RolesQueryDto } from './dto/roles-query.dto';
-import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
-import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RolesService } from './roles.service.js';
+import { CreateRoleDto } from './dto/create-role.dto.js';
+import { UpdateRoleDto } from './dto/update-role.dto.js';
+import { AssignPermissionsDto } from './dto/assign-permissions.dto.js';
+import { UpdatePermissionsDto } from './dto/update-permissions.dto.js';
+import { RolesQueryDto } from './dto/roles-query.dto.js';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard.js';
+import { PermissionsGuard } from '../auth/guards/permissions.guard.js';
 import {
   RequirePermissions,
   RequireAnyPermission,
-} from '../auth/decorators/require-permissions.decorator';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { User } from '../../database/entities/user.entity';
+} from '../auth/decorators/require-permissions.decorator.js';
+import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
+import { User } from '../../database/entities/user.entity.js';
 
 @ApiTags('Roles')
 @ApiCookieAuth('session')

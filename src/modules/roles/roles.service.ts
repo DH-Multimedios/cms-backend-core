@@ -1,16 +1,16 @@
 import { Injectable, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Role } from '../../database/entities/role.entity';
-import { User } from '../../database/entities/user.entity';
-import { PermissionsService } from '../permissions/permissions.service';
-import { AuditService } from '../audit/audit.service';
-import { CreateRoleDto } from './dto/create-role.dto';
-import { UpdateRoleDto } from './dto/update-role.dto';
-import { RolesQueryDto } from './dto/roles-query.dto';
-import { ApiException } from '../../common/exceptions/api.exception';
-import { ErrorCode } from '../../common/enums/error-codes.enum';
-import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
+import { Role } from '../../database/entities/role.entity.js';
+import { User } from '../../database/entities/user.entity.js';
+import { PermissionsService } from '../permissions/permissions.service.js';
+import { AuditService } from '../audit/audit.service.js';
+import { CreateRoleDto } from './dto/create-role.dto.js';
+import { UpdateRoleDto } from './dto/update-role.dto.js';
+import { RolesQueryDto } from './dto/roles-query.dto.js';
+import { ApiException } from '../../common/exceptions/api.exception.js';
+import { ErrorCode } from '../../common/enums/error-codes.enum.js';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface.js';
 
 @Injectable()
 export class RolesService {

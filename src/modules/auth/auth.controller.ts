@@ -11,18 +11,18 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiTags, ApiOperation, ApiCookieAuth } from '@nestjs/swagger';
-import { AuthService } from './auth.service';
-import { LocalAuthGuard } from './guards/local-auth.guard';
-import { SessionAuthGuard } from './guards/session-auth.guard';
-import { Public } from './decorators/public.decorator';
-import { CurrentUser } from './decorators/current-user.decorator';
-import { LoginDto } from './dto/login.dto';
-import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { VerifyResetCodeDto } from './dto/verify-reset-code.dto';
-import { ResetPasswordDto } from './dto/reset-password.dto';
-import { User } from '../../database/entities/user.entity';
-import { UserResponseDto } from '../users/dto/user-response.dto';
-import { AuthConfig } from '../../core/interfaces/core-config.interface';
+import { AuthService } from './auth.service.js';
+import { LocalAuthGuard } from './guards/local-auth.guard.js';
+import { SessionAuthGuard } from './guards/session-auth.guard.js';
+import { Public } from './decorators/public.decorator.js';
+import { CurrentUser } from './decorators/current-user.decorator.js';
+import { LoginDto } from './dto/login.dto.js';
+import { ForgotPasswordDto } from './dto/forgot-password.dto.js';
+import { VerifyResetCodeDto } from './dto/verify-reset-code.dto.js';
+import { ResetPasswordDto } from './dto/reset-password.dto.js';
+import { User } from '../../database/entities/user.entity.js';
+import { UserResponseDto } from '../users/dto/user-response.dto.js';
+import { AuthConfig } from '../../core/interfaces/core-config.interface.js';
 
 @ApiTags('Auth')
 @UseGuards(SessionAuthGuard)
