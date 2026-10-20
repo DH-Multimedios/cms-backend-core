@@ -7,7 +7,7 @@ Esta guía es el punto de partida para un **cliente nuevo con una base PostgreSQ
 ## Ruta rápida verificada
 
 - [ ] Confirmar que la base es nueva y vacía; si no lo es, acordar una migración específica antes de ejecutar comandos.
-- [ ] Instalar el tag estable `v1.0.0` del core por SSH (una vez publicado) y consultar los docs/skill incluidos en esa versión.
+- [ ] Instalar por SSH un commit publicado de la rama ESM `feat/backend-core-esm-only` para el ensayo de `2.0.0`; usar el tag inmutable `v2.0.0` solo si se publica, y consultar los docs/skill incluidos en esa revisión.
 - [ ] Registrar `ConfigModule.forRoot({ isGlobal: true })` antes de `CoreModule.registerAsync`.
 - [ ] Mantener `synchronize: false` y `CORE_ENTITIES` antes de las entidades del cliente.
 - [ ] Incluir migraciones empaquetadas del core y migraciones TS/JS del cliente.
@@ -22,7 +22,7 @@ El flujo completo es: crear proyecto, instalar, configurar `.env`, levantar Post
 
 - Node.js `^22.22.3 || ^24.15.0 || >=26.0.0` para instalar el core y crear un cliente con `nest new` o desarrollar este repositorio con `@nestjs/schematics` 12.
 - NestJS 12 en el proyecto cliente, incluido `@nestjs/platform-express` 12; no mezcle versiones 11 y 12 de NestJS.
-- pnpm compatible con el proyecto cliente. Para contribuir a este repositorio y ejecutar `test-app`, utilice pnpm `12.6.0`; esta versión no es un requisito para los proyectos que consumen el core.
+- pnpm 12 en el proyecto cliente, con autorización explícita de build para la revisión Git del core; el paquete prepara desde fuentes con su pnpm `12.6.0`. Para contribuir a este repositorio y ejecutar `test-app`, utilice pnpm `12.6.0`.
 - NestJS CLI 12: `pnpm add --global @nestjs/cli@^12`.
 - PostgreSQL; los ejemplos usan Podman y `podman-compose`.
 - Acceso SSH al repositorio privado de GitHub.
@@ -41,23 +41,25 @@ GitHub puede responder sin abrir una shell interactiva; lo importante es que aut
 nest new mi-proyecto
 cd mi-proyecto
 
-# Ejecutar solo cuando el equipo haya publicado el tag inmutable v1.0.0.
-CORE_VERSION='1.0.0'
-pnpm add "git+ssh://git@github.com/DH-Multimedios/cms-backend-core.git#v${CORE_VERSION}"
+# Ensayo: ejecutar solo después de que el equipo publique la rama ESM en GitHub.
+# Para una entrega estable, usar v2.0.0 únicamente después de publicar ese tag.
+CORE_REF='feat/backend-core-esm-only'
+pnpm add "git+ssh://git@github.com/DH-Multimedios/cms-backend-core.git#${CORE_REF}"
 
 pnpm add @nestjs/common@^12 @nestjs/core@^12 @nestjs/platform-express@^12
 pnpm add @nestjs/config@^12 @nestjs/swagger@^12 dotenv
 pnpm add @nestjs/typeorm@^12 typeorm@^1.1.0 pg
 ```
 
-`1.0.0` es la primera versión estable del paquete: la instalación desde este repositorio privado se identifica por el **tag Git `v1.0.0`**, no solo por el campo `version` de `package.json`. Este comando fallará hasta que se cree y publique ese tag sobre la entrega definitiva en `main`; preparar `package.json` no lo publica. No instales desde la rama por defecto ni muevas tags publicados: el cliente declara un tag concreto, y su lockfile resuelve el commit exacto. Commiteá ambos archivos en el cliente y avanzá la versión deliberadamente; no es necesario conocer el SHA para instalar una versión publicada. No se publica un paquete en un registry, así que `pnpm add @dh/backend-core@1.0.0` **no** sustituye la URL Git.
+Este paquete es **ESM-only `2.0.0`**. La rama del ejemplo sirve solo para el ensayo cuando exista en GitHub; todavía no equivale a una versión estable ni a un tag publicado. El lockfile del cliente fija el commit resuelto: revisalo, guardalo junto a `package.json` y autorizá el build **de ese commit**, no de cualquier revisión futura. Para producción, cambiá a `#v2.0.0` solamente si se crea un tag inmutable de esa entrega. El antiguo `1.0.0` conserva CommonJS; no se publica en un registry, por lo que `pnpm add @dh/backend-core@2.0.0` no sustituye la URL Git.
 
 Tras instalar, el equipo encuentra esta guía en `node_modules/@dh/backend-core/docs/backend-client/00-setup.md` y el skill en `node_modules/@dh/backend-core/skills/backend-core/SKILL.md`. Para rutas de almacenamiento y autorización especializadas, consultá [Files](./files.md#storage-físico), [Media](./media.md#configuración-de-storage-en-producción) y [Permisos](./01-permissions.md); no trates ejemplos de módulos opcionales como pasos obligatorios del arranque.
 
-Declare el runtime y el target requeridos:
+Declarar ESM nativo, runtime y resolución NodeNext en el cliente:
 
 ```json
 {
+  "type": "module",
   "engines": {
     "node": "^22.22.3 || ^24.15.0 || >=26.0.0"
   }
@@ -67,26 +69,28 @@ Declare el runtime y el target requeridos:
 ```json
 {
   "compilerOptions": {
-    "target": "ES2023"
+    "target": "ES2023",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext"
   }
 }
 ```
 
-### Scripts de build de pnpm
+### Autorización de build al instalar desde Git
 
-No apruebe todos los scripts transitivos. Primero liste los bloqueados y revise por qué los necesita el árbol instalado:
+pnpm 12 **rechaza la instalación Git** si no autorizás su preparación desde fuentes (`ERR_PNPM_GIT_DEP_PREPARE_NOT_ALLOWED`). Repetí `pnpm add` después de incorporar en `pnpm-workspace.yaml` la clave **exacta que imprime el error** (incluido el SHA resuelto); no habilites el paquete para cualquier ref:
 
-```bash
-pnpm ignored-builds
+```yaml
+allowBuilds:
+  '@dh/backend-core@git+ssh://git@github.com/DH-Multimedios/cms-backend-core.git#<sha-indicado-por-pnpm>': true
+  '@scarf/scarf': false
+  '@nestjs/core': true
+  bcrypt: true
+  sharp: true
+  unrs-resolver: true
 ```
 
-Apruebe únicamente los paquetes requeridos que aparezcan en esa salida. Para este core normalmente son:
-
-```bash
-pnpm approve-builds @nestjs/core bcrypt sharp
-```
-
-La lista efectiva depende de plataforma y lockfile. Revise y commitee el `pnpm-workspace.yaml` generado con la allow-list; no use `pnpm approve-builds --all`.
+La clave de ejemplo es ilustrativa: copiá la forma y el SHA reales del diagnóstico de **tu instalación**. La lista transitiva depende del lockfile y la plataforma; consultá `pnpm ignored-builds` y clasificá explícitamente cada script antes de reintentar. En la prueba local, omitir `@scarf/scarf: false` produjo `ERR_PNPM_IGNORED_BUILDS`. No uses aprobaciones globales. pnpm también puede anunciar que el skill incluido espera aprobación: esa es una decisión **separada y opcional**, no una condición para importar el paquete. Commiteá la allow-list revisada junto al lockfile del cliente.
 
 ## 3. Variables de entorno
 
@@ -208,7 +212,7 @@ El core aplica `cookie-parser` globalmente. No lo registre de nuevo.
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppModule } from './app.module';
+import { AppModule } from './app.module.js';
 
 function corsOrigins(): string[] {
   const values = (process.env.CORS_ORIGINS ?? '')
@@ -307,11 +311,12 @@ volumes:
 
 ## 7. DataSource y migraciones TypeORM 1.1
 
-Este `DataSource` funciona desde TypeScript con `typeorm-ts-node-commonjs` y desde JavaScript compilado. Resuelve las migraciones empaquetadas desde la ubicación real del paquete, sin depender del directorio de ejecución.
+Este `DataSource` ESM funciona desde TypeScript con `typeorm-ts-node-esm` y desde JavaScript compilado. `import.meta.resolve` ubica la entrada exportada del paquete instalado; el glob de migraciones del core apunta a su `dist`, generado por pnpm durante la instalación Git. Las rutas no dependen del directorio de ejecución.
 
 ```typescript
 import 'dotenv/config';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { CORE_ENTITIES } from '@dh/backend-core';
 import { DataSource } from 'typeorm';
 // import { Product } from '../../modules/products/entities/product.entity';
@@ -321,8 +326,9 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
   throw new Error('DB_PORT debe ser un entero entre 1 y 65535');
 }
 
-const coreRoot = dirname(require.resolve('@dh/backend-core/package.json'));
-const clientMigrationExtension = __filename.endsWith('.ts') ? 'ts' : 'js';
+const coreDist = dirname(fileURLToPath(import.meta.resolve('@dh/backend-core')));
+const clientDirectory = dirname(fileURLToPath(import.meta.url));
+const clientMigrationExtension = import.meta.url.endsWith('.ts') ? 'ts' : 'js';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -336,27 +342,27 @@ export const AppDataSource = new DataSource({
     // Product,
   ],
   migrations: [
-    join(coreRoot, 'dist/database/migrations/*.js'),
-    join(__dirname, `migrations/*.${clientMigrationExtension}`),
+    join(coreDist, 'database/migrations/*.js'),
+    join(clientDirectory, `migrations/*.${clientMigrationExtension}`),
   ],
   synchronize: false,
   logging: process.env.DB_LOGGING === 'true',
 });
 ```
 
-El ejemplo asume el CommonJS generado por un proyecto NestJS estándar. En TypeORM 1.1, valide los valores opcionales antes de usarlos en `where`, utilice `IsNull()` para SQL `NULL` y exprese relaciones como objeto, por ejemplo `relations: { roles: true }`.
+El ejemplo requiere que el proyecto NestJS use `"type": "module"` y TS `NodeNext`, no la salida CommonJS que trae un proyecto estándar. En TypeORM 1.1, valide los valores opcionales antes de usarlos en `where`, utilice `IsNull()` para SQL `NULL` y exprese relaciones como objeto, por ejemplo `relations: { roles: true }`.
 
 Scripts:
 
 ```json
 {
   "scripts": {
-    "typeorm": "typeorm-ts-node-commonjs",
+    "typeorm": "typeorm-ts-node-esm",
     "migration:generate": "pnpm typeorm migration:generate -d src/database/data-source.ts",
     "migration:run": "pnpm typeorm migration:run -d src/database/data-source.ts",
     "migration:revert": "pnpm typeorm migration:revert -d src/database/data-source.ts",
     "migration:run:prod": "typeorm migration:run -d dist/database/data-source.js",
-    "seed": "ts-node src/database/seeds/run-seed.ts",
+    "seed": "node --loader ts-node/esm src/database/seeds/run-seed.ts",
     "seed:prod": "node dist/database/seeds/run-seed.js"
   }
 }
@@ -377,7 +383,7 @@ Para producción, compile primero y ejecute `pnpm migration:run:prod`; el glob d
 ```typescript
 // src/database/seeds/run-seed.ts
 import { runCoreSeeds } from '@dh/backend-core';
-import { AppDataSource } from '../data-source';
+import { AppDataSource } from '../data-source.js';
 // import { seedProducts } from './products.seeder';
 
 async function runSeed(): Promise<void> {
@@ -505,13 +511,11 @@ diff .opencode/skills/backend-core/SKILL.md \
 
 ## 12. Actualizaciones deliberadas
 
-El equipo publica cada versión con un tag Git **nuevo e inmutable** `vMAJOR.MINOR.PATCH`, cuyo número coincide con `package.json`. Una corrección compatible sube `PATCH` (`1.0.1`); una funcionalidad compatible, `MINOR` (`1.1.0`); un cambio incompatible, `MAJOR` (`2.0.0`). Nunca cambies el destino de un tag publicado ni instales desde una rama móvil.
-
-Para actualizar un cliente, seleccioná **una versión cuyo tag ya esté publicado**, leé el changelog de las versiones intermedias y revisá el diff del lockfile:
+Para entregas estables, el equipo crea un tag Git **nuevo e inmutable** `vMAJOR.MINOR.PATCH` que coincide con `package.json`. Este ensayo ESM `2.0.0` usa una rama solo mientras se prueba; no implica que `v2.0.0` exista ni autoriza publicarlo. Una vez disponible un tag estable, elegí una versión publicada, leé el changelog y revisá el lockfile:
 
 ```bash
-CORE_VERSION='<published-version>' # Por ejemplo, 1.0.1 cuando exista v1.0.1
+CORE_VERSION='<version-publicada>' # Por ejemplo, 2.0.0 solo si existe v2.0.0
 pnpm add "git+ssh://git@github.com/DH-Multimedios/cms-backend-core.git#v${CORE_VERSION}"
 ```
 
-Commiteá el cambio del `package.json` y el lockfile del cliente. No uses `pnpm update @dh/backend-core` para seleccionar una versión Git. **No ejecutes migraciones ni seeds en una base existente solo por cambiar el tag:** comprobá su historial, planificá las migraciones compatibles, respaldá los datos y recién entonces aplicá la transición. Al reejecutar los seeds del core, preservá y restaurá las asignaciones de permisos propias del cliente: el seed reemplaza las de los roles base por su lista.
+Con un SHA nuevo, actualizá también la clave exacta `allowBuilds` del Git dependency; quitá la autorización del SHA anterior si ya no lo usás. Commiteá `package.json`, `pnpm-workspace.yaml` y el lockfile del cliente. No uses `pnpm update @dh/backend-core` para seleccionar una versión Git. **No ejecutes migraciones ni seeds en una base existente solo por cambiar el tag:** comprobá su historial, planificá las migraciones compatibles, respaldá los datos y recién entonces aplicá la transición. Al reejecutar los seeds del core, preservá y restaurá las asignaciones de permisos propias del cliente: el seed reemplaza las de los roles base por su lista.

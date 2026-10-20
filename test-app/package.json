@@ -1,6 +1,7 @@
 {
   "name": "@dh/backend-core-test-app",
   "version": "0.1.0",
+  "type": "module",
   "packageManager": "pnpm@12.6.0",
   "description": "Aplicación de testing para el core",
   "private": true,
@@ -8,7 +9,7 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main"
+    "start:prod": "node dist/main.js"
   },
   "dependencies": {
     "@dh/backend-core": "file:..",

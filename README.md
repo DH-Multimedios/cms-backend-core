@@ -37,13 +37,14 @@ El mismo rango se aplica al desarrollo de este repositorio con `@nestjs/schemati
 
 ### Desde el repositorio privado (clientes)
 
-Instalá una versión estable por su tag Git inmutable, una vez publicado. `package.json` identifica la versión; el lockfile del cliente fija el commit resuelto. El paquete no está publicado en un registry.
+La rama de ensayo `feat/backend-core-esm-only` prepara desde fuentes el paquete **ESM-only `2.0.0`** durante la instalación Git; todavía no equivale al tag estable `v2.0.0`. Una vez que el equipo publique la rama en GitHub, el dueño del cliente puede probarla por su ref (el lockfile fija el commit). Para una entrega estable, usar un tag nuevo e inmutable solo si se publica. El paquete no está en un registry.
 
 ```bash
-pnpm add "git+ssh://git@github.com/DH-Multimedios/cms-backend-core.git#v1.0.0"
+# Solo para el ensayo, después de publicar la rama y autorizar su build por commit en pnpm.
+pnpm add "git+ssh://git@github.com/DH-Multimedios/cms-backend-core.git#feat/backend-core-esm-only"
 ```
 
-Para bases nuevas, seguí [la guía de configuración del cliente](./docs/backend-client/00-setup.md); las bases existentes requieren revisar su historial de migraciones antes de actualizar. No instales desde una rama móvil ni muevas un tag ya publicado.
+**pnpm 12 exige `allowBuilds` para el SHA Git exacto y la clasificación de scripts transitivos** antes de preparar el paquete. Leé [la guía ESM de instalación](./docs/backend-client/00-setup.md#autorización-de-build-al-instalar-desde-git) y usá los docs/skill de la revisión instalada. Para bases existentes, revisá el historial de migraciones antes de actualizar; nunca ejecutes el baseline a ciegas. `1.0.0` conserva su contrato CommonJS.
 
 ### Local (para desarrollo del core)
 
@@ -133,50 +134,7 @@ CORS_ORIGINS=https://tuapp.com,https://dashboard.tuapp.com
 
 ### En tu proyecto cliente
 
-```typescript
-import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { CoreModule } from '@dh/backend-core';
-
-@Module({
-  imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    CoreModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        database: {
-          host: config.getOrThrow<string>('DB_HOST'),
-          port: config.getOrThrow<number>('DB_PORT'),
-          username: config.getOrThrow<string>('DB_USERNAME'),
-          password: config.getOrThrow<string>('DB_PASSWORD'),
-          database: config.getOrThrow<string>('DB_NAME'),
-          synchronize: false,
-          logging: config.get('DB_LOGGING') === 'true',
-        },
-        auth: {
-          sessionExpiration: config.get('SESSION_EXPIRATION', '365'),
-          cookiePath: '/',
-        },
-        modules: {
-          audit: true,
-          files: {
-            storage: 'local',
-            path: './uploads/files',
-          },
-          media: {
-            storage: 'local',
-            path: './uploads/media',
-          },
-          taxonomies: true,
-          notifications: true,
-        },
-      }),
-    }),
-  ],
-})
-export class AppModule {}
-```
+Declarar `"type": "module"` en `package.json` y `module` / `moduleResolution`: `NodeNext` en TypeScript. Usar imports relativos con extensión `.js` en fuentes `.ts` y el `DataSource` ESM de [la guía de setup](./docs/backend-client/00-setup.md#7-datasource-y-migraciones-typeorm-11); incluye validación de configuración, `CORE_ENTITIES` y las migraciones empaquetadas, sin duplicar aquí una receta de arranque divergente.
 
 La guía completa usa `ConfigModule.forRoot({ isGlobal: true })` antes de
 `CoreModule.registerAsync(...)`; ver [Setup del proyecto cliente](./docs/backend-client/00-setup.md).
@@ -239,8 +197,8 @@ pnpm test:cov
 # Tests en modo watch
 pnpm test:watch
 
-# Tests e2e
-pnpm test:e2e
+# Smoke test del paquete ESM tras compilarlo
+pnpm build && node --test test/esm-package.test.mjs
 ```
 
 ## 🔄 Migraciones
@@ -269,8 +227,7 @@ pnpm seed
 # Build para producción
 pnpm build
 
-# Ejecutar en producción
-pnpm start:prod
+# El core es una librería; iniciar la aplicación del cliente con sus propios scripts.
 ```
 
 ## 📋 Scripts disponibles

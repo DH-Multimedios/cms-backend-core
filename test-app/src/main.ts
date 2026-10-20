@@ -2,7 +2,7 @@ import 'dotenv/config'; // Cargar .env ANTES de todo
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { AppModule } from './app.module';
+import { AppModule } from './app.module.js';
 
 function corsOrigins(): string[] {
   const origins = (process.env.CORS_ORIGINS ?? '')
