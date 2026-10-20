@@ -70,8 +70,8 @@ export class UsersController {
   @Post()
   @RequirePermissions('users.create')
   @ApiOperation({ summary: 'Crear usuario' })
-  create(@Body() dto: CreateUserDto) {
-    return this.usersService.create(dto);
+  create(@Body() dto: CreateUserDto, @CurrentUser() currentUser: User) {
+    return this.usersService.create(dto, currentUser);
   }
 
   @Patch('me')

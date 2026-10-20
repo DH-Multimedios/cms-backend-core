@@ -67,6 +67,7 @@ describe('UsersService', () => {
   let service: UsersService;
   let userRepo: ReturnType<typeof mockUserRepository>;
   let roleRepo: ReturnType<typeof mockRoleRepository>;
+  let auditService: ReturnType<typeof mockAuditService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -83,6 +84,7 @@ describe('UsersService', () => {
     service = module.get(UsersService);
     userRepo = module.get(getRepositoryToken(User));
     roleRepo = module.get(getRepositoryToken(Role));
+    auditService = module.get(AuditService);
   });
 
   describe('findAll', () => {
@@ -124,17 +126,35 @@ describe('UsersService', () => {
       const result = await service.create({
         email: 'new@test.com',
         password: 'password123',
-      });
+      }, makeUser());
 
       expect(result.email).toBe('new@test.com');
+    });
+
+    it('allows root to assign a protected role on creation', async () => {
+      userRepo.findOneBy.mockResolvedValue(null);
+      roleRepo.findBy.mockResolvedValue([{ id: 'protected', isProtected: true, weight: 100 } as Role]);
+      userRepo.save.mockResolvedValue(makeUser());
+      await service.create({ email: 'new@test.com', password: 'password123', roleIds: ['protected'] }, makeSystemUser());
+      expect(userRepo.save).toHaveBeenCalledWith(expect.objectContaining({ roles: [expect.objectContaining({ id: 'protected' })] }));
     });
 
     it('lanza ApiException USER_EMAIL_TAKEN si el email ya existe', async () => {
       userRepo.findOneBy.mockResolvedValue(makeUser());
 
       await expect(
-        service.create({ email: 'user@test.com', password: 'password123' }),
+        service.create({ email: 'user@test.com', password: 'password123' }, makeUser()),
       ).rejects.toMatchObject({ code: ErrorCode.USER_EMAIL_TAKEN });
+    });
+
+    it('rejects a protected role supplied by a non-root caller without writing', async () => {
+      userRepo.findOneBy.mockResolvedValue(null);
+      roleRepo.findBy.mockResolvedValue([{ id: 'protected', isProtected: true, weight: 100 } as Role]);
+      userRepo.save.mockResolvedValue(makeUser({ email: 'new@test.com' }));
+      await expect(service.create({ email: 'new@test.com', password: 'password123', roleIds: ['protected'] }, makeUser()))
+        .rejects.toMatchObject({ code: ErrorCode.ROLE_PROTECTED });
+      expect(userRepo.save).not.toHaveBeenCalled();
+      expect(auditService.log).not.toHaveBeenCalled();
     });
   });
 
@@ -170,6 +190,26 @@ describe('UsersService', () => {
       const result = await service.update('user-1', { firstName: 'Jane' }, systemUser);
 
       expect(result.firstName).toBe('Jane');
+    });
+
+    it('rejects a protected role even at equal weight without writing', async () => {
+      userRepo.findOne.mockResolvedValue(makeUser());
+      const currentUser = makeUser({ roles: [{ weight: 100, permissions: [{ name: 'roles.update' }] } as Role] });
+      roleRepo.findBy.mockResolvedValue([{ id: 'protected', isProtected: true, weight: 100 } as Role]);
+      userRepo.save.mockResolvedValue(makeUser());
+      await expect(service.update('user-1', { roleIds: ['protected'] }, currentUser))
+        .rejects.toMatchObject({ code: ErrorCode.ROLE_PROTECTED });
+      expect(userRepo.save).not.toHaveBeenCalled();
+      expect(auditService.log).not.toHaveBeenCalled();
+    });
+
+    it('still allows ordinary assignment of an unprotected equal-weight role', async () => {
+      userRepo.findOne.mockResolvedValue(makeUser());
+      const currentUser = makeUser({ roles: [{ weight: 50, permissions: [{ name: 'roles.update' }] } as Role] });
+      roleRepo.findBy.mockResolvedValue([{ id: 'peer', isProtected: false, weight: 50 } as Role]);
+      userRepo.save.mockResolvedValue(makeUser());
+      await service.update('user-1', { roleIds: ['peer'] }, currentUser);
+      expect(userRepo.save).toHaveBeenCalledWith(expect.objectContaining({ roles: [expect.objectContaining({ id: 'peer' })] }));
     });
 
     it('no permite asignar un rol de mayor peso al propio', async () => {

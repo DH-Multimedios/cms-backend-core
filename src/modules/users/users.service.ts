@@ -187,7 +187,7 @@ export class UsersService {
     });
   }
 
-  async create(dto: CreateUserDto): Promise<UserResponseDto> {
+  async create(dto: CreateUserDto, currentUser: User): Promise<UserResponseDto> {
     const existing = await this.userRepository.findOneBy({ email: dto.email });
     if (existing)
       throw new ApiException(
@@ -209,6 +209,14 @@ export class UsersService {
     const roles = dto.roleIds?.length
       ? await this.roleRepository.findBy({ id: In(dto.roleIds) })
       : await this.roleRepository.find({ order: { weight: 'ASC' }, take: 1 });
+
+    if (!currentUser.isSystemUser && roles.some((role) => role.isProtected)) {
+      throw new ApiException(
+        HttpStatus.FORBIDDEN,
+        ErrorCode.ROLE_PROTECTED,
+        'Solo el usuario del sistema puede asignar roles protegidos',
+      );
+    }
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
     const user = this.userRepository.create({
@@ -282,6 +290,13 @@ export class UsersService {
         : [];
 
       if (!currentUser.isSystemUser) {
+        if (newRoles.some((role) => role.isProtected)) {
+          throw new ApiException(
+            HttpStatus.FORBIDDEN,
+            ErrorCode.ROLE_PROTECTED,
+            'Solo el usuario del sistema puede asignar roles protegidos',
+          );
+        }
         const hasHigherRole = newRoles.some((r) => r.weight > currentMaxWeight);
         if (hasHigherRole) {
           throw new ApiException(

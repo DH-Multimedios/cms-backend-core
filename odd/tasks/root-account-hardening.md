@@ -8,8 +8,8 @@ S2. "Yo lo que quiero es un usuario para mi solo, que no se pueda asignar y pued
 S3. "¿y que tenés que hacer? digo así empezamos a hacer algo"
 
 ## Tasks
-T1 [S1-S2] Ensure at most one root in the database, preserve the root bypass and validate bootstrap behavior. Route: bounded writer (context backstop); commit: first work-unit commit.
-T2 [S1-S2] Prevent ordinary API clients from assigning protected roles or manufacturing equivalent protected privilege; preserve ordinary role behavior. Route: inline; commit: pending.
+T1 [S1-S2] Ensure at most one root in the database, preserve the root bypass and validate bootstrap behavior. Route: bounded writer (context backstop); commit: 2e7f64a.
+T2 [S1-S2] Prevent ordinary API clients from assigning protected roles or manufacturing equivalent protected privilege; preserve ordinary role behavior. Route: inline; commit: second work-unit commit.
 T3 [S1-S3] Run regression checks and independent security verification, document the root boundary and close the feature. Route: independent verifier; commit: pending.
 
 ## Log
@@ -18,3 +18,4 @@ L2. Earlier clarification: "esta es mi cuenta personal, yo necesito poder hacer 
 L3. Earlier clarification: "Yo lo que quiero es un usuario para mi solo, que no se pueda asignar y pueda hacer todo"
 L4. Initial evidence: `PermissionsGuard` explicitly bypasses permissions for isSystemUser; seedUsers checks count but no DB singleton constraint; users.create accepts roleIds without caller checks; users.update allows roles of equal weight. Preserve the existing root bypass and reject ordinary assignment of protected roles.
 L5. T1 RED exit 1 (5 expected failures), GREEN exit 0 (11 tests); additive partial unique index and seed preserves existing root identity including soft-deleted roots. PostgreSQL integration unavailable: SQL assertions only; migration must reject pre-existing duplicate roots without cleanup.
+L6. T2 RED exit 1 (protected-role create/update tests fail on previously accepted roles); GREEN exit 0 (16/16 UsersService tests). Current user is passed by the guarded users controller; non-root callers cannot assign protected roles. Ordinary equal-weight unprotected assignment and root protected assignment remain allowed.
