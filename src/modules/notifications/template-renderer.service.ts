@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import mjml2html from 'mjml';
-import * as Handlebars from 'handlebars';
+import Handlebars from 'handlebars';
 import { Section, Block, Column } from '../../database/entities/notification-block.types.js';
 
 @Injectable()

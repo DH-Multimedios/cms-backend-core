@@ -17,3 +17,12 @@ test('published entry is a native ESM-only v2 package with usable core exports',
   assert.ok(Array.isArray(core.CORE_ENTITIES));
   assert.equal(Object.hasOwn(core, 'default'), false);
 });
+
+test('native ESM preserves notification template rendering', async () => {
+  const { TemplateRendererService } = await import(
+    pathToFileURL(resolve(root, 'dist/modules/notifications/template-renderer.service.js')).href
+  );
+  const renderer = new TemplateRendererService();
+  assert.equal(renderer.render('Hello {{name}}', { name: 'Ada' }), 'Hello Ada');
+  assert.equal(renderer.render('{{value}}', { value: '<b>' }), '&lt;b&gt;');
+});
