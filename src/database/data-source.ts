@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
-import { CORE_ENTITIES } from './entities';
+import { CORE_ENTITIES } from './entities/index.js';
 
 // Cargar variables de entorno
 config();

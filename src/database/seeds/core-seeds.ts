@@ -1,9 +1,9 @@
 import { DataSource } from 'typeorm';
-import { seedRoles } from './roles.seeder';
-import { seedPermissions } from './permissions.seeder';
-import { seedUsers } from './users.seeder';
-import { seedSettings } from './settings.seeder';
-import { seedNotifications } from './notifications.seeder';
+import { seedRoles } from './roles.seeder.js';
+import { seedPermissions } from './permissions.seeder.js';
+import { seedUsers } from './users.seeder.js';
+import { seedSettings } from './settings.seeder.js';
+import { seedNotifications } from './notifications.seeder.js';
 
 export interface ExtraRole {
   name: string;

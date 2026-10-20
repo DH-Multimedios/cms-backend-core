@@ -1,8 +1,8 @@
 import { resolve } from 'node:path';
 import { jest as jestRuntime } from '@jest/globals';
 import { ConfigModule } from '@nestjs/config';
-import { CoreModule } from './core.module';
-import { CoreModuleConfig } from './interfaces/core-config.interface';
+import { CoreModule } from './core.module.js';
+import { CoreModuleConfig } from './interfaces/core-config.interface.js';
 
 const config: CoreModuleConfig = {
   database: { host: 'localhost', port: 5432, username: 'test', password: 'test', database: 'test' },

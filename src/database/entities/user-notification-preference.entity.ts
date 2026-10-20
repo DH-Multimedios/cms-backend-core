@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
   Unique,
 } from 'typeorm';
-import { User } from './user.entity';
+import { User } from './user.entity.js';
 
 @Entity('user_notification_preferences')
 @Unique(['userId', 'notificationTypeKey'])

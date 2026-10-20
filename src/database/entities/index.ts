@@ -1,27 +1,27 @@
-export { User } from './user.entity';
-export { Role } from './role.entity';
-export { Permission } from './permission.entity';
-export { Session } from './session.entity';
-export { AuditLog } from './audit-log.entity';
-export { Taxonomy } from './taxonomy.entity';
-export { EntityTaxonomy } from './entity-taxonomy.entity';
-export { File } from './file.entity';
-export { Media } from './media.entity';
-export { Setting } from './setting.entity';
-export { SettingCategory } from './setting-category.entity';
-export { EmailProvider } from './email-provider.entity';
+export { User } from './user.entity.js';
+export { Role } from './role.entity.js';
+export { Permission } from './permission.entity.js';
+export { Session } from './session.entity.js';
+export { AuditLog } from './audit-log.entity.js';
+export { Taxonomy } from './taxonomy.entity.js';
+export { EntityTaxonomy } from './entity-taxonomy.entity.js';
+export { File } from './file.entity.js';
+export { Media } from './media.entity.js';
+export { Setting } from './setting.entity.js';
+export { SettingCategory } from './setting-category.entity.js';
+export { EmailProvider } from './email-provider.entity.js';
 export type {
   EmailProviderType,
   EmailProviderConfigUnion,
   SmtpConfig,
   ResendConfig,
   GoogleOAuthConfig,
-} from './email-provider.entity';
-export { EmailLayout } from './email-layout.entity';
-export type { EmailLayoutType } from './email-layout.entity';
-export { EmailTemplate } from './email-template.entity';
-export { NotificationType } from './notification-type.entity';
-export { UserNotificationPreference } from './user-notification-preference.entity';
+} from './email-provider.entity.js';
+export { EmailLayout } from './email-layout.entity.js';
+export type { EmailLayoutType } from './email-layout.entity.js';
+export { EmailTemplate } from './email-template.entity.js';
+export { NotificationType } from './notification-type.entity.js';
+export { UserNotificationPreference } from './user-notification-preference.entity.js';
 export type {
   Section,
   Column,
@@ -32,29 +32,29 @@ export type {
   ImageBlock,
   DividerBlock,
   SpacerBlock,
-} from './notification-block.types';
-export { UserPreference } from './user-preference.entity';
-export type { ThemePreference } from './user-preference.entity';
-export { PasswordResetToken } from './password-reset-token.entity';
+} from './notification-block.types.js';
+export { UserPreference } from './user-preference.entity.js';
+export type { ThemePreference } from './user-preference.entity.js';
+export { PasswordResetToken } from './password-reset-token.entity.js';
 
-import { User } from './user.entity';
-import { Role } from './role.entity';
-import { Permission } from './permission.entity';
-import { Session } from './session.entity';
-import { AuditLog } from './audit-log.entity';
-import { Taxonomy } from './taxonomy.entity';
-import { EntityTaxonomy } from './entity-taxonomy.entity';
-import { File } from './file.entity';
-import { Media } from './media.entity';
-import { Setting } from './setting.entity';
-import { SettingCategory } from './setting-category.entity';
-import { EmailProvider } from './email-provider.entity';
-import { EmailLayout } from './email-layout.entity';
-import { EmailTemplate } from './email-template.entity';
-import { NotificationType } from './notification-type.entity';
-import { UserNotificationPreference } from './user-notification-preference.entity';
-import { UserPreference } from './user-preference.entity';
-import { PasswordResetToken } from './password-reset-token.entity';
+import { User } from './user.entity.js';
+import { Role } from './role.entity.js';
+import { Permission } from './permission.entity.js';
+import { Session } from './session.entity.js';
+import { AuditLog } from './audit-log.entity.js';
+import { Taxonomy } from './taxonomy.entity.js';
+import { EntityTaxonomy } from './entity-taxonomy.entity.js';
+import { File } from './file.entity.js';
+import { Media } from './media.entity.js';
+import { Setting } from './setting.entity.js';
+import { SettingCategory } from './setting-category.entity.js';
+import { EmailProvider } from './email-provider.entity.js';
+import { EmailLayout } from './email-layout.entity.js';
+import { EmailTemplate } from './email-template.entity.js';
+import { NotificationType } from './notification-type.entity.js';
+import { UserNotificationPreference } from './user-notification-preference.entity.js';
+import { UserPreference } from './user-preference.entity.js';
+import { PasswordResetToken } from './password-reset-token.entity.js';
 
 /**
  * Array con todas las entidades del core.

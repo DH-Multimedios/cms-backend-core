@@ -8,7 +8,7 @@ import {
   JoinColumn,
   Unique,
 } from 'typeorm';
-import { User } from './user.entity';
+import { User } from './user.entity.js';
 
 export type ThemePreference = 'light' | 'dark' | 'system';
 

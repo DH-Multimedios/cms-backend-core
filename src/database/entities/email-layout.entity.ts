@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { Section } from './notification-block.types';
+import { Section } from './notification-block.types.js';
 
 export type EmailLayoutType = 'header' | 'footer';
 

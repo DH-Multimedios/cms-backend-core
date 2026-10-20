@@ -8,8 +8,8 @@ import {
   UpdateDateColumn,
   Unique,
 } from 'typeorm';
-import { EmailLayout } from './email-layout.entity';
-import { Section } from './notification-block.types';
+import { EmailLayout } from './email-layout.entity.js';
+import { Section } from './notification-block.types.js';
 
 @Entity('email_templates')
 @Unique(['entityType', 'notificationType'])

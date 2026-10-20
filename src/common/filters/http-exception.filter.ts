@@ -1,6 +1,6 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
-import { ApiException } from '../exceptions/api.exception';
-import { ErrorCode } from '../enums/error-codes.enum';
+import { ApiException } from '../exceptions/api.exception.js';
+import { ErrorCode } from '../enums/error-codes.enum.js';
 
 const STATUS_CODE_MAP: Record<number, string> = {
   [HttpStatus.BAD_REQUEST]: ErrorCode.VALIDATION_ERROR,

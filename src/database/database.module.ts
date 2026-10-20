@@ -1,7 +1,7 @@
 import { Module, DynamicModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DatabaseConfig } from '../core/interfaces/core-config.interface';
-import { CORE_ENTITIES } from './entities';
+import { DatabaseConfig } from '../core/interfaces/core-config.interface.js';
+import { CORE_ENTITIES } from './entities/index.js';
 
 @Module({})
 export class DatabaseModule {

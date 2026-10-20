@@ -1,12 +1,20 @@
 {
   "name": "@dh/backend-core",
-  "version": "1.0.0",
+  "version": "2.0.0",
+  "type": "module",
   "packageManager": "pnpm@12.6.0",
   "description": "Core reutilizable para APIs en NestJS con autenticación, usuarios, roles y funcionalidades comunes",
   "author": "DH Team",
   "license": "UNLICENSED",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "dist/**/*",
     "docs/backend-client/**/*",
@@ -18,6 +26,7 @@
   ],
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
+    "prepare": "pnpm run build",
     "verify:fresh-install": "pnpm build && node scripts/verify-fresh-install.js",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\" --fix",

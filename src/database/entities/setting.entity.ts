@@ -7,7 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { SettingCategory } from './setting-category.entity';
+import { SettingCategory } from './setting-category.entity.js';
 
 /**
  * Tipo del dato almacenado en `value`.

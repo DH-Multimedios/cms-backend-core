@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
-import { SettingCategory } from '../entities/setting-category.entity';
-import { Setting, SettingInputType, SettingMeta } from '../entities/setting.entity';
+import { SettingCategory } from '../entities/setting-category.entity.js';
+import { Setting, SettingInputType, SettingMeta } from '../entities/setting.entity.js';
 
 const CATEGORIES = [
   {

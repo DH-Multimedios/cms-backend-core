@@ -1,5 +1,5 @@
-import { AppDataSource } from '../data-source';
-import { runCoreSeeds } from './core-seeds';
+import { AppDataSource } from '../data-source.js';
+import { runCoreSeeds } from './core-seeds.js';
 
 async function runSeed() {
   try {

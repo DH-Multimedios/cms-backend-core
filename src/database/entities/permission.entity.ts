@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
   ManyToMany,
 } from 'typeorm';
-import { Role } from './role.entity';
+import { Role } from './role.entity.js';
 
 @Entity('permissions')
 export class Permission {

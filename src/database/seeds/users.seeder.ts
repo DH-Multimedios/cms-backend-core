@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { User } from '../entities/user.entity';
-import { Role } from '../entities/role.entity';
+import { User } from '../entities/user.entity.js';
+import { Role } from '../entities/role.entity.js';
 
 export async function seedUsers(dataSource: DataSource): Promise<void> {
   const userRepository = dataSource.getRepository(User);

@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
-import { Setting } from './setting.entity';
+import { Setting } from './setting.entity.js';
 
 @Entity('setting_categories')
 export class SettingCategory {

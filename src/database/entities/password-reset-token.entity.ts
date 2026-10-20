@@ -6,7 +6,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { User } from './user.entity';
+import { User } from './user.entity.js';
 
 @Entity('password_reset_tokens')
 export class PasswordResetToken {

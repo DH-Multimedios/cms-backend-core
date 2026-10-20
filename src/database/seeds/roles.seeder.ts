@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
-import { Role } from '../entities/role.entity';
-import { ExtraRole } from './core-seeds';
+import { Role } from '../entities/role.entity.js';
+import { ExtraRole } from './core-seeds.js';
 
 const CORE_ROLES = [
   {

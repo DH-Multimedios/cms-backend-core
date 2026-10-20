@@ -1,8 +1,8 @@
 import { DataSource } from 'typeorm';
-import { EmailLayout } from '../entities/email-layout.entity';
-import { EmailTemplate } from '../entities/email-template.entity';
-import { NotificationType } from '../entities/notification-type.entity';
-import { Section } from '../entities/notification-block.types';
+import { EmailLayout } from '../entities/email-layout.entity.js';
+import { EmailTemplate } from '../entities/email-template.entity.js';
+import { NotificationType } from '../entities/notification-type.entity.js';
+import { Section } from '../entities/notification-block.types.js';
 
 // ─── Layouts ────────────────────────────────────────────────────────────────
 

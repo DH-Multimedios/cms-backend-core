@@ -6,30 +6,30 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ClsModule } from 'nestjs-cls';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { resolve } from 'path';
-import { resolveUploadPaths } from './upload-paths';
-import { DatabaseModule } from '../database/database.module';
-import { HealthModule } from '../modules/health/health.module';
-import { AuthModule } from '../modules/auth/auth.module';
-import { UsersModule } from '../modules/users/users.module';
-import { RolesModule } from '../modules/roles/roles.module';
-import { PermissionsModule } from '../modules/permissions/permissions.module';
-import { AuditModule } from '../modules/audit/audit.module';
-import { SettingsModule } from '../modules/settings/settings.module';
-import { EmailProvidersModule } from '../modules/email-providers/email-providers.module';
-import { TaxonomiesModule } from '../modules/taxonomies/taxonomies.module';
-import { FilesModule } from '../modules/files/files.module';
-import { MediaModule } from '../modules/media/media.module';
-import { NotificationsModule } from '../modules/notifications/notifications.module';
-import { UserPreferencesModule } from '../modules/user-preferences/user-preferences.module';
-import { AuditContextInterceptor } from '../modules/audit/interceptors/audit-context.interceptor';
-import { HttpExceptionFilter } from '../common/filters/http-exception.filter';
-import { ResponseInterceptor } from '../common/interceptors/response.interceptor';
-import { DebugRequestInterceptor } from '../common/interceptors/debug-request.interceptor';
+import { resolveUploadPaths } from './upload-paths.js';
+import { DatabaseModule } from '../database/database.module.js';
+import { HealthModule } from '../modules/health/health.module.js';
+import { AuthModule } from '../modules/auth/auth.module.js';
+import { UsersModule } from '../modules/users/users.module.js';
+import { RolesModule } from '../modules/roles/roles.module.js';
+import { PermissionsModule } from '../modules/permissions/permissions.module.js';
+import { AuditModule } from '../modules/audit/audit.module.js';
+import { SettingsModule } from '../modules/settings/settings.module.js';
+import { EmailProvidersModule } from '../modules/email-providers/email-providers.module.js';
+import { TaxonomiesModule } from '../modules/taxonomies/taxonomies.module.js';
+import { FilesModule } from '../modules/files/files.module.js';
+import { MediaModule } from '../modules/media/media.module.js';
+import { NotificationsModule } from '../modules/notifications/notifications.module.js';
+import { UserPreferencesModule } from '../modules/user-preferences/user-preferences.module.js';
+import { AuditContextInterceptor } from '../modules/audit/interceptors/audit-context.interceptor.js';
+import { HttpExceptionFilter } from '../common/filters/http-exception.filter.js';
+import { ResponseInterceptor } from '../common/interceptors/response.interceptor.js';
+import { DebugRequestInterceptor } from '../common/interceptors/debug-request.interceptor.js';
 import {
   CoreModuleConfig,
   CoreModuleAsyncOptions,
   ModulesConfig,
-} from './interfaces/core-config.interface';
+} from './interfaces/core-config.interface.js';
 
 @Global()
 @Module({})

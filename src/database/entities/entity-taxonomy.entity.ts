@@ -7,7 +7,7 @@ import {
   JoinColumn,
   Unique,
 } from 'typeorm';
-import { Taxonomy } from './taxonomy.entity';
+import { Taxonomy } from './taxonomy.entity.js';
 
 @Entity('entity_taxonomies')
 @Unique(['entityType', 'entityId', 'taxonomyId'])
