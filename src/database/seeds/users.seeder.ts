@@ -7,7 +7,16 @@ export async function seedUsers(dataSource: DataSource): Promise<void> {
   const userRepository = dataSource.getRepository(User);
   const roleRepository = dataSource.getRepository(Role);
 
-  // 1. Cuenta operacional altamente privilegiada (opcional y única)
+  // 1. Cuenta operacional altamente privilegiada (opcional y única).
+  // Incluir bajas lógicas: la identidad root sigue reservada y el índice también las cuenta.
+  const existingSystemUsers = await userRepository.find({
+    where: { isSystemUser: true },
+    withDeleted: true,
+  });
+  if (existingSystemUsers.length > 1) {
+    throw new Error('Hay más de un usuario del sistema. No se modificó ninguna cuenta.');
+  }
+
   const systemUserEmail = process.env.SYSTEM_USER_EMAIL;
   const systemUserPassword = process.env.SYSTEM_USER_PASSWORD;
 
@@ -16,9 +25,17 @@ export async function seedUsers(dataSource: DataSource): Promise<void> {
       '⚠️  SYSTEM_USER_EMAIL o SYSTEM_USER_PASSWORD no definidos. Usuario del sistema NO creado.',
     );
   } else {
-    // Verificar que solo haya UNO
-    const existingSystemUsers = await userRepository.count({ where: { isSystemUser: true } });
-    if (existingSystemUsers > 0) {
+    const existingSystemUser = existingSystemUsers[0];
+    if (existingSystemUser) {
+      // Las credenciales de bootstrap no son un mecanismo de rotación ni de reemplazo.
+      if (
+        existingSystemUser.email !== systemUserEmail ||
+        !(await bcrypt.compare(systemUserPassword, existingSystemUser.password))
+      ) {
+        console.warn(
+          '⚠️  Credenciales del sistema no coinciden con el usuario existente. Identidad del sistema conservada.',
+        );
+      }
       console.log('⏭️  Usuario del sistema ya existe');
     } else {
       const hashedPassword = await bcrypt.hash(systemUserPassword, 10);
