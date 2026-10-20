@@ -132,7 +132,7 @@ Primera versión estable de `@dh/backend-core`. Se consume desde el repositorio 
 - ✅ Configuración de ESLint + Prettier
 - ✅ Soporte para desarrollo con Podman/Docker
 
-### Pendiente para 1.0.0
+### Ideas futuras de la etapa 0.1.0 (no forman parte de 1.0.0)
 
 - [ ] Tests e2e para Files y Media
 - [ ] Abstracción de storage para S3 (Files + Media)
@@ -140,7 +140,8 @@ Primera versión estable de `@dh/backend-core`. Se consume desde el repositorio 
 - [ ] Rate limiting para endpoints públicos
 - [ ] Compresión de imágenes automática en Media
 - [ ] Thumbnails on-demand o precalculados en Media
-- [ ] Publicación a npm registry privado
+
+La versión estable se distribuirá por tags Git del repositorio privado; la publicación en un registry no forma parte de este plan.
 
 ## Notas de migración
 
