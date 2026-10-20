@@ -7,7 +7,7 @@ Esta guía es el punto de partida para un **cliente nuevo con una base PostgreSQ
 ## Ruta rápida verificada
 
 - [ ] Confirmar que la base es nueva y vacía; si no lo es, acordar una migración específica antes de ejecutar comandos.
-- [ ] Instalar por SSH un commit publicado de `main` con el core ESM `2.0.0`; usar `v2.0.0` solo si se publica ese tag, y consultar los docs/skill incluidos en esa revisión.
+- [ ] Instalar por SSH el tag inmutable `v2.0.0` del core ESM y consultar los docs/skill incluidos en esa versión.
 - [ ] Registrar `ConfigModule.forRoot({ isGlobal: true })` antes de `CoreModule.registerAsync`.
 - [ ] Mantener `synchronize: false` y `CORE_ENTITIES` antes de las entidades del cliente.
 - [ ] Incluir migraciones empaquetadas del core y migraciones TS/JS del cliente.
@@ -41,10 +41,8 @@ GitHub puede responder sin abrir una shell interactiva; lo importante es que aut
 nest new mi-proyecto
 cd mi-proyecto
 
-# Sustituí el placeholder por el SHA publicado de main que vas a probar.
-# Para una entrega etiquetada, usar v2.0.0 únicamente después de publicar ese tag.
-CORE_REF='<SHA-publicado-en-main>'
-pnpm add "git+ssh://git@github.com/DH-Multimedios/cms-backend-core.git#${CORE_REF}"
+# Instalar la versión ESM 2.0.0 por su tag Git inmutable.
+pnpm add "git+ssh://git@github.com/DH-Multimedios/cms-backend-core.git#v2.0.0"
 
 pnpm add @nestjs/common@^12 @nestjs/core@^12 @nestjs/platform-express@^12
 pnpm add @nestjs/config@^12 @nestjs/swagger@^12 dotenv
@@ -54,7 +52,7 @@ pnpm add -D ts-node@^10.9.2
 
 `typeorm-ts-node-esm` y `node --loader ts-node/esm` necesitan `ts-node` como dependencia **directa** del cliente para ejecutar fuentes `.ts`; con pnpm no dependas de que llegue transitivamente. Los scripts de producción que ejecutan `.js` compilado no usan este loader.
 
-Este paquete es **ESM-only `2.0.0`** en `main`. Hasta que exista un tag inmutable `v2.0.0`, instalá el SHA concreto publicado en `main`, no la rama móvil. El lockfile del cliente fija el commit resuelto: revisalo, guardalo junto a `package.json` y autorizá el build **de ese commit**, no de cualquier revisión futura. Para producción, cambiá a `#v2.0.0` solamente si se crea y publica ese tag. El antiguo `1.0.0` conserva CommonJS; no se publica en un registry, por lo que `pnpm add @dh/backend-core@2.0.0` no sustituye la URL Git.
+Este paquete es **ESM-only `2.0.0`** y se identifica por el tag Git inmutable `v2.0.0`, no solamente por el campo `version` del manifiesto. El lockfile del cliente fija el commit que resuelve ese tag: revisalo, guardalo junto a `package.json` y autorizá el build **del SHA exacto que indique pnpm**, no de cualquier revisión futura. Nunca muevas un tag publicado. El antiguo `1.0.0` conserva CommonJS; no se publica en un registry, por lo que `pnpm add @dh/backend-core@2.0.0` no sustituye la URL Git.
 
 Tras instalar, el equipo encuentra esta guía en `node_modules/@dh/backend-core/docs/backend-client/00-setup.md` y el skill en `node_modules/@dh/backend-core/skills/backend-core/SKILL.md`. Para rutas de almacenamiento y autorización especializadas, consultá [Files](./files.md#storage-físico), [Media](./media.md#configuración-de-storage-en-producción) y [Permisos](./01-permissions.md); no trates ejemplos de módulos opcionales como pasos obligatorios del arranque.
 
@@ -518,10 +516,10 @@ diff .opencode/skills/backend-core/SKILL.md \
 
 ## 12. Actualizaciones deliberadas
 
-Para entregas estables, el equipo crea un tag Git **nuevo e inmutable** `vMAJOR.MINOR.PATCH` que coincide con `package.json`. El código ESM `2.0.0` en `main` no implica que exista el tag `v2.0.0` ni autoriza publicarlo. Una vez disponible un tag estable, elegí una versión publicada, leé el changelog y revisá el lockfile:
+La entrega ESM `2.0.0` se identifica por `v2.0.0`. Cada actualización necesita un tag Git **nuevo e inmutable** `vMAJOR.MINOR.PATCH` que coincida con `package.json`: una corrección compatible sube PATCH (`2.0.1`), una funcionalidad compatible sube MINOR (`2.1.0`) y una ruptura de contrato sube MAJOR. Elegí solo una versión cuyo tag ya esté publicado, leé el changelog y revisá el lockfile:
 
 ```bash
-CORE_VERSION='<version-publicada>' # Por ejemplo, 2.0.0 solo si existe v2.0.0
+CORE_VERSION='<nueva-version-publicada>' # Por ejemplo, 2.0.1 cuando exista v2.0.1
 pnpm add "git+ssh://git@github.com/DH-Multimedios/cms-backend-core.git#v${CORE_VERSION}"
 ```
 

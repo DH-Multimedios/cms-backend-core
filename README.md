@@ -37,11 +37,10 @@ El mismo rango se aplica al desarrollo de este repositorio con `@nestjs/schemati
 
 ### Desde el repositorio privado (clientes)
 
-`main` contiene el paquete **ESM-only `2.0.0`**, que pnpm compila desde fuentes al instalarlo por Git. Hasta que se publique un tag inmutable `v2.0.0`, fijá el SHA publicado de `main` en el cliente; el número del manifiesto por sí solo no crea un tag. El paquete no está en un registry.
+El paquete **ESM-only `2.0.0`** se distribuye por el tag Git inmutable `v2.0.0`; pnpm lo compila desde fuentes durante la instalación. El número del manifiesto, el tag y el commit fijado por el lockfile son conceptos distintos. El paquete no está en un registry.
 
 ```bash
-CORE_REF='<SHA-publicado-en-main>' # Sustituí el placeholder por el commit real.
-pnpm add "git+ssh://git@github.com/DH-Multimedios/cms-backend-core.git#${CORE_REF}"
+pnpm add "git+ssh://git@github.com/DH-Multimedios/cms-backend-core.git#v2.0.0"
 ```
 
 **pnpm 12 exige `allowBuilds` para el SHA Git exacto y la clasificación de scripts transitivos** antes de preparar el paquete. El cliente necesita `ts-node` como dependencia directa para los scripts TypeScript ESM. Leé [la guía ESM de instalación](./docs/backend-client/00-setup.md#autorización-de-build-al-instalar-desde-git) y usá los docs/skill de la revisión instalada. Para bases existentes, revisá el historial de migraciones antes de actualizar; nunca ejecutes el baseline a ciegas. `1.0.0` conserva su contrato CommonJS.

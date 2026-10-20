@@ -7,9 +7,9 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
-La versión ESM `2.0.0` corresponde a `main`. Hasta que se publique el tag `v2.0.0`, instalá el SHA concreto publicado de `main`; el campo `version` del paquete no crea un tag. El tag `v1.0.0` tampoco fue publicado.
+Sin cambios posteriores a `v2.0.0`. El tag `v1.0.0` no fue publicado en este repositorio.
 
-## [2.0.0] - en main, sin tag
+## [2.0.0] - 2026-10-20
 
 ### Breaking Changes
 
@@ -20,7 +20,7 @@ La versión ESM `2.0.0` corresponde a `main`. Hasta que se publique el tag `v2.0
 ### Verified locally
 
 - Instalación Git desde un commit sin `dist` rastreado, build del paquete, imports ESM, renderizado de notificaciones y documentación/skill empaquetados.
-- `test-app` ESM y base PostgreSQL nueva y aislada: migraciones empaquetadas, seeds idempotentes y arranque del contexto Nest. **No** se probó en el cliente real ni se publicó el tag.
+- `test-app` ESM y base PostgreSQL nueva y aislada: migraciones empaquetadas, seeds idempotentes y arranque del contexto Nest. **No** se probó en el cliente real.
 
 ## [1.0.0] - pendiente de publicación
 
