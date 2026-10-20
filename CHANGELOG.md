@@ -7,7 +7,20 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
-Sin cambios posteriores a la primera versión estable. El tag `v1.0.0` todavía no fue publicado: esta entrada queda preparada para la entrega del commit final en `main`, no es evidencia de que la versión pueda instalarse desde Git.
+La rama de ensayo `feat/backend-core-esm-only` prepara la versión `2.0.0`; el trabajo local no publica la rama ni crea el tag `v2.0.0`. El tag `v1.0.0` tampoco fue publicado. El campo `version` del paquete no publica por sí solo una revisión Git.
+
+## [2.0.0] - en preparación, sin tag
+
+### Breaking Changes
+
+- El paquete pasa a **ESM-only** (`"type": "module"`, TypeScript `NodeNext` y una sola entrada ESM). Los clientes nuevos deben usar ESM y imports relativos `.js`; CommonJS no es un formato de salida de esta versión. La línea `1.0.0` conserva su contrato CommonJS.
+- El core deja de versionar `dist/`: al instalar desde Git, pnpm compila el paquete con `prepare`. El consumidor de pnpm 12 debe autorizar el build del **SHA Git exacto** en `allowBuilds` y clasificar los scripts transitivos; ver [setup del cliente](./docs/backend-client/00-setup.md#autorización-de-build-al-instalar-desde-git).
+- Los scripts de TypeORM y seeds ejecutan TypeScript ESM; el verificador de instalación también usa ESM. Migraciones y seeds de un cliente existente requieren revisar su historial antes de ejecutarlos.
+
+### Verified locally
+
+- Instalación Git desde un commit sin `dist` rastreado, build del paquete, imports ESM, renderizado de notificaciones y documentación/skill empaquetados.
+- `test-app` ESM y base PostgreSQL nueva y aislada: migraciones empaquetadas, seeds idempotentes y arranque del contexto Nest. **No** se probó en el cliente real ni se publicó la rama o el tag.
 
 ## [1.0.0] - pendiente de publicación
 
