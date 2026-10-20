@@ -10,13 +10,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiCookieAuth } from '@nestjs/swagger';
-import { NotificationTypesService } from './notification-types.service';
-import { CreateNotificationTypeDto } from './dto/create-notification-type.dto';
-import { UpdateNotificationTypeDto } from './dto/update-notification-type.dto';
-import { SessionAuthGuard } from '../../auth/guards/session-auth.guard';
-import { PermissionsGuard } from '../../auth/guards/permissions.guard';
-import { RequirePermissions } from '../../auth/decorators/require-permissions.decorator';
-import { Public } from '../../auth/decorators/public.decorator';
+import { NotificationTypesService } from './notification-types.service.js';
+import { CreateNotificationTypeDto } from './dto/create-notification-type.dto.js';
+import { UpdateNotificationTypeDto } from './dto/update-notification-type.dto.js';
+import { SessionAuthGuard } from '../../auth/guards/session-auth.guard.js';
+import { PermissionsGuard } from '../../auth/guards/permissions.guard.js';
+import { RequirePermissions } from '../../auth/decorators/require-permissions.decorator.js';
+import { Public } from '../../auth/decorators/public.decorator.js';
 
 @ApiTags('Notification Types')
 @UseGuards(SessionAuthGuard, PermissionsGuard)

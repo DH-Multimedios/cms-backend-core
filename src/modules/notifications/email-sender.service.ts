@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import { Resend } from 'resend';
-import { EmailProvidersService } from '../email-providers/email-providers.service';
+import { EmailProvidersService } from '../email-providers/email-providers.service.js';
 import {
   SmtpConfig,
   GoogleOAuthConfig,
   ResendConfig,
-} from '../../database/entities/email-provider.entity';
+} from '../../database/entities/email-provider.entity.js';
 
 export interface SendEmailOptions {
   to: string;

@@ -4,13 +4,13 @@ import { Repository } from 'typeorm';
 import {
   EmailProvider,
   EmailProviderConfigUnion,
-} from '../../database/entities/email-provider.entity';
-import { AuditService } from '../audit/audit.service';
-import { PermissionsService } from '../permissions/permissions.service';
-import { CreateEmailProviderDto } from './dto/create-email-provider.dto';
-import { UpdateEmailProviderDto } from './dto/update-email-provider.dto';
-import { ApiException } from '../../common/exceptions/api.exception';
-import { ErrorCode } from '../../common/enums/error-codes.enum';
+} from '../../database/entities/email-provider.entity.js';
+import { AuditService } from '../audit/audit.service.js';
+import { PermissionsService } from '../permissions/permissions.service.js';
+import { CreateEmailProviderDto } from './dto/create-email-provider.dto.js';
+import { UpdateEmailProviderDto } from './dto/update-email-provider.dto.js';
+import { ApiException } from '../../common/exceptions/api.exception.js';
+import { ErrorCode } from '../../common/enums/error-codes.enum.js';
 
 @Injectable()
 export class EmailProvidersService implements OnModuleInit {

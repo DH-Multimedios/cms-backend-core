@@ -1,21 +1,21 @@
 import { Injectable, HttpStatus, OnModuleInit, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Setting, SettingInputType, SettingType } from '../../database/entities/setting.entity';
-import { SettingCategory } from '../../database/entities/setting-category.entity';
-import { Media } from '../../database/entities/media.entity';
-import { AuditService } from '../audit/audit.service';
-import { PermissionsService } from '../permissions/permissions.service';
-import { CreateSettingDto } from './dto/create-setting.dto';
-import { UpdateSettingDto } from './dto/update-setting.dto';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
-import { ReorderCategoriesDto } from './dto/reorder-categories.dto';
-import { SettingsQueryDto } from './dto/settings-query.dto';
-import { ApiException } from '../../common/exceptions/api.exception';
-import { ErrorCode } from '../../common/enums/error-codes.enum';
-import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
-import { generateSlug } from '../../common/utils/slug.util';
+import { Setting, SettingInputType, SettingType } from '../../database/entities/setting.entity.js';
+import { SettingCategory } from '../../database/entities/setting-category.entity.js';
+import { Media } from '../../database/entities/media.entity.js';
+import { AuditService } from '../audit/audit.service.js';
+import { PermissionsService } from '../permissions/permissions.service.js';
+import { CreateSettingDto } from './dto/create-setting.dto.js';
+import { UpdateSettingDto } from './dto/update-setting.dto.js';
+import { CreateCategoryDto } from './dto/create-category.dto.js';
+import { UpdateCategoryDto } from './dto/update-category.dto.js';
+import { ReorderCategoriesDto } from './dto/reorder-categories.dto.js';
+import { SettingsQueryDto } from './dto/settings-query.dto.js';
+import { ApiException } from '../../common/exceptions/api.exception.js';
+import { ErrorCode } from '../../common/enums/error-codes.enum.js';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface.js';
+import { generateSlug } from '../../common/utils/slug.util.js';
 
 @Injectable()
 export class SettingsService implements OnModuleInit {

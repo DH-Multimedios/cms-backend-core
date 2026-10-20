@@ -1,8 +1,8 @@
 import { IsString, IsIn, IsArray, IsBoolean, IsOptional, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { EmailLayoutType } from '../../../../database/entities/email-layout.entity';
-import { Section } from '../../../../database/entities/notification-block.types';
+import { EmailLayoutType } from '../../../../database/entities/email-layout.entity.js';
+import { Section } from '../../../../database/entities/notification-block.types.js';
 
 const LAYOUT_TYPES: EmailLayoutType[] = ['header', 'footer'];
 

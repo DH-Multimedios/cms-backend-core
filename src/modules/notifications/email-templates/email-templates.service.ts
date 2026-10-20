@@ -1,15 +1,15 @@
 import { Injectable, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { EmailTemplate } from '../../../database/entities/email-template.entity';
-import { EmailLayout } from '../../../database/entities/email-layout.entity';
-import { CreateEmailTemplateDto } from './dto/create-email-template.dto';
-import { UpdateEmailTemplateDto } from './dto/update-email-template.dto';
-import { ListEmailTemplatesDto } from './dto/list-email-templates.dto';
-import { TemplateRendererService } from '../template-renderer.service';
-import { ApiException } from '../../../common/exceptions/api.exception';
-import { ErrorCode } from '../../../common/enums/error-codes.enum';
-import { PaginatedResult } from '../../../common/interfaces/paginated-result.interface';
+import { EmailTemplate } from '../../../database/entities/email-template.entity.js';
+import { EmailLayout } from '../../../database/entities/email-layout.entity.js';
+import { CreateEmailTemplateDto } from './dto/create-email-template.dto.js';
+import { UpdateEmailTemplateDto } from './dto/update-email-template.dto.js';
+import { ListEmailTemplatesDto } from './dto/list-email-templates.dto.js';
+import { TemplateRendererService } from '../template-renderer.service.js';
+import { ApiException } from '../../../common/exceptions/api.exception.js';
+import { ErrorCode } from '../../../common/enums/error-codes.enum.js';
+import { PaginatedResult } from '../../../common/interfaces/paginated-result.interface.js';
 
 @Injectable()
 export class EmailTemplatesService {

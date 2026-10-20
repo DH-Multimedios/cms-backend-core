@@ -13,14 +13,14 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiCookieAuth, ApiQuery } from '@nestjs/swagger';
-import { SettingsService } from './settings.service';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
-import { ReorderCategoriesDto } from './dto/reorder-categories.dto';
-import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
-import { PermissionsGuard } from '../auth/guards/permissions.guard';
-import { RequirePermissions } from '../auth/decorators/require-permissions.decorator';
-import { Public } from '../auth/decorators/public.decorator';
+import { SettingsService } from './settings.service.js';
+import { CreateCategoryDto } from './dto/create-category.dto.js';
+import { UpdateCategoryDto } from './dto/update-category.dto.js';
+import { ReorderCategoriesDto } from './dto/reorder-categories.dto.js';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard.js';
+import { PermissionsGuard } from '../auth/guards/permissions.guard.js';
+import { RequirePermissions } from '../auth/decorators/require-permissions.decorator.js';
+import { Public } from '../auth/decorators/public.decorator.js';
 
 @ApiTags('Setting Categories')
 @UseGuards(SessionAuthGuard, PermissionsGuard)

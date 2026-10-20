@@ -1,15 +1,15 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { PermissionsService } from '../permissions/permissions.service';
-import { SettingsService } from '../settings/settings.service';
-import { NotificationTypesService } from './notification-types/notification-types.service';
-import { NotificationPreferencesService } from './notification-preferences/notification-preferences.service';
-import { EmailTemplatesService } from './email-templates/email-templates.service';
-import { TemplateRendererService } from './template-renderer.service';
-import { EmailSenderService } from './email-sender.service';
-import { UserCreatedEvent } from '../users/events/user-created.event';
-import { UserPasswordResetRequestedEvent } from '../users/events/user-password-reset-requested.event';
-import { UserEmailVerificationRequestedEvent } from '../users/events/user-email-verification-requested.event';
+import { PermissionsService } from '../permissions/permissions.service.js';
+import { SettingsService } from '../settings/settings.service.js';
+import { NotificationTypesService } from './notification-types/notification-types.service.js';
+import { NotificationPreferencesService } from './notification-preferences/notification-preferences.service.js';
+import { EmailTemplatesService } from './email-templates/email-templates.service.js';
+import { TemplateRendererService } from './template-renderer.service.js';
+import { EmailSenderService } from './email-sender.service.js';
+import { UserCreatedEvent } from '../users/events/user-created.event.js';
+import { UserPasswordResetRequestedEvent } from '../users/events/user-password-reset-requested.event.js';
+import { UserEmailVerificationRequestedEvent } from '../users/events/user-email-verification-requested.event.js';
 
 @Injectable()
 export class NotificationsService implements OnModuleInit {

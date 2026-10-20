@@ -1,11 +1,11 @@
 import { Injectable, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { NotificationType } from '../../../database/entities/notification-type.entity';
-import { CreateNotificationTypeDto } from './dto/create-notification-type.dto';
-import { UpdateNotificationTypeDto } from './dto/update-notification-type.dto';
-import { ApiException } from '../../../common/exceptions/api.exception';
-import { ErrorCode } from '../../../common/enums/error-codes.enum';
+import { NotificationType } from '../../../database/entities/notification-type.entity.js';
+import { CreateNotificationTypeDto } from './dto/create-notification-type.dto.js';
+import { UpdateNotificationTypeDto } from './dto/update-notification-type.dto.js';
+import { ApiException } from '../../../common/exceptions/api.exception.js';
+import { ErrorCode } from '../../../common/enums/error-codes.enum.js';
 
 @Injectable()
 export class NotificationTypesService {

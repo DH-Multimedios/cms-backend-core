@@ -1,6 +1,6 @@
 import { IsString, IsInt, IsArray, IsBoolean, IsOptional, Min } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Section } from '../../../../database/entities/notification-block.types';
+import { Section } from '../../../../database/entities/notification-block.types.js';
 
 export class CreateEmailTemplateDto {
   @ApiProperty({ example: 'user' })

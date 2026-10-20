@@ -1,12 +1,12 @@
 import { jest as jestRuntime } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { SettingsService } from './settings.service';
-import { Setting } from '../../database/entities/setting.entity';
-import { SettingCategory } from '../../database/entities/setting-category.entity';
-import { Media } from '../../database/entities/media.entity';
-import { AuditService } from '../audit/audit.service';
-import { PermissionsService } from '../permissions/permissions.service';
+import { SettingsService } from './settings.service.js';
+import { Setting } from '../../database/entities/setting.entity.js';
+import { SettingCategory } from '../../database/entities/setting-category.entity.js';
+import { Media } from '../../database/entities/media.entity.js';
+import { AuditService } from '../audit/audit.service.js';
+import { PermissionsService } from '../permissions/permissions.service.js';
 
 const jest = jestRuntime as typeof globalThis.jest;
 

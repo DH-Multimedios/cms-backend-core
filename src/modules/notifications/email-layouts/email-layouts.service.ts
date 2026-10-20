@@ -1,11 +1,11 @@
 import { Injectable, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { EmailLayout, EmailLayoutType } from '../../../database/entities/email-layout.entity';
-import { CreateEmailLayoutDto } from './dto/create-email-layout.dto';
-import { UpdateEmailLayoutDto } from './dto/update-email-layout.dto';
-import { ApiException } from '../../../common/exceptions/api.exception';
-import { ErrorCode } from '../../../common/enums/error-codes.enum';
+import { EmailLayout, EmailLayoutType } from '../../../database/entities/email-layout.entity.js';
+import { CreateEmailLayoutDto } from './dto/create-email-layout.dto.js';
+import { UpdateEmailLayoutDto } from './dto/update-email-layout.dto.js';
+import { ApiException } from '../../../common/exceptions/api.exception.js';
+import { ErrorCode } from '../../../common/enums/error-codes.enum.js';
 
 @Injectable()
 export class EmailLayoutsService {

@@ -1,7 +1,7 @@
 import { IsString, IsOptional, IsInt, Min, IsIn, ValidateNested, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { SettingType, SettingInputType, SettingMeta } from '../../../database/entities/setting.entity';
+import { SettingType, SettingInputType, SettingMeta } from '../../../database/entities/setting.entity.js';
 
 const SETTING_TYPES: SettingType[] = ['string', 'number', 'boolean', 'json', 'password'];
 const INPUT_TYPES: SettingInputType[] = [

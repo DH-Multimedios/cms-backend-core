@@ -8,10 +8,10 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { EmailProviderType } from '../../../database/entities/email-provider.entity';
-import { SmtpConfigDto } from './smtp-config.dto';
-import { ResendConfigDto } from './resend-config.dto';
-import { GoogleOAuthConfigDto } from './google-oauth-config.dto';
+import { EmailProviderType } from '../../../database/entities/email-provider.entity.js';
+import { SmtpConfigDto } from './smtp-config.dto.js';
+import { ResendConfigDto } from './resend-config.dto.js';
+import { GoogleOAuthConfigDto } from './google-oauth-config.dto.js';
 
 const PROVIDER_TYPES: EmailProviderType[] = ['smtp', 'resend', 'google-oauth'];
 

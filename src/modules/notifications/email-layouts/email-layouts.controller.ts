@@ -11,13 +11,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiCookieAuth, ApiQuery } from '@nestjs/swagger';
-import { EmailLayoutsService } from './email-layouts.service';
-import { CreateEmailLayoutDto } from './dto/create-email-layout.dto';
-import { UpdateEmailLayoutDto } from './dto/update-email-layout.dto';
-import { SessionAuthGuard } from '../../auth/guards/session-auth.guard';
-import { PermissionsGuard } from '../../auth/guards/permissions.guard';
-import { RequirePermissions } from '../../auth/decorators/require-permissions.decorator';
-import { EmailLayoutType } from '../../../database/entities/email-layout.entity';
+import { EmailLayoutsService } from './email-layouts.service.js';
+import { CreateEmailLayoutDto } from './dto/create-email-layout.dto.js';
+import { UpdateEmailLayoutDto } from './dto/update-email-layout.dto.js';
+import { SessionAuthGuard } from '../../auth/guards/session-auth.guard.js';
+import { PermissionsGuard } from '../../auth/guards/permissions.guard.js';
+import { RequirePermissions } from '../../auth/decorators/require-permissions.decorator.js';
+import { EmailLayoutType } from '../../../database/entities/email-layout.entity.js';
 
 @ApiTags('Email Layouts')
 @ApiCookieAuth('session')

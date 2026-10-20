@@ -1,11 +1,11 @@
 import { Controller, Get, Put, Body, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiCookieAuth } from '@nestjs/swagger';
-import { NotificationPreferencesService } from './notification-preferences.service';
-import { UpsertNotificationPreferenceDto } from './dto/upsert-notification-preference.dto';
-import { SessionAuthGuard } from '../../auth/guards/session-auth.guard';
-import { PermissionsGuard } from '../../auth/guards/permissions.guard';
-import { CurrentUser } from '../../auth/decorators/current-user.decorator';
-import { User } from '../../../database/entities/user.entity';
+import { NotificationPreferencesService } from './notification-preferences.service.js';
+import { UpsertNotificationPreferenceDto } from './dto/upsert-notification-preference.dto.js';
+import { SessionAuthGuard } from '../../auth/guards/session-auth.guard.js';
+import { PermissionsGuard } from '../../auth/guards/permissions.guard.js';
+import { CurrentUser } from '../../auth/decorators/current-user.decorator.js';
+import { User } from '../../../database/entities/user.entity.js';
 
 @ApiTags('Notification Preferences')
 @ApiCookieAuth('session')
