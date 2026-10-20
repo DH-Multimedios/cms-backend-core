@@ -1,18 +1,18 @@
 import { Injectable, OnModuleInit, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Taxonomy } from '../../database/entities/taxonomy.entity';
-import { EntityTaxonomy } from '../../database/entities/entity-taxonomy.entity';
-import { PermissionsService } from '../permissions/permissions.service';
-import { AuditService } from '../audit/audit.service';
-import { CreateTaxonomyDto } from './dto/create-taxonomy.dto';
-import { UpdateTaxonomyDto } from './dto/update-taxonomy.dto';
-import { QueryTaxonomyDto } from './dto/query-taxonomy.dto';
-import { ReorderTaxonomiesDto } from './dto/reorder-taxonomies.dto';
-import { ApiException } from '../../common/exceptions/api.exception';
-import { ErrorCode } from '../../common/enums/error-codes.enum';
-import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
-import { generateSlug } from '../../common/utils/slug.util';
+import { Taxonomy } from '../../database/entities/taxonomy.entity.js';
+import { EntityTaxonomy } from '../../database/entities/entity-taxonomy.entity.js';
+import { PermissionsService } from '../permissions/permissions.service.js';
+import { AuditService } from '../audit/audit.service.js';
+import { CreateTaxonomyDto } from './dto/create-taxonomy.dto.js';
+import { UpdateTaxonomyDto } from './dto/update-taxonomy.dto.js';
+import { QueryTaxonomyDto } from './dto/query-taxonomy.dto.js';
+import { ReorderTaxonomiesDto } from './dto/reorder-taxonomies.dto.js';
+import { ApiException } from '../../common/exceptions/api.exception.js';
+import { ErrorCode } from '../../common/enums/error-codes.enum.js';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface.js';
+import { generateSlug } from '../../common/utils/slug.util.js';
 
 @Injectable()
 export class TaxonomiesService implements OnModuleInit {

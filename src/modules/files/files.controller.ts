@@ -25,14 +25,14 @@ import {
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
-import { FilesService } from './files.service';
-import { UploadFileDto, UpdateFileDto, ListFilesDto } from './dto';
-import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
-import { PermissionsGuard } from '../auth/guards/permissions.guard';
-import { RequirePermissions } from '../auth/decorators/require-permissions.decorator';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { Public } from '../auth/decorators/public.decorator';
-import { User } from '../../database/entities/user.entity';
+import { FilesService } from './files.service.js';
+import { UploadFileDto, UpdateFileDto, ListFilesDto } from './dto/index.js';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard.js';
+import { PermissionsGuard } from '../auth/guards/permissions.guard.js';
+import { RequirePermissions } from '../auth/decorators/require-permissions.decorator.js';
+import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
+import { Public } from '../auth/decorators/public.decorator.js';
+import { User } from '../../database/entities/user.entity.js';
 
 @ApiTags('Files')
 @UseGuards(SessionAuthGuard, PermissionsGuard)

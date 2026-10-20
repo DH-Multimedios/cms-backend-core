@@ -1,11 +1,11 @@
 import { jest as jestRuntime } from '@jest/globals';
 import { Repository } from 'typeorm';
-import { ApiException } from '../../common/exceptions/api.exception';
-import { File } from '../../database/entities/file.entity';
-import { User } from '../../database/entities/user.entity';
-import { AuditService } from '../audit/audit.service';
-import { SettingsService } from '../settings/settings.service';
-import { FilesService } from './files.service';
+import { ApiException } from '../../common/exceptions/api.exception.js';
+import { File } from '../../database/entities/file.entity.js';
+import { User } from '../../database/entities/user.entity.js';
+import { AuditService } from '../audit/audit.service.js';
+import { SettingsService } from '../settings/settings.service.js';
+import { FilesService } from './files.service.js';
 
 const jest = jestRuntime as typeof globalThis.jest;
 

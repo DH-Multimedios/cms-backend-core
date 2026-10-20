@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-import { Media } from '../../database/entities/media.entity';
-import { MediaService } from './media.service';
-import { MediaController } from './media.controller';
-import { SettingsModule } from '../settings/settings.module';
-import { AuditModule } from '../audit/audit.module';
+import { Media } from '../../database/entities/media.entity.js';
+import { MediaService } from './media.service.js';
+import { MediaController } from './media.controller.js';
+import { SettingsModule } from '../settings/settings.module.js';
+import { AuditModule } from '../audit/audit.module.js';
 
 @Module({
   imports: [

@@ -14,16 +14,16 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiCookieAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
-import { TaxonomiesService } from './taxonomies.service';
-import { CreateTaxonomyDto } from './dto/create-taxonomy.dto';
-import { UpdateTaxonomyDto } from './dto/update-taxonomy.dto';
-import { QueryTaxonomyDto } from './dto/query-taxonomy.dto';
-import { ReorderTaxonomiesDto } from './dto/reorder-taxonomies.dto';
-import { SyncEntityTaxonomiesDto } from './dto/sync-entity-taxonomies.dto';
-import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
-import { PermissionsGuard } from '../auth/guards/permissions.guard';
-import { RequirePermissions } from '../auth/decorators/require-permissions.decorator';
-import { Public } from '../auth/decorators/public.decorator';
+import { TaxonomiesService } from './taxonomies.service.js';
+import { CreateTaxonomyDto } from './dto/create-taxonomy.dto.js';
+import { UpdateTaxonomyDto } from './dto/update-taxonomy.dto.js';
+import { QueryTaxonomyDto } from './dto/query-taxonomy.dto.js';
+import { ReorderTaxonomiesDto } from './dto/reorder-taxonomies.dto.js';
+import { SyncEntityTaxonomiesDto } from './dto/sync-entity-taxonomies.dto.js';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard.js';
+import { PermissionsGuard } from '../auth/guards/permissions.guard.js';
+import { RequirePermissions } from '../auth/decorators/require-permissions.decorator.js';
+import { Public } from '../auth/decorators/public.decorator.js';
 
 @ApiTags('Taxonomies')
 @UseGuards(SessionAuthGuard, PermissionsGuard)

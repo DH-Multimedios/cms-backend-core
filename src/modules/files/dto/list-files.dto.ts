@@ -1,6 +1,6 @@
 import { IsOptional, IsString, IsUUID, IsBoolean, IsIn } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { PaginationDto } from '../../../common/dto/pagination.dto';
+import { PaginationDto } from '../../../common/dto/pagination.dto.js';
 
 export class ListFilesDto extends PaginationDto {
   @ApiPropertyOptional({ description: 'Filtrar por categoría de uso' })

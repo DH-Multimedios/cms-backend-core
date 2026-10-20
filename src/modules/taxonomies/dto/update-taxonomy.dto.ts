@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/swagger';
-import { CreateTaxonomyDto } from './create-taxonomy.dto';
+import { CreateTaxonomyDto } from './create-taxonomy.dto.js';
 
 export class UpdateTaxonomyDto extends PartialType(CreateTaxonomyDto) {}

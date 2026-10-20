@@ -2,12 +2,12 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-import { File } from '../../database/entities/file.entity';
-import { User } from '../../database/entities/user.entity';
-import { FilesService } from './files.service';
-import { FilesController } from './files.controller';
-import { SettingsModule } from '../settings/settings.module';
-import { AuditModule } from '../audit/audit.module';
+import { File } from '../../database/entities/file.entity.js';
+import { User } from '../../database/entities/user.entity.js';
+import { FilesService } from './files.service.js';
+import { FilesController } from './files.controller.js';
+import { SettingsModule } from '../settings/settings.module.js';
+import { AuditModule } from '../audit/audit.module.js';
 
 @Module({
   imports: [
