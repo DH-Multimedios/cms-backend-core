@@ -7,7 +7,21 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
-Sin cambios posteriores a `v2.0.0`. El tag `v1.0.0` no fue publicado en este repositorio.
+### Added
+
+- Migración `1733500000103`: índice único parcial de PostgreSQL que permite como máximo una cuenta con `isSystemUser=true`, incluidas las inactivas y eliminadas lógicamente. En bases existentes, si hay varias cuentas root, la migración falla sin modificarlas: verificá y resolvé los duplicados antes de aplicarla.
+- El seed incluye cuentas root eliminadas lógicamente al comprobar unicidad. Si las credenciales de bootstrap no coinciden con una root existente, avisa y conserva su email y contraseña; no sirve para rotar credenciales.
+
+### Changed
+
+- `POST /users` y `PATCH /users/:id` solo permiten que `isSystemUser` asigne el rol `super_admin`; una cuenta común recibe `403` / `ROLE_PROTECTED` al intentarlo, incluso si tiene un rol de igual peso. Los roles base `admin` y `user` mantienen su asignación habitual. La marca `isSystemUser` no se puede asignar como rol y el bypass de permisos de root no cambia.
+- **Contrato del servicio exportado:** `UsersService.create(dto)` pasa a `UsersService.create(dto, currentUser)`, donde `currentUser` es el usuario autenticado. Los clientes que invoquen el servicio directamente deben actualizar esa llamada; el request de `POST /users` no cambió y el controlador aporta `currentUser`.
+
+### Verification
+
+- 11 suites / 83 tests y build de TypeScript aprobados; revisión nativa aprobada. El índice se comprobó por contrato SQL, **no** se aplicó a una base PostgreSQL real en esta entrega. Antes de desplegar, revisá las cuentas root existentes y probá la migración en el entorno de destino.
+
+El tag `v1.0.0` no fue publicado en este repositorio. La versión y el tag para estos cambios todavía no están definidos; `v2.0.0` sigue apuntando a la entrega anterior.
 
 ## [2.0.0] - 2026-10-20
 

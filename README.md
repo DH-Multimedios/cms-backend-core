@@ -156,16 +156,18 @@ El core incluye un sistema de usuarios con diferentes niveles:
 
 ### Usuario del sistema (`isSystemUser`)
 
-- Cuenta operacional opcional y única en la base de datos
-- Omite todas las verificaciones de permisos
+- Cuenta operacional opcional; la migración `1733500000103` garantiza como máximo una, incluso si está inactiva o eliminada lógicamente
+- Omite todas las verificaciones de permisos, independientemente de sus roles; no se asigna como rol a otros usuarios
 - Está excluida de los endpoints de gestión de usuarios, pero no debe considerarse globalmente invisible
 - Sus credenciales deben administrarse como secretos y se configuran mediante:
   - `SYSTEM_USER_EMAIL`
   - `SYSTEM_USER_PASSWORD`
+- Un nuevo valor de esas variables **no** reemplaza las credenciales de una root existente: el seed avisa y conserva la identidad. Antes de migrar una base existente, comprobá que no haya cuentas root duplicadas; el índice falla sin eliminarlas ni fusionarlas.
 
 ### SuperAdmin del cliente
 
-- Usuario con todos los permisos asignados
+- Usuario con los permisos asignados al rol `super_admin` (los permisos propios del cliente se asignan por separado); no equivale a la cuenta `isSystemUser`
+- Solo la cuenta `isSystemUser` puede asignar `super_admin` al crear o actualizar usuarios; los roles base `admin` y `user` siguen asignables
 - Visible para el usuario del sistema
 - Configurado mediante:
   - `SUPERADMIN_EMAIL`

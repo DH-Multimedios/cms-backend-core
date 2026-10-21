@@ -100,9 +100,9 @@ Crea un nuevo usuario.
 
 **Response `201`:** Usuario creado con roles asignados.
 
-**Errores:** `USER_EMAIL_TAKEN`, `USERNAME_TAKEN`, `ROLE_NOT_FOUND`, `ROLE_WEIGHT_EXCEEDED`
+**Errores:** `USER_EMAIL_TAKEN`, `USERNAME_TAKEN`, `ROLE_PROTECTED` cuando alguien que no es `isSystemUser` intenta asignar `super_admin`.
 
-> ⚠️ `ROLE_WEIGHT_EXCEEDED`: no podés asignar a un usuario un rol con más peso que el tuyo propio.
+> `roleIds` puede incluir `admin` o `user` según los permisos del endpoint; solo la cuenta `isSystemUser` puede asignar `super_admin`. Omitir `roleIds` usa el rol de menor peso. El endpoint de creación no compara el peso de los roles solicitados con el del operador: no muestres `ROLE_WEIGHT_EXCEEDED` como error propio de `POST /users`.
 
 ---
 
@@ -214,7 +214,7 @@ Actualiza un usuario. No puede cambiarse la jerarquía de roles propia.
 
 **Response `200`:** Usuario actualizado.
 
-**Errores:** `USER_NOT_FOUND`, `USER_EMAIL_TAKEN`, `USERNAME_TAKEN`, `ROLE_WEIGHT_EXCEEDED`
+**Errores:** `USER_NOT_FOUND`, `USER_EMAIL_TAKEN`, `USERNAME_TAKEN`, `ROLE_WEIGHT_EXCEEDED`, `ROLE_PROTECTED` (si una cuenta distinta de `isSystemUser` intenta asignar `super_admin`, aunque tenga el mismo peso).
 
 ---
 

@@ -52,6 +52,8 @@ entities: [...CORE_ENTITIES, ...misEntidades]
 
 `UsersModule`, `UsersService`, `UserCreatedEvent`, `UserResponseDto`, `CreateUserDto`, `UpdateUserDto`, `UpdateProfileDto`
 
+Si llamás a `UsersService` desde código propio, `create(dto, currentUser)` requiere el **usuario autenticado** como segundo argumento; `create(dto)` ya no es válido. El servicio impide que quien no sea `isSystemUser` asigne el rol `super_admin`, incluso si su peso coincide. En la API `POST /users` no cambió el body: el controlador protegido obtiene `currentUser` de la sesión.
+
 ---
 
 ## Roles & Permissions
