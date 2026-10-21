@@ -131,9 +131,17 @@ describe('UsersService', () => {
       expect(result.email).toBe('new@test.com');
     });
 
+    it('preserves default creation with the protected base user role', async () => {
+      userRepo.findOneBy.mockResolvedValue(null);
+      roleRepo.find.mockResolvedValue([{ id: 'base-user', name: 'user', isProtected: true, weight: 50 } as Role]);
+      userRepo.save.mockResolvedValue(makeUser());
+      await service.create({ email: 'new@test.com', password: 'password123' }, makeUser());
+      expect(userRepo.save).toHaveBeenCalledWith(expect.objectContaining({ roles: [expect.objectContaining({ name: 'user' })] }));
+    });
+
     it('allows root to assign a protected role on creation', async () => {
       userRepo.findOneBy.mockResolvedValue(null);
-      roleRepo.findBy.mockResolvedValue([{ id: 'protected', isProtected: true, weight: 100 } as Role]);
+      roleRepo.findBy.mockResolvedValue([{ id: 'protected', name: 'super_admin', isProtected: true, weight: 100 } as Role]);
       userRepo.save.mockResolvedValue(makeUser());
       await service.create({ email: 'new@test.com', password: 'password123', roleIds: ['protected'] }, makeSystemUser());
       expect(userRepo.save).toHaveBeenCalledWith(expect.objectContaining({ roles: [expect.objectContaining({ id: 'protected' })] }));
@@ -147,9 +155,9 @@ describe('UsersService', () => {
       ).rejects.toMatchObject({ code: ErrorCode.USER_EMAIL_TAKEN });
     });
 
-    it('rejects a protected role supplied by a non-root caller without writing', async () => {
+    it('rejects super_admin supplied by a non-root caller without writing', async () => {
       userRepo.findOneBy.mockResolvedValue(null);
-      roleRepo.findBy.mockResolvedValue([{ id: 'protected', isProtected: true, weight: 100 } as Role]);
+      roleRepo.findBy.mockResolvedValue([{ id: 'protected', name: 'super_admin', isProtected: true, weight: 100 } as Role]);
       userRepo.save.mockResolvedValue(makeUser({ email: 'new@test.com' }));
       await expect(service.create({ email: 'new@test.com', password: 'password123', roleIds: ['protected'] }, makeUser()))
         .rejects.toMatchObject({ code: ErrorCode.ROLE_PROTECTED });
@@ -192,10 +200,10 @@ describe('UsersService', () => {
       expect(result.firstName).toBe('Jane');
     });
 
-    it('rejects a protected role even at equal weight without writing', async () => {
+    it('rejects super_admin even at equal weight without writing', async () => {
       userRepo.findOne.mockResolvedValue(makeUser());
       const currentUser = makeUser({ roles: [{ weight: 100, permissions: [{ name: 'roles.update' }] } as Role] });
-      roleRepo.findBy.mockResolvedValue([{ id: 'protected', isProtected: true, weight: 100 } as Role]);
+      roleRepo.findBy.mockResolvedValue([{ id: 'protected', name: 'super_admin', isProtected: true, weight: 100 } as Role]);
       userRepo.save.mockResolvedValue(makeUser());
       await expect(service.update('user-1', { roleIds: ['protected'] }, currentUser))
         .rejects.toMatchObject({ code: ErrorCode.ROLE_PROTECTED });

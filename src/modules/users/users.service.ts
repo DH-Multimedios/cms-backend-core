@@ -210,11 +210,11 @@ export class UsersService {
       ? await this.roleRepository.findBy({ id: In(dto.roleIds) })
       : await this.roleRepository.find({ order: { weight: 'ASC' }, take: 1 });
 
-    if (!currentUser.isSystemUser && roles.some((role) => role.isProtected)) {
+    if (!currentUser.isSystemUser && roles.some((role) => role.name === 'super_admin')) {
       throw new ApiException(
         HttpStatus.FORBIDDEN,
         ErrorCode.ROLE_PROTECTED,
-        'Solo el usuario del sistema puede asignar roles protegidos',
+        'Solo el usuario del sistema puede asignar el rol super_admin',
       );
     }
 
@@ -290,11 +290,11 @@ export class UsersService {
         : [];
 
       if (!currentUser.isSystemUser) {
-        if (newRoles.some((role) => role.isProtected)) {
+        if (newRoles.some((role) => role.name === 'super_admin')) {
           throw new ApiException(
             HttpStatus.FORBIDDEN,
             ErrorCode.ROLE_PROTECTED,
-            'Solo el usuario del sistema puede asignar roles protegidos',
+            'Solo el usuario del sistema puede asignar el rol super_admin',
           );
         }
         const hasHigherRole = newRoles.some((r) => r.weight > currentMaxWeight);

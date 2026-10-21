@@ -109,7 +109,7 @@ getMyOrders(@CurrentUser() user: User) { ... }
 
 ## El usuario del sistema
 
-El usuario del sistema (`isSystemUser: true`) **bypasea todos los permisos automáticamente**. No necesitás código especial — el `PermissionsGuard` del core lo maneja.
+El usuario del sistema (`isSystemUser: true`) **bypasea todos los permisos automáticamente**. No necesitás código especial — el `PermissionsGuard` del core lo maneja. Es una única identidad reservada, no un rol asignable. Para usuarios comunes, `POST /users` y `PATCH /users/:id` rechazan la asignación del rol `super_admin`, incluso si tiene el mismo peso que el del operador. Solo la cuenta de sistema puede asignarlo. Los otros roles base (`admin` y `user`) conservan su asignación habitual; `isProtected` controla su edición, no impide asignarlos.
 
 ---
 
