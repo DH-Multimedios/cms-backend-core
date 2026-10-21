@@ -434,7 +434,7 @@ Todas las cuentas son opcionales y solo se crean cuando están definidos tanto e
 | Admin      | `ADMIN_EMAIL`, `ADMIN_PASSWORD`             | Cuenta opcional con rol `admin`.                                                                                                                                                                                |
 | Usuario    | `USER_EMAIL`, `USER_PASSWORD`               | Cuenta opcional con rol `user`.                                                                                                                                                                                 |
 
-La cuenta de sistema no ofrece una garantía de invisibilidad global. Su bypass de permisos hace que deba tratarse como una credencial operacional crítica.
+La cuenta de sistema no ofrece una garantía de invisibilidad global. Su bypass de permisos hace que deba tratarse como una credencial operacional crítica. La migración `EnforceSingleSystemUser1733500000103` impide más de una cuenta con `isSystemUser=true`, incluso si está inactiva o eliminada lógicamente. Antes de aplicar esa migración a una base existente, comprobá que no haya cuentas de sistema duplicadas: la migración falla sin modificarlas. El seed conserva la identidad de la cuenta existente; si las credenciales del entorno no coinciden, avisa y **no** cambia email ni contraseña. La rotación de credenciales requiere un procedimiento administrativo separado.
 
 ## 9. Primera ejecución y prueba de sesión
 
