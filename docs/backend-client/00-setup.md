@@ -7,7 +7,7 @@ Esta guía es el punto de partida para un **cliente nuevo con una base PostgreSQ
 ## Ruta rápida verificada
 
 - [ ] Confirmar que la base es nueva y vacía; si no lo es, acordar una migración específica antes de ejecutar comandos.
-- [ ] Instalar por SSH el tag inmutable `v2.0.0` del core ESM y consultar los docs/skill incluidos en esa versión.
+- [ ] Instalar por SSH el tag inmutable `v2.0.1` del core ESM y consultar los docs/skill incluidos en esa versión.
 - [ ] Registrar `ConfigModule.forRoot({ isGlobal: true })` antes de `CoreModule.registerAsync`.
 - [ ] Mantener `synchronize: false` y `CORE_ENTITIES` antes de las entidades del cliente.
 - [ ] Incluir migraciones empaquetadas del core y migraciones TS/JS del cliente.
@@ -41,8 +41,8 @@ GitHub puede responder sin abrir una shell interactiva; lo importante es que aut
 nest new mi-proyecto
 cd mi-proyecto
 
-# Instalar la versión ESM 2.0.0 por su tag Git inmutable.
-pnpm add "git+ssh://git@github.com/DH-Multimedios/cms-backend-core.git#v2.0.0"
+# Instalar la versión ESM 2.0.1 por su tag Git inmutable.
+pnpm add "git+ssh://git@github.com/DH-Multimedios/cms-backend-core.git#v2.0.1"
 
 pnpm add @nestjs/common@^12 @nestjs/core@^12 @nestjs/platform-express@^12
 pnpm add @nestjs/config@^12 @nestjs/swagger@^12 dotenv
@@ -52,7 +52,7 @@ pnpm add -D ts-node@^10.9.2
 
 `typeorm-ts-node-esm` y `node --loader ts-node/esm` necesitan `ts-node` como dependencia **directa** del cliente para ejecutar fuentes `.ts`; con pnpm no dependas de que llegue transitivamente. Los scripts de producción que ejecutan `.js` compilado no usan este loader.
 
-Este paquete es **ESM-only `2.0.0`** y se identifica por el tag Git inmutable `v2.0.0`, no solamente por el campo `version` del manifiesto. El lockfile del cliente fija el commit que resuelve ese tag: revisalo, guardalo junto a `package.json` y autorizá el build **del SHA exacto que indique pnpm**, no de cualquier revisión futura. Nunca muevas un tag publicado. El antiguo `1.0.0` conserva CommonJS; no se publica en un registry, por lo que `pnpm add @dh/backend-core@2.0.0` no sustituye la URL Git.
+Este paquete es **ESM-only `2.0.1`** y se identifica por el tag Git inmutable `v2.0.1`, no solamente por el campo `version` del manifiesto. El lockfile del cliente fija el commit que resuelve ese tag: revisalo, guardalo junto a `package.json` y autorizá el build **del SHA exacto que indique pnpm**, no de cualquier revisión futura. Nunca muevas un tag publicado. El antiguo `1.0.0` conserva CommonJS; no se publica en un registry, por lo que `pnpm add @dh/backend-core@2.0.1` no sustituye la URL Git.
 
 Tras instalar, el equipo encuentra esta guía en `node_modules/@dh/backend-core/docs/backend-client/00-setup.md` y el skill en `node_modules/@dh/backend-core/skills/backend-core/SKILL.md`. Para rutas de almacenamiento y autorización especializadas, consultá [Files](./files.md#storage-físico), [Media](./media.md#configuración-de-storage-en-producción) y [Permisos](./01-permissions.md); no trates ejemplos de módulos opcionales como pasos obligatorios del arranque.
 
@@ -516,10 +516,10 @@ diff .opencode/skills/backend-core/SKILL.md \
 
 ## 12. Actualizaciones deliberadas
 
-La entrega ESM `2.0.0` se identifica por `v2.0.0`. Cada actualización necesita un tag Git **nuevo e inmutable** `vMAJOR.MINOR.PATCH` que coincida con `package.json`: una corrección compatible sube PATCH (`2.0.1`), una funcionalidad compatible sube MINOR (`2.1.0`) y una ruptura de contrato sube MAJOR. Elegí solo una versión cuyo tag ya esté publicado, leé el changelog y revisá el lockfile:
+La entrega ESM actual `2.0.1` se identifica por `v2.0.1`; `v2.0.0` continúa apuntando a la entrega anterior. Cada actualización necesita un tag Git **nuevo e inmutable** `vMAJOR.MINOR.PATCH` que coincida con `package.json`. Antes de pasar de `v2.0.0` a `v2.0.1`, revisá el cambio de firma de `UsersService.create(dto, currentUser)` si tu aplicación llama directamente al servicio. Elegí solo una versión cuyo tag ya esté publicado, leé el changelog y revisá el lockfile:
 
 ```bash
-CORE_VERSION='<nueva-version-publicada>' # Por ejemplo, 2.0.1 cuando exista v2.0.1
+CORE_VERSION='2.0.1' # Reemplazá por una nueva versión publicada en futuras actualizaciones
 pnpm add "git+ssh://git@github.com/DH-Multimedios/cms-backend-core.git#v${CORE_VERSION}"
 ```
 

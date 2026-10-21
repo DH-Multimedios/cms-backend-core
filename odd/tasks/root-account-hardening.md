@@ -1,5 +1,5 @@
 # Root account hardening
-Status: complete with PostgreSQL integration check pending before deployment. Delivery branch: main (original work units on feat/root-account-hardening).
+Status: v2.0.1 prepared with PostgreSQL integration check pending before deployment. Delivery branch: main (original work units on feat/root-account-hardening).
 Scope: preserve the unique root identity and its role-independent authority; reserve super_admin assignment for root. Existing admin/user roles remain assignable.
 
 ## Specs
@@ -7,12 +7,14 @@ S1. "esta es mi cuenta personal, yo necesito poder hacer todo independiente de l
 S2. "Yo lo que quiero es un usuario para mi solo, que no se pueda asignar y pueda hacer todo"
 S3. "¿y que tenés que hacer? digo así empezamos a hacer algo"
 S4. "pero son cambios útiles, así que los dejamos. documentá todo y commit y push"
+S5. "actualizá versión y tag"
 
 ## Tasks
 T1 [S1-S2] Ensure at most one root in the database, preserve the root bypass and validate bootstrap behavior. Route: bounded writer (context backstop); commit: 2e7f64a.
 T2 [S1-S2] Reserve super_admin assignment for root without disrupting ordinary base-role assignment; preserve existing non-root behavior. Route: inline; commits: 3a1d731, 7ccf6d0.
 T3 [S1-S3] Run regression checks and independent security verification, document the root boundary and close the feature. Route: independent verifier; commit: 580874c.
 T4 [S4] Document all shipped contracts and verification limitations without choosing a release version. Route: inline; commit: d667965.
+T5 [S5] Publish the existing root hardening change as immutable v2.0.1 on main with package version, release notes and install references aligned. Route: inline; commit: release tag v2.0.1 points to this work unit.
 
 ## Log
 L1. ¿y que tenés que hacer? digo así empezamos a hacer algo
@@ -28,3 +30,5 @@ L10. Native review of target sha256:5c16622ea73a580afd5650e7c98a1b518d93bbef8b97
 L11. Owner scope correction, verbatim: "No entiendo que hiciste entonces, la idea era solamente asegurar el usuario isSystemUser eso no es un cambio mayor". No code was changed after this correction.
 L12. Owner decision, verbatim: "pero son cambios útiles, así que los dejamos. documentá todo y commit y push". Preserve the role restriction and new service signature; document them transparently. Release version/tag remains undecided.
 L13. T4 documentation structural checks: `git diff --check` exit 0; `node --test test/client-setup-docs.test.mjs test/esm-package.test.mjs` 4 passed, exit 0. Passive docs only: no meaningful RED; previously recorded 83 passing behavior tests and build are unchanged.
+L14. Owner release instruction, verbatim: "actualizá versión y tag". Owner had explicitly rejected treating the unique-root requirement as a major bump. v2.0.1 chosen for this delivery; published notes explicitly warn that direct UsersService.create callers must pass currentUser. Existing v2.0.0 must remain unchanged.
+L15. T5 RED: version/reference checks 2 failed, 2 passed, exit 1 against v2.0.0; GREEN: 4 passed, exit 0 with v2.0.1. TypeScript build exit 0; full Jest suite 11 suites, 83 tests exit 0; independent verifier found no release-content blocker. Native assessment reports reviewDue=false for the 7-path release metadata candidate; no new review started. Live PostgreSQL migration remains unverified.

@@ -7,6 +7,10 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+Sin cambios posteriores a `v2.0.1`.
+
+## [2.0.1] - 2026-10-21
+
 ### Added
 
 - Migración `1733500000103`: índice único parcial de PostgreSQL que permite como máximo una cuenta con `isSystemUser=true`, incluidas las inactivas y eliminadas lógicamente. En bases existentes, si hay varias cuentas root, la migración falla sin modificarlas: verificá y resolvé los duplicados antes de aplicarla.
@@ -21,7 +25,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 - 11 suites / 83 tests y build de TypeScript aprobados; revisión nativa aprobada. El índice se comprobó por contrato SQL, **no** se aplicó a una base PostgreSQL real en esta entrega. Antes de desplegar, revisá las cuentas root existentes y probá la migración en el entorno de destino.
 
-El tag `v1.0.0` no fue publicado en este repositorio. La versión y el tag para estos cambios todavía no están definidos; `v2.0.0` sigue apuntando a la entrega anterior.
+El tag `v1.0.0` no fue publicado en este repositorio. `v2.0.0` permanece inmutable; la aplicación consumidora debe seleccionar explícitamente `v2.0.1` y actualizar su lockfile para recibir este cambio.
 
 ## [2.0.0] - 2026-10-20
 
@@ -182,6 +186,8 @@ La versión estable se distribuirá por tags Git del repositorio privado; la pub
 
 ---
 
-[Unreleased]: https://github.com/DH-Multimedios/cms-backend-core/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/DH-Multimedios/cms-backend-core/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/DH-Multimedios/cms-backend-core/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/DH-Multimedios/cms-backend-core/releases/tag/v2.0.0
 [1.0.0]: https://github.com/DH-Multimedios/cms-backend-core/releases/tag/v1.0.0
 [0.1.0]: https://github.com/DH-Multimedios/cms-backend-core/releases/tag/v0.1.0

@@ -1,6 +1,6 @@
 {
   "name": "@dh/backend-core",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "type": "module",
   "packageManager": "pnpm@12.6.0",
   "description": "Core reutilizable para APIs en NestJS con autenticación, usuarios, roles y funcionalidades comunes",
