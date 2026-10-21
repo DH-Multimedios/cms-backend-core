@@ -12,7 +12,7 @@ S4. "pero son cambios útiles, así que los dejamos. documentá todo y commit y 
 T1 [S1-S2] Ensure at most one root in the database, preserve the root bypass and validate bootstrap behavior. Route: bounded writer (context backstop); commit: 2e7f64a.
 T2 [S1-S2] Reserve super_admin assignment for root without disrupting ordinary base-role assignment; preserve existing non-root behavior. Route: inline; commits: 3a1d731, 7ccf6d0.
 T3 [S1-S3] Run regression checks and independent security verification, document the root boundary and close the feature. Route: independent verifier; commit: 580874c.
-T4 [S4] Document all shipped contracts and verification limitations without choosing a release version. Route: inline; commit: this documentation slice (hash recorded after commit).
+T4 [S4] Document all shipped contracts and verification limitations without choosing a release version. Route: inline; commit: d667965.
 
 ## Log
 L1. ¿y que tenés que hacer? digo así empezamos a hacer algo
@@ -27,3 +27,4 @@ L9. Pre-existing hardening advisory outside this task: RolesService.update Objec
 L10. Native review of target sha256:5c16622ea73a580afd5650e7c98a1b518d93bbef8b974b4f6a412c53e10d0a99 approved and acknowledged (lineage review-666ae5c70bc888ca); one non-blocking finding: PostgreSQL index not integration-tested.
 L11. Owner scope correction, verbatim: "No entiendo que hiciste entonces, la idea era solamente asegurar el usuario isSystemUser eso no es un cambio mayor". No code was changed after this correction.
 L12. Owner decision, verbatim: "pero son cambios útiles, así que los dejamos. documentá todo y commit y push". Preserve the role restriction and new service signature; document them transparently. Release version/tag remains undecided.
+L13. T4 documentation structural checks: `git diff --check` exit 0; `node --test test/client-setup-docs.test.mjs test/esm-package.test.mjs` 4 passed, exit 0. Passive docs only: no meaningful RED; previously recorded 83 passing behavior tests and build are unchanged.
